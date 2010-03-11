@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{343924DA-C1E3-448F-A49B-52F058876F48}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mule.Core</RootNamespace>
+    <AssemblyName>Mule.Core</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <EnvironmentVariables>
+      <EnvironmentVariables />
+    </EnvironmentVariables>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddFileThread.cs" />
+    <Compile Include="AICH\AICHHash.cs" />
+    <Compile Include="AICH\AICHHashAlgo.cs" />
+    <Compile Include="AICH\AICHHashSet.cs" />
+    <Compile Include="AICH\AICHHashTree.cs" />
+    <Compile Include="AICH\AICHRequestedData.cs" />
+    <Compile Include="AICH\AICHUntrustedHash.cs" />
+    <Compile Include="AICH\Impl\AICHHashImpl.cs" />
+    <Compile Include="AICH\Impl\AICHhashSetImpl.cs" />
+    <Compile Include="AICH\Impl\AICHHashTreeImpl.cs" />
+    <Compile Include="AICH\Impl\AICHUntrustedHashImpl.cs" />
+    <Compile Include="AICH\SHA\Impl\SHAImpl.cs" />
+    <Compile Include="AICH\SHA\SHA.cs" />
+    <Compile Include="CBBRecord.cs" />
+    <Compile Include="ClientCredits.cs" />
+    <Compile Include="ClientList.cs" />
+    <Compile Include="CorruptionBlackBox.cs" />
+    <Compile Include="DownloadQueue.cs" />
+    <Compile Include="Kademlia\KadIndexed.cs" />
+    <Compile Include="Kademlia\KadUDPFirewallTester.cs" />
+    <Compile Include="Kademlia\KadPacketTracking.cs" />
+    <Compile Include="Kademlia\Preference\KadPreference.cs" />
+    <Compile Include="Kademlia\KadUDPListener.cs" />
+    <Compile Include="MapKey.cs" />
+    <Compile Include="CoreException.cs" />
+    <Compile Include="ED2K\ED2KFileTypes.cs" />
+    <Compile Include="ED2K\ED2KLink.cs" />
+    <Compile Include="ED2K\ED2KNodesListLink.cs" />
+    <Compile Include="ED2K\ED2KServerLink.cs" />
+    <Compile Include="ED2K\ED2KServerListLink.cs" />
+    <Compile Include="ED2K\Impl\ED2KFileLinkImpl.cs" />
+    <Compile Include="ED2K\Impl\ED2KFileTypesImpl.cs" />
+    <Compile Include="ED2K\Impl\ED2KLinkImpl.cs" />
+    <Compile Include="ED2K\Impl\ED2KNodesListLinkImpl.cs" />
+    <Compile Include="ED2K\Impl\ED2KServerLinkImpl.cs" />
+    <Compile Include="ED2K\Impl\ED2KServerListLinkImpl.cs" />
+    <Compile Include="ED2K\Impl\UnresolvedHostnameImpl.cs" />
+    <Compile Include="ED2K\UnresolvedHostname.cs" />
+    <Compile Include="Impl\MuleBaseObjectImpl.cs" />
+    <Compile Include="Kademlia\KadByteIO.cs" />
+    <Compile Include="Kademlia\KadClientSearcher.cs" />
+    <Compile Include="Kademlia\KadContact.cs" />
+    <Compile Include="Kademlia\KadDataIO.cs" />
+    <Compile Include="Kademlia\KadEmums.cs" />
+    <Compile Include="Kademlia\KadEngine.cs" />
+    <Compile Include="Kademlia\KadEntry.cs" />
+    <Compile Include="Kademlia\KadKeyEntry.cs" />
+    <Compile Include="Kademlia\KadKeyHash.cs" />
+    <Compile Include="Kademlia\KadLoad.cs" />
+    <Compile Include="Kademlia\KadObjectManager.cs" />
+    <Compile Include="Kademlia\KadSearch.cs" />
+    <Compile Include="Kademlia\KadSearchManager.cs" />
+    <Compile Include="Kademlia\KadSearchTerm.cs" />
+    <Compile Include="Kademlia\KadSource.cs" />
+    <Compile Include="Kademlia\KadSourceHash.cs" />
+    <Compile Include="Kademlia\KadTag.cs" />
+    <Compile Include="Kademlia\KadUDPKey.cs" />
+    <Compile Include="Kademlia\KadRoutingZone.cs" />
+    <Compile Include="Kademlia\KadUInt128.cs" />
+    <Compile Include="Kademlia\KadWordList.cs" />
+    <Compile Include="MuleBaseObject.cs" />
+    <Compile Include="MuleCollection.cs" />
+    <Compile Include="MuleEngine.cs" />
+    <Compile Include="MuleFile\AbstractFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\CollectionFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\FileDataIO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\Impl\AbstractFileImpl.cs" />
+    <Compile Include="MuleFile\Impl\CollectionFileImpl.cs" />
+    <Compile Include="MuleFile\Impl\KnownFileImpl.cs" />
+    <Compile Include="MuleFile\Impl\PartFileImpl.cs" />
+    <Compile Include="MuleFile\Impl\PendingBlockImpl.cs" />
+    <Compile Include="MuleFile\Impl\RequestedBlockImpl.cs" />
+    <Compile Include="MuleFile\Impl\SafeBufferedFileImpl.cs" />
+    <Compile Include="MuleFile\Impl\SafeFileImpl.cs" />
+    <Compile Include="MuleFile\Impl\SafeMemFileImpl.cs" />
+    <Compile Include="MuleFile\Impl\TagImpl.cs" />
+    <Compile Include="MuleFile\KnownFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\PartFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\PendingBlock.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\RequestedBlock.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\SafeBufferedFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\SafeFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\SafeMemFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\SearchFile.cs" />
+    <Compile Include="MuleFile\StatisticFile.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleFile\Tag.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MuleMD4.cs" />
+    <Compile Include="Network\ClientRequestSocket.cs" />
+    <Compile Include="Network\HttpClientRequestSocket.cs" />
+    <Compile Include="Network\PeerCacheDownloadSocket.cs" />
+    <Compile Include="Network\PeerCacheSocket.cs" />
+    <Compile Include="Network\PeerCacheUploadSocket.cs" />
+    <Compile Include="Network\ServerSocket.cs" />
+    <Compile Include="Preference\Impl\BackupUtil.cs" />
+    <Compile Include="Preference\Impl\FileCommentsImpl.cs" />
+    <Compile Include="Preference\Impl\ProxySettingsImpl.cs" />
+    <Compile Include="Preference\CorePreference.cs" />
+    <Compile Include="Preference\FileComments.cs" />
+    <Compile Include="Preference\Impl\CorePreferenceImpl.cs" />
+    <Compile Include="CoreConstants.cs" />
+    <Compile Include="CoreEnums.cs" />
+    <Compile Include="CoreObjectManager.cs" />
+    <Compile Include="Preference\CoreStats.cs" />
+    <Compile Include="CoreUtilities.cs" />
+    <Compile Include="ED2K\ED2KFileLink.cs" />
+    <Compile Include="MuleFile\Impl\FileDataIOImpl.cs" />
+    <Compile Include="Friend.cs" />
+    <Compile Include="Network\AsynchSocket\AsyncProxySocketLayer.cs" />
+    <Compile Include="Network\AsynchSocket\AsyncSocketEx.cs" />
+    <Compile Include="Network\AsynchSocket\AsyncSocketExLayer.cs" />
+    <Compile Include="Network\AsynchSocket\Impl\AsyncSocketExImpl.cs" />
+    <Compile Include="Network\EMSocket.cs" />
+    <Compile Include="Network\EncryptedStreamSocket.cs" />
+    <Compile Include="Network\Impl\EMSocketImpl.cs" />
+    <Compile Include="Network\Impl\EncryptedStreamSocketImpl.cs" />
+    <Compile Include="Preference\Impl\ServerAddressImpl.cs" />
+    <Compile Include="Preference\Impl\SharedDirectoryImpl.cs" />
+    <Compile Include="Preference\ProxySettings.cs" />
+    <Compile Include="Network\ThrottledControlSocket.cs" />
+    <Compile Include="Network\ThrottledFileSocket.cs" />
+    <Compile Include="Preference\Impl\CoreStatsImpl.cs" />
+    <Compile Include="Preference\ServerAddress.cs" />
+    <Compile Include="Preference\SharedDirectory.cs" />
+    <Compile Include="RC4Key.cs" />
+    <Compile Include="ED2K\ED2KServer.cs" />
+    <Compile Include="Scanner.cs" />
+    <Compile Include="ServerConnect.cs" />
+    <Compile Include="SharedFileList.cs" />
+    <Compile Include="UpDownClient.cs" />
+    <Compile Include="Packet.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\SharpZip\src\ICSharpCode.SharpZLib.csproj">
+      <Project>{0E7413FF-EB9E-4714-ACF2-BE3A6A7B2FFD}</Project>
+      <Name>ICSharpCode.SharpZLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CryptoPP\CryptoPP.csproj">
+      <Project>{7D22200A-DE72-47FB-873D-289F067664EB}</Project>
+      <Name>CryptoPP</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CxImage\CxImage.csproj">
+      <Project>{CDF24B9E-6F85-4B3B-A22E-E23FE301D2E1}</Project>
+      <Name>CxImage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mule.Xml\Mule.Xml.csproj">
+      <Project>{367A4CB0-2255-4C2B-9CCF-E1A51A405EED}</Project>
+      <Name>Mule.Xml</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Network\Proxy\Impl\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <GtkDesignInfo />
+      </Properties>
+    </MonoDevelop>
+    <VisualStudio />
+  </ProjectExtensions>
+</Project>

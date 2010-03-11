@@ -1,0 +1,11 @@
+syntax: glob
+Debug
+bin
+obj
+*.suo
+*.csproj.user
+Release
+*.ncb
+*.user
+Int
+a.bat

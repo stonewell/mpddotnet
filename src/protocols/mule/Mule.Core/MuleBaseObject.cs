@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mule
+namespace Mule.Core
 {
     interface MuleBaseObject
     {

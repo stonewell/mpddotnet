@@ -1,118 +1,128 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using Mule.File;
 
-namespace Mule.Core.Impl
-{
-    class MuleTask
-    {
-        public bool AddNote(Kademlia.KadEntry pEntry)
-        {
-            foreach (Kademlia.KadEntry entry in kad_entry_notes_)
-            {
-                if (entry.SourceID.Equals(pEntry.SourceID))
-                {
-                    return false;
-                }
-            }
+//namespace Mule.Core.Impl
+//{
+//    class MuleTask
+//    {
+//        AbstractFile abstractFile_ = null;
 
-            kad_entry_notes_.Insert(0, pEntry);
+//        public void LoadComment()
+//        {
+//            abstractFile_.FileComment = MuleEngine.CoreObjectManager.Preference.GetFileComment(abstractFile_.FileHash);
 
-            UpdateFileRatingCommentAvail();
+//            abstractFile_.FileRating = MuleEngine.CoreObjectManager.Preference.GetFileRating(abstractFile_.FileHash);
+//        }
 
-            return true;
-        }
+//        public bool AddNote(Kademlia.KadEntry pEntry)
+//        {
+//            foreach (Kademlia.KadEntry entry in kad_entry_notes_)
+//            {
+//                if (entry.SourceID.Equals(pEntry.SourceID))
+//                {
+//                    return false;
+//                }
+//            }
 
-        public void RefilterKadNotes()
-        {
-            RefilterKadNotes(true);
-        }
+//            kad_entry_notes_.Insert(0, pEntry);
 
-        public void RefilterKadNotes(bool bUpdate)
-        {
-            // check all availabe comments against our filter again
-            if (string.IsNullOrEmpty(MuleEngine.CoreObjectManager.Preference.CommentFilter))
-            {
-                return;
-            }
+//            UpdateFileRatingCommentAvail();
 
-            KadEntryList removed = new KadEntryList();
+//            return true;
+//        }
 
-            string[] filters =
-                MuleEngine.CoreObjectManager.Preference.CommentFilter.Split('|');
+//        public void RefilterKadNotes()
+//        {
+//            RefilterKadNotes(true);
+//        }
 
-            if (filters == null || filters.Length == 0)
-                return;
+//        public void RefilterKadNotes(bool bUpdate)
+//        {
+//            // check all availabe comments against our filter again
+//            if (string.IsNullOrEmpty(MuleEngine.CoreObjectManager.Preference.CommentFilter))
+//            {
+//                return;
+//            }
 
-            foreach (KadEntry entry in kad_entry_notes_)
-            {
-                string desc =
-                    entry.GetStrTagValue(MuleConstants.TAG_DESCRIPTION);
+//            KadEntryList removed = new KadEntryList();
 
-                if (!string.IsNullOrEmpty(desc))
-                {
-                    string strCommentLower = desc.ToLower();
+//            string[] filters =
+//                MuleEngine.CoreObjectManager.Preference.CommentFilter.Split('|');
 
-                    foreach (string filter in filters)
-                    {
-                        if (strCommentLower.IndexOf(filter) >= 0)
-                        {
-                            removed.Add(entry);
-                            break;
-                        }
-                    }
-                }
-            }
+//            if (filters == null || filters.Length == 0)
+//                return;
 
-            foreach (KadEntry entry in removed)
-                kad_entry_notes_.Remove(entry);
+//            foreach (KadEntry entry in kad_entry_notes_)
+//            {
+//                string desc =
+//                    entry.GetStrTagValue(MuleConstants.TAG_DESCRIPTION);
 
-            // untill updated rating and m_bHasComment might be wrong
-            if (bUpdate)
-            {
-                UpdateFileRatingCommentAvail();
-            }
-        }
+//                if (!string.IsNullOrEmpty(desc))
+//                {
+//                    string strCommentLower = desc.ToLower();
 
-        bool IsKadCommentSearchRunning { get; set; }
+//                    foreach (string filter in filters)
+//                    {
+//                        if (strCommentLower.IndexOf(filter) >= 0)
+//                        {
+//                            removed.Add(entry);
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
 
-        public void UpdateFileRatingCommentAvail(bool bForceUpdate)
-        {
-            bool bOldHasComment = HasComment;
-            uint uOldUserRatings = UserRating;
+//            foreach (KadEntry entry in removed)
+//                kad_entry_notes_.Remove(entry);
 
-            HasComment = false;
-            uint uRatings = 0;
-            uint uUserRatings = 0;
+//            // untill updated rating and m_bHasComment might be wrong
+//            if (bUpdate)
+//            {
+//                UpdateFileRatingCommentAvail();
+//            }
+//        }
 
-            foreach (KadEntry entry in KadNotes)
-            {
-                string desc = entry.GetStrTagValue(MuleConstants.TAG_DESCRIPTION);
+//        bool IsKadCommentSearchRunning { get; set; }
 
-                if (!HasComment && !string.IsNullOrEmpty(desc))
-                    HasComment = true;
-                uint rating = Convert.ToUInt32(entry.GetIntTagValue(MuleConstants.TAG_FILERATING));
+//        public void UpdateFileRatingCommentAvail(bool bForceUpdate)
+//        {
+//            bool bOldHasComment = HasComment;
+//            uint uOldUserRatings = UserRating;
 
-                if (rating != 0)
-                {
-                    uRatings++;
-                    uUserRatings += rating;
-                }
-            }
+//            HasComment = false;
+//            uint uRatings = 0;
+//            uint uUserRatings = 0;
 
-            if (uRatings > 0)
-                UserRating = Convert.ToUInt32(Math.Round((float)uUserRatings / (float)uRatings));
-            else
-                UserRating = 0;
+//            foreach (KadEntry entry in KadNotes)
+//            {
+//                string desc = entry.GetStrTagValue(MuleConstants.TAG_DESCRIPTION);
 
-            if (bOldHasComment != HasComment ||
-                uOldUserRatings != UserRating ||
-                bForceUpdate)
-            {
-                //TODO: File Event which File comments / user rating changes
-            }
-        }
+//                if (!HasComment && !string.IsNullOrEmpty(desc))
+//                    HasComment = true;
+//                uint rating = Convert.ToUInt32(entry.GetIntTagValue(MuleConstants.TAG_FILERATING));
 
-    }
-}
+//                if (rating != 0)
+//                {
+//                    uRatings++;
+//                    uUserRatings += rating;
+//                }
+//            }
+
+//            if (uRatings > 0)
+//                UserRating = Convert.ToUInt32(Math.Round((float)uUserRatings / (float)uRatings));
+//            else
+//                UserRating = 0;
+
+//            if (bOldHasComment != HasComment ||
+//                uOldUserRatings != UserRating ||
+//                bForceUpdate)
+//            {
+//                //TODO: File Event which File comments / user rating changes
+//            }
+//        }
+
+//    }
+//}

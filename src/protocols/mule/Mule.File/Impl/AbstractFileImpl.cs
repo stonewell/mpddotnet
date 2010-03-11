@@ -33,7 +33,6 @@ namespace Mule.File.Impl
     abstract class AbstractFileImpl : AbstractFile
     {
         #region Fields
-        private bool is_comment_loaded_ = false;
         protected TagList taglist_ = new TagList();
         #endregion
 
@@ -103,39 +102,8 @@ namespace Mule.File.Impl
             get { return HasRating && (UserRating < 2); }
         }
 
-        private string fileComment_ = string.Empty;
-        public virtual string FileComment
-        {
-            get 
-            {
-                if (!is_comment_loaded_)
-                    LoadComment();
-
-                return fileComment_; 
-            }
-
-            set
-            {
-                fileComment_ = value;
-            }
-        }
-
-        private uint fileRating_ = 0;
-        public virtual uint FileRating
-        {
-            get
-            {
-                if (!is_comment_loaded_)
-                    LoadComment();
-
-                return fileRating_;
-            }
-
-            set
-            {
-                fileRating_ = value;
-            }
-        }
+        public virtual string FileComment { get;set;}
+        public virtual uint FileRating { get;set;}
 
         public bool HasNullHash
         {
@@ -417,16 +385,7 @@ namespace Mule.File.Impl
 
         public uint GetUserRating(bool bKadSearchIndicator)
         {
-            return (bKadSearchIndicator && isKadCommentSearchRunning_) ? 6 : UserRating;
-        }
-
-        public void LoadComment()
-        {
-            fileComment_ = MuleEngine.CoreObjectManager.Preference.GetFileComment(FileHash);
-
-            fileRating_ = MuleEngine.CoreObjectManager.Preference.GetFileRating(FileHash);
-
-            is_comment_loaded_ = true;
+            return (bKadSearchIndicator) ? 6 : UserRating;
         }
 
         public virtual void SetFileName(string pszFileName,

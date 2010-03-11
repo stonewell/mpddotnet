@@ -38,6 +38,8 @@ namespace Mpd.Generic.Types
 
         bool WriteTagToFile(TagIO file);
         bool WriteTagToFile(TagIO file, Utf8StrEnum eStrEncode);
+        bool WriteNewEd2kTag(TagIO file);
+        bool WriteNewEd2kTag(TagIO file, Utf8StrEnum eStrEncode);
 
         string GetFullInfo(DbgGetFileMetaTagName fn);
     }

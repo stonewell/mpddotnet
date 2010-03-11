@@ -26,6 +26,9 @@ using Mule.Core.Network;
 using Mule.File;
 using Mule.AICH;
 using System.Collections.Generic;
+using Mule.Definitions;
+using Mpd.Generic.Types.IO;
+using Mpd.Generic.Types;
 
 namespace Mule.Core
 {

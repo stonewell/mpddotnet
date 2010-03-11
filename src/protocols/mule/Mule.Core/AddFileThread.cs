@@ -5,6 +5,7 @@ using Mule.File;
 using System.Threading;
 using Mule.Core.Impl;
 using System.IO;
+using Mule.Definitions;
 
 namespace Mule.Core
 {
@@ -38,7 +39,7 @@ namespace Mule.Core
             {
                 string filePath = Path.Combine(thread.directory_, thread.filename_);
 
-                KnownFile knownFile = thread.MuleEngine.CoreObjectManager.CreateKnownFile();
+                KnownFile knownFile = FileObjectManager.CreateKnownFile();
 
                 if (knownFile.CreateFromFile(thread.directory_, thread.filename_))
                 {

@@ -27,7 +27,7 @@ using System.Threading;
 
 namespace Mule.AICH
 {
-    class AICHHashSetStatics
+    public class AICHHashSetStatics
     {
         private List<AICHRequestedData> requestedData_ =
             new List<AICHRequestedData>();

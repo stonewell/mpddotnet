@@ -12,7 +12,7 @@ namespace Mule.Core.Preference.Impl
 
         public static void DoBackupData(string prefix, string filename)
         {
-            if (!File.Exists(filename))
+            if (!System.IO.File.Exists(filename))
                 return;
 
             string backupFileName =
@@ -23,7 +23,7 @@ namespace Mule.Core.Preference.Impl
 
             ZipFile s = null;
 
-            if (File.Exists(backupFileName))
+            if (System.IO.File.Exists(backupFileName))
             {
                 s = new ZipFile(backupFileName);
             }
@@ -76,7 +76,7 @@ namespace Mule.Core.Preference.Impl
 
                     if (!file.Equals(updateFileName))
                     {
-                        File.Delete(file);
+                        System.IO.File.Delete(file);
                     }
                 }
             }

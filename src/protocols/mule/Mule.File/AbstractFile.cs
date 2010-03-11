@@ -76,7 +76,6 @@ namespace Mule.File
 
         string FileComment { get; set; }
         uint FileRating { get; set;}
-        void LoadComment();
 
     }
 }

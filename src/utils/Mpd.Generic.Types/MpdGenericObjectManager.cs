@@ -4,16 +4,25 @@ using System.Linq;
 using System.Text;
 using Mpd.Generic.Types.IO;
 using System.Reflection;
+using Mpd.Generic.Types.IO.Impl;
 
 namespace Mpd.Generic.Types
 {
     public class MpdGenericObjectManager
     {
-        public static SafeMemFile CreateSafeMemFile(int nSize)
+        public static SafeFile OpenSafeFile(string fullpath,
+            System.IO.FileMode fileMode,
+            System.IO.FileAccess fileAccess,
+            System.IO.FileShare fileShare)
         {
-            return new IO.Impl.SafeMemFileImpl(nSize);
+            return CreateObject(typeof(SafeFileImpl), fullpath, fileMode, fileAccess, fileShare) as SafeFile;
         }
 
+        public static SafeMemFile CreateSafeMemFile(int size)
+        {
+            return CreateObject(typeof(SafeMemFileImpl), size) as SafeMemFile;
+        }
+        
         public static SafeBufferedFile CreateSafeBufferedFile(string fullname, 
             System.IO.FileMode fileMode, System.IO.FileAccess fileAccess, System.IO.FileShare fileShare)
         {
@@ -25,7 +34,7 @@ namespace Mpd.Generic.Types
             return CreateObject(typeof(Impl.TagImpl), parameters) as Tag;
         }
 
-        private static object CreateObject(Type t, params object[] parameters)
+        public static object CreateObject(Type t, params object[] parameters)
         {
             object obj = t.Assembly.CreateInstance(t.FullName,
                 true,

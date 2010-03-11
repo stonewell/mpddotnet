@@ -23,11 +23,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Xml.Serialization;
+using System.Xml.Serialization;
+using Mule.Definitions;
 
 namespace Mule.Core.Impl
 {
-    class MuleBaseObjectImpl : MuleBaseObject
+    public class MuleBaseObjectImpl : MuleBaseObject
     {
         #region Fields
         private MuleEngine muleEngine_ = null;

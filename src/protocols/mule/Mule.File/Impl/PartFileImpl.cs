@@ -79,25 +79,13 @@ namespace Mule.File.Impl
         private ulong tActivated_;
         private uint nDlActiveTime_;
         private uint tLastModified_;	// last file modification time (NT's version of UTC), to be used for stats only!
-        private uint tCreated_;			// file creation time (NT's version of UTC), to be used for stats only!
-        private uint randoupdate_wait_;
-        private volatile PartFileOpEnum eFileOp_;
-        private volatile uint uFileOpProgress_;
-        private uint lastSwapForSourceExchangeTick_; // ZZ:DownloadManaager
-        private uint lastSearchTime_;
-        private uint lastSearchTimeKad_;
-        private ulong iAllocinfo_;
-        private DateTime lastseencomplete_;
-        private System.IO.Stream hpartfile_;				// permanent opened handle to avoid write conflicts
         private System.Threading.Mutex fileCompleteMutex_ = new Mutex();		// Lord KiRon - Mutex for file completion
         private ushort[] src_stats_ = new ushort[4];
         private ushort[] net_stats_ = new ushort[3];
-        private volatile bool bPreviewing_;
-        private volatile bool bRecoveringArchive_; // Is archive recovery in progress
-        private bool bLocalSrcReqQueued_;
-        private bool srcarevisible_;				// used for downloadlistctrl
-        private bool hashsetneeded_;
-        private byte totalSearchesKad_;
+
+        private System.IO.Stream hpartfile_;
+        private uint tCreated_;
+        private DateTime lastseencomplete_;
 
         private struct MetaTagsStruct
         {
@@ -208,40 +196,6 @@ namespace Mule.File.Impl
             category_ = cat;
         }
 
-        public PartFileImpl(string edonkeylink)
-            : this(edonkeylink, 0)
-        {
-        }
-        public PartFileImpl(string edonkeylink, uint cat)
-        {
-            ED2KLink pLink = null;
-            try
-            {
-                pLink = MuleEngine.CoreObjectManager.CreateLinkFromUrl(edonkeylink);
-                ED2KFileLink pFileLink = pLink.FileLink;
-                if (pFileLink == null)
-                    throw new Exception("not a file link:" + edonkeylink);
-                InitializeFromLink(pFileLink, cat);
-            }
-            catch (Exception)
-            {
-                //TODO:LOg
-                //string strMsg;
-                //strMsg.Format(GetResString(IDownloadStateEnum.DS_ERR_INVALIDLINK), error);
-                //LogError(LOG_STATUSBAR, GetResString(IDownloadStateEnum.DS_ERR_LINKERROR), strMsg);
-                Status = PartFileStatusEnum.PS_ERROR;
-            }
-        }
-
-        public PartFileImpl(ED2KFileLink fileLink)
-            : this(fileLink, 0)
-        {
-        }
-
-        public PartFileImpl(ED2KFileLink fileLink, uint cat)
-        {
-            InitializeFromLink(fileLink, cat);
-        }
         #endregion
 
         #region PartFile Members
@@ -363,14 +317,10 @@ namespace Mule.File.Impl
         {
             if ((HashCount <= partnumber) && (PartCount > 1))
             {
-                //TODO:LogError(LOG_STATUSBAR, GetResString(IDS_ERR_HASHERRORWARNING), GetFileName());
-                hashsetneeded_ = true;
                 return true;
             }
             else if (GetPartHash(partnumber) == null && PartCount != 1)
             {
-                //TODO:LogError(LOG_STATUSBAR, GetResString(IDS_ERR_INCOMPLETEHASH), GetFileName());
-                hashsetneeded_ = true;
                 return true;
             }
             else
@@ -905,6 +855,357 @@ namespace Mule.File.Impl
             }
         }
 
+        public bool SavePartFile()
+        {
+            switch (status_)
+            {
+                case PartFileStatusEnum.PS_WAITINGFORHASH:
+                case PartFileStatusEnum.PS_HASHING:
+                    return false;
+            }
+
+            // search part file
+            if (!System.IO.File.Exists(Path.GetFileNameWithoutExtension(fullname_)))
+            {
+                //TODO:LogError(GetResString(IDS_ERR_SAVEMET) + _T(" - %s"), m_partmetfilename, GetFileName(), GetResString(IDS_ERR_PART_FNF));
+                return false;
+            }
+
+            // get filedate
+            tLastModified_ =
+                MPDUtilities.DateTime2UInt32Time(System.IO.File.GetLastWriteTime(Path.GetFileNameWithoutExtension(fullname_)));
+            if (tLastModified_ == 0)
+                tLastModified_ = 0xFFFFFFFF;
+            tUtcLastModified_ = tLastModified_;
+            if (tUtcLastModified_ == 0xFFFFFFFF)
+            {
+                //TODO:Log
+                //if (thePrefs.GetVerbose())
+                //    AddDebugLogLine(false, _T("Failed to get file date of \"%s\" (%s)"), m_partmetfilename, GetFileName());
+            }
+            else
+                MPDUtilities.AdjustNTFSDaylightFileTime(ref tUtcLastModified_, Path.GetFileNameWithoutExtension(fullname_));
+
+            string strTmpFile = fullname_;
+            strTmpFile += MuleConstants.PARTMET_TMP_EXT;
+
+            // save file data to part.met file
+            SafeBufferedFile file = null;
+
+            try
+            {
+                file =
+                    MpdGenericObjectManager.CreateSafeBufferedFile(strTmpFile, FileMode.Create, FileAccess.Write, FileShare.None);
+            }
+            catch (Exception)
+            {
+                //TODO:Log
+                return false;
+            }
+
+            try
+            {
+                //version
+                // only use 64 bit tags, when PARTFILE_VERSION_LARGEFILE is set!
+                file.WriteUInt8(IsLargeFile ? Convert.ToByte(VersionsEnum.PARTFILE_VERSION_LARGEFILE) : Convert.ToByte(VersionsEnum.PARTFILE_VERSION));
+
+                //date
+                file.WriteUInt32(tUtcLastModified_);
+
+                //hash
+                file.WriteHash16(FileHash);
+                uint parts = Convert.ToUInt32(hashlist_.Count);
+                file.WriteUInt16(Convert.ToUInt16(parts));
+                for (uint x = 0; x < parts; x++)
+                    file.WriteHash16(hashlist_[Convert.ToInt32(x)]);
+
+                uint uTagCount = 0;
+                ulong uTagCountFilePos = Convert.ToUInt64(file.Position);
+                file.WriteUInt32(uTagCount);
+
+                if (ED2KUtilities.WriteOptED2KUTF8Tag(file, FileName, MuleConstants.FT_FILENAME))
+                    uTagCount++;
+                Tag nametag =
+                    MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILENAME, FileName);
+                nametag.WriteTagToFile(file);
+                uTagCount++;
+
+                Tag sizetag =
+                    MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILESIZE,
+                    FileSize, IsLargeFile);
+                sizetag.WriteTagToFile(file);
+                uTagCount++;
+
+                if (uTransferred_ > 0)
+                {
+                    Tag transtag =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_TRANSFERRED,
+                        uTransferred_, IsLargeFile);
+                    transtag.WriteTagToFile(file);
+                    uTagCount++;
+                }
+                if (uCompressionGain_ > 0)
+                {
+                    Tag transtag =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_COMPRESSION,
+                        uCompressionGain_, IsLargeFile);
+                    transtag.WriteTagToFile(file);
+                    uTagCount++;
+                }
+                if (uCorruptionLoss_ > 0)
+                {
+                    Tag transtag =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_CORRUPTED,
+                        uCorruptionLoss_, IsLargeFile);
+                    transtag.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                if (paused_)
+                {
+                    Tag statustag = MpdGenericObjectManager.CreateTag(MuleConstants.FT_STATUS, 1);
+                    statustag.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                Tag prioritytag =
+                    MpdGenericObjectManager.CreateTag(MuleConstants.FT_DLPRIORITY,
+                    IsAutoDownPriority ? Convert.ToByte(PriorityEnum.PR_AUTO) : iDownPriority_);
+                prioritytag.WriteTagToFile(file);
+                uTagCount++;
+
+                Tag ulprioritytag =
+                    MpdGenericObjectManager.CreateTag(MuleConstants.FT_ULPRIORITY,
+                    IsAutoUpPriority ? Convert.ToByte(PriorityEnum.PR_AUTO) : UpPriority);
+                ulprioritytag.WriteTagToFile(file);
+                uTagCount++;
+
+                if (MPDUtilities.DateTime2UInt32Time(lastseencomplete_) > 0)
+                {
+                    Tag lsctag =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_LASTSEENCOMPLETE,
+                        MPDUtilities.DateTime2UInt32Time(lastseencomplete_));
+                    lsctag.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                if (category_ > 0)
+                {
+                    Tag categorytag =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_CATEGORY, category_);
+                    categorytag.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                if (LastPublishTimeKadSrc > 0)
+                {
+                    Tag kadLastPubSrc =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_KADLASTPUBLISHSRC,
+                        LastPublishTimeKadSrc);
+                    kadLastPubSrc.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                if (LastPublishTimeKadNotes > 0)
+                {
+                    Tag kadLastPubNotes =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_KADLASTPUBLISHNOTES,
+                        LastPublishTimeKadNotes);
+                    kadLastPubNotes.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                if (DlActiveTime > 0)
+                {
+                    Tag tagDlActiveTime =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_DL_ACTIVE_TIME,
+                        DlActiveTime);
+                    tagDlActiveTime.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                if (PreviewPrio)
+                {
+                    Tag tagDlPreview =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_DL_PREVIEW,
+                        PreviewPrio ? (uint)1 : (uint)0);
+                    tagDlPreview.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                // statistics
+                if (statistic_.AllTimeTransferred > 0)
+                {
+                    Tag attag1 =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_ATTRANSFERRED,
+                        Convert.ToUInt32(statistic_.AllTimeTransferred & 0xFFFFFFFF));
+                    attag1.WriteTagToFile(file);
+                    uTagCount++;
+
+                    Tag attag4 =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_ATTRANSFERREDHI,
+                        Convert.ToUInt32((statistic_.AllTimeTransferred >> 32) & 0xFFFFFFFF));
+                    attag4.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                if (statistic_.AllTimeRequests > 0)
+                {
+                    Tag attag2 =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_ATREQUESTED,
+                        statistic_.AllTimeRequests);
+                    attag2.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                if (statistic_.AllTimeAccepts > 0)
+                {
+                    Tag attag3 =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_ATACCEPTED,
+                        statistic_.AllTimeAccepts);
+                    attag3.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                if (uMaxSources_ > 0)
+                {
+                    Tag attag3 =
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_MAXSOURCES,
+                        uMaxSources_);
+                    attag3.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                // currupt part infos
+                if (corrupted_list_.Count > 0)
+                {
+                    StringBuilder strCorruptedParts = new StringBuilder();
+                    foreach (ushort tmpPart in corrupted_list_)
+                    {
+                        uint uCorruptedPart = Convert.ToUInt32(tmpPart);
+                        if (strCorruptedParts.Length > 0)
+                            strCorruptedParts.Append(",");
+                        strCorruptedParts.Append(uCorruptedPart);
+                    }
+                    Tag tagCorruptedParts = MpdGenericObjectManager.CreateTag(MuleConstants.FT_CORRUPTEDPARTS, strCorruptedParts);
+                    tagCorruptedParts.WriteTagToFile(file);
+                    uTagCount++;
+                }
+
+                //AICH Filehash
+                if (pAICHHashSet_.HasValidMasterHash && (pAICHHashSet_.Status == AICHStatusEnum.AICH_VERIFIED))
+                {
+                    Tag aichtag = MpdGenericObjectManager.CreateTag(MuleConstants.FT_AICH_HASH, pAICHHashSet_.GetMasterHash().HashString);
+                    aichtag.WriteTagToFile(file);
+                    uTagCount++;
+                }
+                for (int j = 0; j < taglist_.Count; j++)
+                {
+                    if (taglist_[j].IsStr || taglist_[j].IsInt)
+                    {
+                        taglist_[j].WriteTagToFile(file);
+                        uTagCount++;
+                    }
+                }
+
+                //gaps
+                byte[] namebuffer = new byte[10];
+                uint i_pos = 0;
+                foreach (Gap gap in gaplist_)
+                {
+                    byte[] tmpNumber = Encoding.Default.GetBytes(i_pos.ToString());
+                    namebuffer[0] = MuleConstants.FT_GAPSTART;
+                    Array.Copy(tmpNumber, 0, namebuffer, 1, tmpNumber.Length > 9 ? 9 : tmpNumber.Length);
+
+                    Tag gapstarttag = MpdGenericObjectManager.CreateTag(namebuffer, gap.start, IsLargeFile);
+                    gapstarttag.WriteTagToFile(file);
+                    uTagCount++;
+
+                    // gap start = first missing byte but gap ends = first non-missing byte in edonkey
+                    // but I think its easier to user the real limits
+                    namebuffer[0] = MuleConstants.FT_GAPEND;
+                    Tag gapendtag = MpdGenericObjectManager.CreateTag(namebuffer, gap.end + 1, IsLargeFile);
+                    gapendtag.WriteTagToFile(file);
+                    uTagCount++;
+
+                    i_pos++;
+                }
+
+                file.Seek(Convert.ToInt64(uTagCountFilePos), SeekOrigin.Begin);
+                file.WriteUInt32(uTagCount);
+                file.Seek(0, SeekOrigin.End);
+                file.Flush();
+                file.Close();
+            }
+            catch (Exception)
+            {
+                //CString strError;
+                //strError.Format(GetResString(IDS_ERR_SAVEMET), m_partmetfilename, GetFileName());
+                //TCHAR szError[MAX_CFEXP_ERRORMSG];
+                //if (error.GetErrorMessage(szError, ARRSIZE(szError))){
+                //    strError += _T(" - ");
+                //    strError += szError;
+                //}
+                //LogError(_T("%s"), strError);
+                //error.Delete();
+
+                // remove the partially written or otherwise damaged temporary file
+                // // need to close the file before removing it. call 'Abort' instead of 'Close', just to avoid an ASSERT.
+                file.Abort();
+                try
+                {
+                    System.IO.File.Delete(strTmpFile);
+                }
+                catch
+                {
+                    //TODO:Log
+                }
+                return false;
+            }
+
+            // after successfully writing the temporary part.met file...
+            try
+            {
+                System.IO.File.Delete(fullname_);
+            }
+            catch (Exception)
+            {
+                //TODO:Log
+            }
+
+            try
+            {
+                System.IO.File.Move(strTmpFile, fullname_);
+            }
+            catch (Exception)
+            {
+                //int iErrno = errno;
+                //if (thePrefs.GetVerbose())
+                //    DebugLogError(_T("Failed to move temporary part.met file \"%s\" to \"%s\" - %s"), strTmpFile, m_fullname, _tcserror(iErrno));
+
+                //CString strError;
+                //strError.Format(GetResString(IDS_ERR_SAVEMET), m_partmetfilename, GetFileName());
+                //strError += _T(" - ");
+                //strError += _tcserror(iErrno);
+                //LogError(_T("%s"), strError);
+                //TODO:Log
+                return false;
+            }
+
+            // create a backup of the successfully written part.met file
+            string bakname = fullname_ + MuleConstants.PARTMET_BAK_EXT;
+
+            try
+            {
+                System.IO.File.Copy(fullname_, bakname, false);
+            }
+            catch (Exception)
+            {
+                //TODO:Log
+            }
+
+            return true;
+        }
         #endregion
 
         #region Protected

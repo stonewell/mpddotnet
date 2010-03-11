@@ -130,9 +130,21 @@
       <Project>{CDF24B9E-6F85-4B3B-A22E-E23FE301D2E1}</Project>
       <Name>CxImage-VS2008</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\utils\Mpd.Generic.Types\Mpd.Generic.Types.csproj">
+      <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
+      <Name>Mpd.Generic.Types</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
+      <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
+      <Name>Mpd.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\kad\Kademlia\Kademlia.csproj">
       <Project>{8B4779AF-0803-4F5A-85FD-4D3CD32E6B91}</Project>
       <Name>Kademlia</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mule.Definitions\Mule.Definitions.csproj">
+      <Project>{DD446D07-5A0F-489E-9DBA-2AF66867321B}</Project>
+      <Name>Mule.Definitions</Name>
     </ProjectReference>
     <ProjectReference Include="..\Mule.ED2K\Mule.ED2K.csproj">
       <Project>{657EE7A6-8225-4D45-85A9-81CF49AC6821}</Project>

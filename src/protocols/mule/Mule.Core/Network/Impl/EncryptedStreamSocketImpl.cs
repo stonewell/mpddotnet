@@ -25,6 +25,8 @@ using System.Collections.Generic;
 using System.Text;
 using Mule.File;
 using Mule.Core.Network.AsynchSocket.Impl;
+using Mule.Definitions;
+using Mpd.Generic.Types.IO;
 
 namespace Mule.Core.Network.Impl
 {

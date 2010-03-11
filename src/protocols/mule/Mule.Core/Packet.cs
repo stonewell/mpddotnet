@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mule.Definitions;
 
 namespace Mule.Core
 {

@@ -43,12 +43,9 @@ namespace Mule.File
 
         string FilePath { get; set; }
 
-        // create date, hashset and tags from a file
-        bool CreateFromFile(string directory, string filename);
         //load date, hashset and tags from a .met file
         bool LoadFromFile(FileDataIO file);
         bool WriteToFile(FileDataIO file);
-        bool CreateAICHHashSetOnly();
 
         FileTypeEnum VerifiedFileType { get; set; }
 

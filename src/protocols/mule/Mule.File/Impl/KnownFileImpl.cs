@@ -36,6 +36,8 @@ namespace Mule.File.Impl
 {
     class KnownFileImpl : AbstractFileImpl, KnownFile
     {
+        public event EventHandler UpdatePartsInfo;
+
         #region Fields
         protected ByteArrayArray hashlist_ =
             new ByteArrayArray();
@@ -58,10 +60,6 @@ namespace Mule.File.Impl
         protected uint tUtcLastModified_;
 
         protected StatisticFile statistic_;
-        private uint nCompleteSourcesTime_;
-        private ushort nCompleteSourcesCount_;
-        private ushort nCompleteSourcesCountLo_;
-        private ushort nCompleteSourcesCountHi_;
         private ushort[] availPartFrequency_ = new ushort[1];
 
         #endregion
@@ -98,130 +96,12 @@ namespace Mule.File.Impl
             }
         }
 
-        public bool CreateFromFile(string directory, string filename)
-        {
-            FileDirectory = directory;
-            FileName = filename;
-
-            // open file
-            string strFilePath = System.IO.Path.Combine(directory, filename);
-            FilePath = strFilePath;
-
-            try
-            {
-                using (System.IO.FileStream fs = new System.IO.FileStream(strFilePath, FileMode.Open, FileAccess.Read))
-                {
-                    if ((ulong)fs.Length > MuleConstants.MAX_EMULE_FILE_SIZE)
-                    {
-                        return false;
-                    }
-
-                    FileSize = Convert.ToUInt64(fs.Length);
-
-                    availPartFrequency_ = new ushort[PartCount];
-
-                    for (uint i = 0; i < PartCount; i++)
-                        availPartFrequency_[i] = 0;
-
-                    // create hashset
-                    ulong togo = FileSize;
-                    uint hashcount;
-                    AICHHashTree pBlockAICHHashTree = null;
-                    for (hashcount = 0; togo >= MuleConstants.PARTSIZE; )
-                    {
-                        pBlockAICHHashTree =
-                            AICHHashSet.HashTree.FindHash((ulong)hashcount * MuleConstants.PARTSIZE, MuleConstants.PARTSIZE);
-
-                        byte[] newhash = new byte[16];
-
-                        try
-                        {
-                            CreateHash(fs, MuleConstants.PARTSIZE, newhash, pBlockAICHHashTree);
-                        }
-                        catch
-                        {
-                            //TODO:LogError(_T("Failed to hash file \"%s\" - %s"), strFilePath, _tcserror(errno));
-                            return false;
-                        }
-
-                        hashlist_.Add(newhash);
-                        togo -= MuleConstants.PARTSIZE;
-                        hashcount++;
-                    }
-
-                    if (togo == 0)
-                    {
-                        // sha hashtree doesnt takes hash of 0-sized data
-                        pBlockAICHHashTree = null;
-                    }
-                    else
-                    {
-                        pBlockAICHHashTree = AICHHashSet.HashTree.FindHash((ulong)hashcount * MuleConstants.PARTSIZE, togo);
-                    }
-
-                    byte[] lasthash = new byte[16];
-                    MPDUtilities.Md4Clr(lasthash);
-                    try
-                    {
-                        CreateHash(fs, togo, lasthash, pBlockAICHHashTree);
-                    }
-                    catch
-                    {
-                        //TODO:LogError(_T("Failed to hash file \"%s\" - %s"), strFilePath, _tcserror(errno));
-                        return false;
-                    }
-
-                    AICHHashSet.ReCalculateHash(false);
-                    if (AICHHashSet.VerifyHashTree(true))
-                    {
-                        AICHHashSet.Status = AICHStatusEnum.AICH_HASHSETCOMPLETE;
-                        if (!AICHHashSet.SaveHashSet())
-                        {
-                            //TODO:LogError(LOG_STATUSBAR, GetResString(IDS_SAVEACFAILED));
-                        }
-                    }
-                    else
-                    {
-                        // now something went pretty wrong
-                        //TODO:DebugLogError(LOG_STATUSBAR, _T("Failed to calculate AICH Hashset from file %s"), FileName);
-                    }
-
-                    if (hashcount == 0)
-                    {
-                        MPDUtilities.Md4Cpy(FileHash, lasthash);
-                    }
-                    else
-                    {
-                        hashlist_.Add(lasthash);
-                        byte[] buffer = new byte[hashlist_.Count * 16];
-                        for (int i = 0; i < hashlist_.Count; i++)
-                            MPDUtilities.Md4Cpy(buffer, i * 16, hashlist_[i], 0, hashlist_[i].Length);
-                        CreateHash(buffer, Convert.ToUInt64(buffer.Length), FileHash);
-                    }
-
-                    tUtcLastModified_ = MPDUtilities.DateTime2UInt32Time(System.IO.File.GetLastWriteTimeUtc(FilePath));
-                }
-            }
-            catch (FileNotFoundException/* ex*/)
-            {
-                //TODO:Log
-                return false;
-            }
-
-            // Add filetags
-            UpdateMetaDataTags();
-
-            UpdatePartsInfo();
-
-            return true;
-        }
-
         public bool LoadFromFile(FileDataIO file)
         {
             bool ret1 = LoadDateFromFile(file);
             bool ret2 = LoadHashsetFromFile(file, false);
             bool ret3 = LoadTagsFromFile(file);
-            UpdatePartsInfo();
+            UpdatePartsInfo(this, new EventArgs());
             return ret1 && ret2 && ret3 && ED2KPartHashCount == HashCount;
         }
 
@@ -241,7 +121,7 @@ namespace Mule.File.Impl
             ulong uTagCountFilePos = Convert.ToUInt64(file.Position);
             file.WriteUInt32(uTagCount);
 
-            if (MPDUtilities.WriteOptED2KUTF8Tag(file, FileName, MuleConstants.FT_FILENAME))
+            if (ED2KUtilities.WriteOptED2KUTF8Tag(file, FileName, MuleConstants.FT_FILENAME))
                 uTagCount++;
 
             Tag nametag = MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILENAME, FileName);
@@ -346,70 +226,6 @@ namespace Mule.File.Impl
             return true;
         }
 
-        public bool CreateAICHHashSetOnly()
-        {
-            pAICHHashSet_.FreeHashSet();
-
-            try
-            {
-                using (Stream file = new FileStream(FilePath, FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    // create aichhashset
-                    ulong togo = FileSize;
-                    uint hashcount;
-                    for (hashcount = 0; togo >= MuleConstants.PARTSIZE; )
-                    {
-                        AICHHashTree pBlockAICHHashTree =
-                            pAICHHashSet_.HashTree.FindHash((ulong)hashcount * MuleConstants.PARTSIZE, MuleConstants.PARTSIZE);
-
-                        if (!CreateHash(file, MuleConstants.PARTSIZE, null, pBlockAICHHashTree))
-                        {
-                            //TODO:LogError(_T("Failed to hash file \"%s\" - %s"), GetFilePath(), _tcserror(errno));
-                            return false;
-                        }
-
-                        togo -= MuleConstants.PARTSIZE;
-                        hashcount++;
-                    }
-
-                    if (togo != 0)
-                    {
-                        AICHHashTree pBlockAICHHashTree =
-                            pAICHHashSet_.HashTree.FindHash((ulong)hashcount * MuleConstants.PARTSIZE, togo);
-
-                        if (!CreateHash(file, togo, null, pBlockAICHHashTree))
-                        {
-                            //TODO:LogError(_T("Failed to hash file \"%s\" - %s"), GetFilePath(), _tcserror(errno));
-                            return false;
-                        }
-                    }
-
-                    pAICHHashSet_.ReCalculateHash(false);
-                    if (pAICHHashSet_.VerifyHashTree(true))
-                    {
-                        pAICHHashSet_.Status = AICHStatusEnum.AICH_HASHSETCOMPLETE;
-                        if (!pAICHHashSet_.SaveHashSet())
-                        {
-                            //TODO:LogError(LOG_STATUSBAR, GetResString(IDS_SAVEACFAILED));
-                        }
-                    }
-                    else
-                    {
-                        // now something went pretty wrong
-                        //TODO:DebugLogError(LOG_STATUSBAR, _T("Failed to calculate AICH Hashset from file %s"), FileName);
-                    }
-
-                }
-
-                return true;
-            }
-            catch (Exception)
-            {
-                //TODO:Log
-                return false;
-            }
-        }
-
         public FileTypeEnum VerifiedFileType
         {
             get
@@ -507,7 +323,7 @@ namespace Mule.File.Impl
                 }
 
                 // nr. of data parts
-                iPartCount_ = (ushort)(((ulong)value + (MuleConstants.PARTSIZE - 1)) / MuleConstants.PARTSIZE);
+                iPartCount_ = (ushort)(((ulong)value + (MuleConstants.PARTSIZE) - 1) / MuleConstants.PARTSIZE);
 
                 // nr. of parts to be used with OP_FILESTATUS
                 iED2KPartCount_ = (ushort)((ulong)value / MuleConstants.PARTSIZE + 1);
@@ -675,35 +491,6 @@ namespace Mule.File.Impl
             }
         }
 
-        public override string FileComment
-        {
-            get
-            {
-                return base.FileComment;
-            }
-
-            set
-            {
-                base.FileComment = value;
-
-                MuleEngine.CoreObjectManager.Preference.SetFileComment(FileHash, value);
-            }
-        }
-
-        public override uint FileRating
-        {
-            get
-            {
-                return base.FileRating;
-            }
-
-            set
-            {
-                base.FileRating = value;
-                MuleEngine.CoreObjectManager.Preference.SetFileRating(FileHash, value);
-            }
-        }
-
         public bool PublishedED2K
         {
             get
@@ -760,9 +547,6 @@ namespace Mule.File.Impl
         public void UpdateMetaDataTags()
         {
             RemoveMetaDataTags();
-
-            if (MuleEngine.CoreObjectManager.Preference.DoesExtractMetaData)
-                return;
 
             uMetaDataVer_ = MuleConstants.META_DATA_VER;
         }
@@ -994,7 +778,7 @@ namespace Mule.File.Impl
                             break;
                         }
                     default:
-                        ED2KObjectManager.ConvertED2KTag(ref newtag);
+                        ED2KUtilities.ConvertED2KTag(ref newtag);
                         if (newtag != null)
                         {
                             taglist_.Add(newtag);

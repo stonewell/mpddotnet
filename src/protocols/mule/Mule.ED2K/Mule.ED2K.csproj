@@ -53,6 +53,7 @@
     <Compile Include="ED2KServer.cs" />
     <Compile Include="ED2KServerLink.cs" />
     <Compile Include="ED2KServerListLink.cs" />
+    <Compile Include="ED2KUtilities.cs" />
     <Compile Include="Impl\ED2KFileLinkImpl.cs" />
     <Compile Include="Impl\ED2KFileTypesImpl.cs" />
     <Compile Include="Impl\ED2KLinkImpl.cs" />

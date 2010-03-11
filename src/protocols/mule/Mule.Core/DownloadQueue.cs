@@ -26,6 +26,7 @@ using System.Text;
 using Mule.File;
 using Mule.ED2K;
 using Kademlia;
+using Mpd.Generic.Types;
 
 namespace Mule.Core
 {

@@ -25,7 +25,7 @@ using System.Text;
 
 namespace Mule.Core.Preference.Impl
 {
-    [Mule.Xml.Serialization.XmlRoot("ProxySettings")]
+    [System.Xml.Serialization.XmlRoot("ProxySettings")]
     class ProxySettingsImpl : ProxySettings
     {
         private ushort Type_;
@@ -79,8 +79,8 @@ namespace Mule.Core.Preference.Impl
 
 
         #region ProxySettings Members
-        private static readonly Mule.Xml.Serialization.XmlSerializer xs_ =
-            new Mule.Xml.Serialization.XmlSerializer(typeof(ProxySettingsImpl));
+        private static readonly System.Xml.Serialization.XmlSerializer xs_ =
+            new System.Xml.Serialization.XmlSerializer(typeof(ProxySettingsImpl));
 
         public void LoadFrom(System.IO.MemoryStream ms)
         {

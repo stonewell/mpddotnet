@@ -58,6 +58,8 @@ namespace Mule.File
 
     public interface PartFile : KnownFile
     {
+        bool SavePartFile();
+
         // part.met filename (without path!)
         string PartMetFileName { get; }
 

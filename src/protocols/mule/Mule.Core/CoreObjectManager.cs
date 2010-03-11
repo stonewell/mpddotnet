@@ -34,6 +34,7 @@ using Mule.ED2K;
 using Mule.ED2K.Impl;
 using Mule.File.Impl;
 using System.Reflection;
+using Mpd.Generic.Types.IO;
 
 namespace Mule.Core
 {
@@ -69,19 +70,6 @@ namespace Mule.Core
         #endregion
 
         #region Methods
-        public SafeFile OpenSafeFile(string fullpath,
-            System.IO.FileMode fileMode,
-            System.IO.FileAccess fileAccess,
-            System.IO.FileShare fileShare)
-        {
-            return CreateObject(typeof(SafeFileImpl), fullpath, fileMode, fileAccess, fileShare) as SafeFile;
-        }
-
-        public SafeMemFile CreateSafeMemFile(int size)
-        {
-            return CreateObject(typeof(SafeMemFileImpl), size) as SafeMemFile;
-        }
-
         public CorePreference Preference
         {
             get
@@ -156,22 +144,6 @@ namespace Mule.Core
             throw new Exception("The method or operation is not implemented.");
         }
 
-        internal StatisticFile CreateStatisticFile()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-
-        public PartFile CreatePartFile(params object[] parameters)
-        {
-            return CreateObject(typeof(PartFileImpl), parameters) as PartFile;
-        }
-
-        internal SafeBufferedFile CreateSafeBufferedFile(params object[] parameters)
-        {
-            return CreateObject(typeof(SafeBufferedFileImpl), parameters) as SafeBufferedFile;
-        }
-
         internal Gap CreateGap()
         {
             throw new Exception("The method or operation is not implemented.");
@@ -180,11 +152,6 @@ namespace Mule.Core
         internal AddFileThread CreateAddFileThread()
         {
             return CreateObject(typeof(AddFileThread), null) as AddFileThread;
-        }
-
-        internal KnownFile CreateKnownFile()
-        {
-            throw new Exception("The method or operation is not implemented.");
         }
     }
 }

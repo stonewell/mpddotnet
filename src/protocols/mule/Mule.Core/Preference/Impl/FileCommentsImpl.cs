@@ -104,8 +104,8 @@ namespace Mule.Core.Preference.Impl
             }
         }
 
-        [Mule.Xml.Serialization.XmlArray]
-        [Mule.Xml.Serialization.XmlArrayItem(Type = typeof(FileCommentImpl))]
+        [System.Xml.Serialization.XmlArray]
+        [System.Xml.Serialization.XmlArrayItem(Type = typeof(FileCommentImpl))]
         public List<FileComment> Comments
         {
             get

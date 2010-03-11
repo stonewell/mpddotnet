@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Mule.Core.Network.AsynchSocket;
+using Mule.Definitions;
 
 namespace Mule.Core.Network.Impl
 {

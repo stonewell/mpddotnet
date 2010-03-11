@@ -223,7 +223,7 @@ namespace Mule.Core.Network.Impl
 
         // Download partial header
         // actually, this holds only 'PACKET_HEADER_SIZE-1' bytes.
-        private byte[] pendingHeader_ = new byte[CoreConstants.PACKET_HEADER_SIZE];
+        private byte[] pendingHeader_ = new byte[MuleConstants.PACKET_HEADER_SIZE];
         private uint pendingHeaderSize_;
 
         // Download partial packet

@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Core.File;
+using Mule.File;
 using Mule.Core.Network.AsynchSocket.Impl;
 
 namespace Mule.Core.Network.Impl

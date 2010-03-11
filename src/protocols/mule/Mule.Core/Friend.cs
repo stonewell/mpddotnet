@@ -26,7 +26,7 @@ using System.Text;
 
 using Mule.Core.Network;
 using Kademlia;
-using Mule.Core.File;
+using Mule.File;
 
 namespace Mule.Core
 {
@@ -81,7 +81,7 @@ namespace Mule.Core
         void KadSearchNodeIDByIPResult(KadClientSearchResEnum eStatus,
         char[] pachNodeID);
         void KadSearchIPByNodeIDResult(KadClientSearchResEnum eStatus,
-        uint dwIP, UInt16 nPort);
+        uint dwIP, ushort nPort);
 
         void SendMessage(string strMessage);
 

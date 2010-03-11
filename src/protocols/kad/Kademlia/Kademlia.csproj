@@ -45,10 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="KadByteIO.cs" />
     <Compile Include="KadClientSearcher.cs" />
     <Compile Include="KadContact.cs" />
-    <Compile Include="KadDataIO.cs" />
     <Compile Include="KadEmums.cs" />
     <Compile Include="KadEngine.cs" />
     <Compile Include="KadEntry.cs" />
@@ -64,14 +62,18 @@
     <Compile Include="KadSearchTerm.cs" />
     <Compile Include="KadSource.cs" />
     <Compile Include="KadSourceHash.cs" />
-    <Compile Include="KadTag.cs" />
     <Compile Include="KadUDPFirewallTester.cs" />
     <Compile Include="KadUDPKey.cs" />
     <Compile Include="KadUDPListener.cs" />
-    <Compile Include="KadUInt128.cs" />
     <Compile Include="KadWordList.cs" />
     <Compile Include="Preference\KadPreference.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\utils\Mpd.Generic.Types\Mpd.Generic.Types.csproj">
+      <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
+      <Name>Mpd.Generic.Types</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

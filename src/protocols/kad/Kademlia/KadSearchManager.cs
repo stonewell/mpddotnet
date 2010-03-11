@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Generic.Types;
 
 namespace Kademlia
 {
@@ -31,19 +32,19 @@ namespace Kademlia
         bool IsSearching(uint uSearchID);
         void StopSearch(uint uSearchID, bool bDelayDelete);
         void StopAllSearches();
-        KadSearch PrepareLookup(uint uType, bool bStart, KadUInt128 uID);
+        KadSearch PrepareLookup(uint uType, bool bStart, UInt128 uID);
         KadSearch PrepareFindKeywords(bool bUnicode, string szKeyword, uint uSearchTermsSize, byte[] pucSearchTermsData);
         bool StartSearch(KadSearch pSearch);
-        void ProcessResponse(KadUInt128 uTarget, uint uFromIP, UInt16 uFromPort, KadContactList plistResults);
-        void ProcessResult(KadUInt128 uTarget, KadUInt128 uAnswer, KadTagList plistInfo);
-        void ProcessPublishResult(KadUInt128 uTarget, byte uLoad, bool bLoadResponse);
+        void ProcessResponse(UInt128 uTarget, uint uFromIP, ushort uFromPort, KadContactList plistResults);
+        void ProcessResult(UInt128 uTarget, UInt128 uAnswer, TagList plistInfo);
+        void ProcessPublishResult(UInt128 uTarget, byte uLoad, bool bLoadResponse);
         void GetWords(string sz, KadWordList plistWords);
         void UpdateStats();
-        bool AlreadySearchingFor(KadUInt128 uTarget);
+        bool AlreadySearchingFor(UInt128 uTarget);
 
         void CancelNodeFWCheckUDPSearch();
         bool FindNodeFWCheckUDP();
-        bool IsFWCheckUDPSearch(KadUInt128 uTarget);
+        bool IsFWCheckUDPSearch(UInt128 uTarget);
         void SetNextSearchID(uint uNextID);
     }
 }

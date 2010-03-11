@@ -23,8 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Core.File;
-using Mule.Core.ED2K;
+using Mule.File;
+using Mule.ED2K;
 
 namespace Mule.Core
 {

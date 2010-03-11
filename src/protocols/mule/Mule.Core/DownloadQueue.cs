@@ -23,8 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Core.File;
-using Mule.Core.ED2K;
+using Mule.File;
+using Mule.ED2K;
 using Kademlia;
 
 namespace Mule.Core
@@ -120,8 +120,8 @@ namespace Mule.Core
         // searching in Kad
         void SetLastKademliaFileRequest();
         bool DoKademliaFileRequest();
-        void KademliaSearchFile(uint searchID, KadUInt128 pcontactID,
-            KadUInt128 pkadID,
+        void KademliaSearchFile(uint searchID, UInt128 pcontactID,
+            UInt128 pkadID,
             byte type, uint ip, ushort tcp, ushort udp,
             uint dwBuddyIP, ushort dwBuddyPort, byte byCryptOptions);
 

@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Generic.Types;
 
 namespace Kademlia
 {
@@ -35,9 +36,9 @@ namespace Kademlia
         void ReCheckFirewallUDP(bool bSetUnverified);
         bool IsFWCheckUDPRunning { get;}
         bool IsVerified { get;}
-        void AddPossibleTestContact(KadUInt128 uClientID, uint uIp, 
+        void AddPossibleTestContact(UInt128 uClientID, uint uIp, 
             ushort uUdpPort, ushort uTcpPort, 
-            KadUInt128 uTarget, byte uVersion, 
+            UInt128 uTarget, byte uVersion, 
             KadUDPKey cUDPKey, bool bIPVerified);
         // when stopping Kad
         void Reset(); 

@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Kademlia.Preference;
+using Mpd.Generic.Types;
 
 namespace Kademlia
 {
@@ -220,7 +221,7 @@ namespace Kademlia
         {
             throw new NotImplementedException();
         }
-        public void StatsAddClosestDistance(KadUInt128 uDist)
+        public void StatsAddClosestDistance(UInt128 uDist)
         {
             throw new NotImplementedException();
         }

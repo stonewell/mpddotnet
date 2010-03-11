@@ -27,8 +27,8 @@ namespace Mule.Core.Preference
 {
     public interface ProxySettings
     {
-        UInt16 Type { get; set;}
-        UInt16 Port { get; set;}
+        ushort Type { get; set;}
+        ushort Port { get; set;}
         string Name { get; set;}
         string User { get; set;}
         string Password { get; set;}

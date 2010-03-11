@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mule.Core
+namespace Mule
 {
     public sealed class MuleEngine
     {

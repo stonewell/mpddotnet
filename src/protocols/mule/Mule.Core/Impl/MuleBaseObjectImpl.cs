@@ -46,7 +46,7 @@ namespace Mule.Core.Impl
             {
                 if (muleEngine_ != null)
                 {
-                    throw new CoreException("Unable to change MuleEngine When the object already attached to a MuleEngine.");
+                    throw new MuleException("Unable to change MuleEngine When the object already attached to a MuleEngine.");
                 }
 
                 muleEngine_ = value;

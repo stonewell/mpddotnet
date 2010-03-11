@@ -23,10 +23,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Generic.Types;
 
 namespace Kademlia
 {
-    public class KadContactMap : Dictionary<KadUInt128, KadContact>
+    public class KadContactMap : Dictionary<UInt128, KadContact>
     {
     }
 
@@ -36,21 +37,21 @@ namespace Kademlia
 
     public interface KadContact
     {
-        void GetClientID(ref KadUInt128 puId);
+        void GetClientID(ref UInt128 puId);
         void GetClientID(ref string puId);
-        KadUInt128 ClientID { get; set;}
+        UInt128 ClientID { get; set;}
 
-        void GetDistance(ref KadUInt128 puDistance);
+        void GetDistance(ref UInt128 puDistance);
         void GetDistance(ref string psDistance);
-        KadUInt128 GetDistance();
+        UInt128 GetDistance();
 
         uint IPAddress { get; set; }
         void GetIPAddress(string psIp);
 
-        UInt16 TCPPort { get;set;}
+        ushort TCPPort { get;set;}
         void GetTCPPort(string psPort);
 
-        UInt16 UDPPort { get;set;}
+        ushort UDPPort { get;set;}
         void GetUDPPort(string psPort);
 
         byte GetType();

@@ -23,13 +23,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Core;
+using Mpd.Generic.Types;
 
 namespace Kademlia
 {
     public interface KadLoad
     {
-        KadUInt128 KeyID { get; set; }
+        UInt128 KeyID { get; set; }
         uint Time { get;set; }
     };
 

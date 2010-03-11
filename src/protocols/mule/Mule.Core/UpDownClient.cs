@@ -23,8 +23,8 @@
 using System;
 
 using Mule.Core.Network;
-using Mule.Core.File;
-using Mule.Core.AICH;
+using Mule.File;
+using Mule.AICH;
 using System.Collections.Generic;
 
 namespace Mule.Core
@@ -51,11 +51,11 @@ namespace Mule.Core
         uint IP { get; set; }
         bool HasLowID { get; }
         uint ConnectIP { get; }
-        UInt16 UserPort { get; set; }
+        ushort UserPort { get; set; }
         uint TransferredUp { get; }
         uint TransferredDown { get; }
         uint ServerIP { get; set; }
-        UInt16 ServerPort { get; set; }
+        ushort ServerPort { get; set; }
         byte[] UserHash { get; set;}
 
         bool HasValidHash { get; }
@@ -64,7 +64,7 @@ namespace Mule.Core
         char[] BuddyID { get; set; }
         bool HasValidBuddyID { get; }
         uint BuddyIP { get; set; }
-        UInt16 BuddyPort { get; set; }
+        ushort BuddyPort { get; set; }
         ClientSoftwareEnum ClientSoft { get; }
         string ClientSoftVer { get; }
         string ClientModVer { get; }
@@ -82,10 +82,10 @@ namespace Mule.Core
         ClientCredits Credits { get; }
         bool IsBanned { get; }
         string ClientFilename { get; set;}
-        UInt16 UDPPort { get; set;}
+        ushort UDPPort { get; set;}
         byte UDPVersion { get; }
         bool SupportsUDP { get; }
-        UInt16 KadPort { get; set;}
+        ushort KadPort { get; set;}
         byte ExtendedRequestsVersion { get; }
         void RequestSharedFileList();
         void ProcessSharedFileList(char[] pachPacket, uint nSize, string pszDirectory);
@@ -193,7 +193,7 @@ namespace Mule.Core
         uint PayloadInBuffer { get;}
 
         bool ProcessExtendedInfo(SafeMemFile packet, KnownFile tempreqfile);
-        UInt16 UpPartCount { get;}
+        ushort UpPartCount { get;}
         bool IsUpPartAvailable(uint iPart);
         byte[] UpPartStatus { get;}
         float CombinedFilePrioAndCredit { get;}
@@ -207,7 +207,7 @@ namespace Mule.Core
         void SetLastAskedTime();
         bool IsPartAvailable(uint iPart);
         byte PartStatus { get;}
-        UInt16 PartCount { get;}
+        ushort PartCount { get;}
         uint DownloadDatarate { get;}
         uint RemoteQueueRank { get;}
         void SetRemoteQueueRank(uint nr, bool bUpdateDisplay);
@@ -228,7 +228,7 @@ namespace Mule.Core
         void ClearDownloadBlockRequests();
         void SendOutOfPartReqsAndAddToWaitingQueue();
         uint CalculateDownloadRate();
-        UInt16 GetAvailablePartCount();
+        ushort GetAvailablePartCount();
         bool SwapToAnotherFile(string pszReason, bool bIgnoreNoNeeded,
                     bool ignoreSuspensions,
                     bool bRemoveCompletely,
@@ -251,7 +251,7 @@ namespace Mule.Core
         uint GetTimeUntilReask(PartFile file,
             bool allowShortReaskTime, bool useGivenNNP,
             bool givenNNP);
-        void UDPReaskACK(UInt16 nNewQR);
+        void UDPReaskACK(ushort nNewQR);
         void UDPReaskFNF();
         void UDPReaskForDownload();
         bool UDPPacketPending { get;}
@@ -267,7 +267,7 @@ namespace Mule.Core
         void InitTransferredDownMini();
         uint A4AFCount { get;}
 
-        UInt16 UpCompleteSourcesCount { get;set;}
+        ushort UpCompleteSourcesCount { get;set;}
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Chat
@@ -308,7 +308,7 @@ namespace Mule.Core
         // AICH Stuff
         AICHHash ReqFileAICHHash { get;set;}
         bool IsSupportingAICH { get;}
-        void SendAICHRequest(PartFile pForFile, UInt16 nPart);
+        void SendAICHRequest(PartFile pForFile, ushort nPart);
         bool IsAICHReqPending { get;}
         void ProcessAICHAnswer(char[] packet, uint size);
         void ProcessAICHRequest(char[] packet, uint size);

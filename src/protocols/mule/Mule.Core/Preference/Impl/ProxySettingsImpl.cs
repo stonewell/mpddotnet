@@ -28,15 +28,15 @@ namespace Mule.Core.Preference.Impl
     [Mule.Xml.Serialization.XmlRoot("ProxySettings")]
     class ProxySettingsImpl : ProxySettings
     {
-        private UInt16 Type_;
-        public UInt16 Type
+        private ushort Type_;
+        public ushort Type
         {
             get { return Type_; }
             set { Type_ = value; }
         }
 
-        private UInt16 Port_;
-        public UInt16 Port
+        private ushort Port_;
+        public ushort Port
         {
             get { return Port_; }
             set { Port_ = value; }

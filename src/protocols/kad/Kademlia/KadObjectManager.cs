@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Generic.Types;
 
 namespace Kademlia
 {
@@ -44,7 +45,7 @@ namespace Kademlia
             return new KadWordList();
         }
 
-        public KadUInt128 CreateUInt128(object p)
+        public UInt128 CreateUInt128(object p)
         {
             throw new Exception("The method or operation is not implemented.");
         }

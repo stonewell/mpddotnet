@@ -23,11 +23,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Core.File;
+using Mpd.Generic.Types;
 
 namespace Kademlia
 {
-    class KadSearchMap : Dictionary<KadUInt128, KadSearch>
+    class KadSearchMap : Dictionary<UInt128, KadSearch>
     {
     }
 
@@ -50,7 +50,7 @@ namespace Kademlia
     public interface KadSearch
     {
         uint SearchTypes { get;set;}
-        KadUInt128 TargetId { get; set; }
+        UInt128 TargetId { get; set; }
         string FileName { get; set; }
         KadClientSearcher NodeSpecialSearchRequester { get;set;}
 
@@ -66,8 +66,7 @@ namespace Kademlia
 
         void SetSearchTermData(byte[] pucSearchTermsData);
 
-        void AddFileID(KadUInt128 uID);
-        void PreparePacketForTags(KadByteIO pbyPacket, KnownFile pFile);
+        void AddFileID(UInt128 uID);
         bool Stoping();
         void UpdateNodeLoad(byte uLoad);
     }

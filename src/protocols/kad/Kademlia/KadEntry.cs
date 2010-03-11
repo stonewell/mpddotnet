@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Generic.Types;
+using Mpd.Generic.Types.IO;
 
 namespace Kademlia
 {
@@ -32,8 +34,6 @@ namespace Kademlia
 
     public interface KadEntry
     {
-        bool IsKeyEntry { get; }
-
         KadEntry Copy();
 
         ulong GetIntTagValue(string strTagName/*, bool bIncludeVirtualTags = true*/);
@@ -41,10 +41,10 @@ namespace Kademlia
         bool GetIntTagValue(string strTagName, ref ulong rValue/*, bool bIncludeVirtualTags = true*/);
         bool GetIntTagValue(string strTagName, ref ulong rValue, bool bIncludeVirtualTags);
         string GetStrTagValue(string strTagName);
-        void AddTag(KadTag pTag);
+        void AddTag(Tag pTag);
         // Adds filename and size to the count if not empty, even if they are not stored as tags
         uint TagCount { get; }
-        void WriteTagList(KadDataIO pData);
+        void WriteTagList(TagIO pData);
 
         string CommonFileNameLowerCase { get; }
         string CommonFileName { get; }
@@ -53,8 +53,8 @@ namespace Kademlia
         uint IP { get; set; }
         ushort TCPPort { get; set; }
         ushort UDPPort { get; set; }
-        KadUInt128 KeyID { get; set; }
-        KadUInt128 SourceID { get; set; }
+        UInt128 KeyID { get; set; }
+        UInt128 SourceID { get; set; }
         ulong Size { get; set; }
         ulong Lifetime { get; set; }
         bool Source { get; set; }

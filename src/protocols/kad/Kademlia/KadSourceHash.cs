@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Core;
+using Mpd.Generic.Types;
 
 namespace Kademlia
 {
@@ -33,7 +33,7 @@ namespace Kademlia
 
     public interface KadSourceHash
     {
-        KadUInt128 KeyID { get; set; }
+        UInt128 KeyID { get; set; }
         KadSourceList SourceList { get; set;}
     }
 }

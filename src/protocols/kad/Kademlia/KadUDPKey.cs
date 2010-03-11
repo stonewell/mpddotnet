@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Core.File;
 
 namespace Kademlia
 {
@@ -31,7 +30,5 @@ namespace Kademlia
     {
         uint GetKeyValue(uint dwMyIP);
         bool IsEmpty { get; }
-        void StoreToFile(FileDataIO file);
-        void ReadFromFile(FileDataIO file);
     }
 }

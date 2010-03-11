@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Mule.Core.Network;
-using Mule.Core.ED2K;
+using Mule.ED2K;
 
 namespace Mule.Core
 {

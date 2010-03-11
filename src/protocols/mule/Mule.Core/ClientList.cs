@@ -70,7 +70,7 @@ namespace Mule.Core
 	// Kad client list, buddy handling
 	bool	RequestTCP(KadContact contact, byte byConnectOptions);
 	void	RequestBuddy(KadContact contact, byte byConnectOptions);
-	bool	IncomingBuddy(KadContact contact, KadUInt128 buddyID);
+	bool	IncomingBuddy(KadContact contact, UInt128 buddyID);
 	void	RemoveFromKadList(UpDownClient torem);
 	void	AddToKadList(UpDownClient toadd);
 	bool	DoRequestFirewallCheckUDP( KadContact contact);

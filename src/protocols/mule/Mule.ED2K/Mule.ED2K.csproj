@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{657EE7A6-8225-4D45-85A9-81CF49AC6821}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mule.ED2K</RootNamespace>
+    <AssemblyName>Mule.ED2K</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ED2KFileLink.cs" />
+    <Compile Include="ED2KFileTypes.cs" />
+    <Compile Include="ED2KLink.cs" />
+    <Compile Include="ED2KNodesListLink.cs" />
+    <Compile Include="ED2KObjectManager.cs" />
+    <Compile Include="ED2KServer.cs" />
+    <Compile Include="ED2KServerLink.cs" />
+    <Compile Include="ED2KServerListLink.cs" />
+    <Compile Include="Impl\ED2KFileLinkImpl.cs" />
+    <Compile Include="Impl\ED2KFileTypesImpl.cs" />
+    <Compile Include="Impl\ED2KLinkImpl.cs" />
+    <Compile Include="Impl\ED2KNodesListLinkImpl.cs" />
+    <Compile Include="Impl\ED2KServerLinkImpl.cs" />
+    <Compile Include="Impl\ED2KServerListLinkImpl.cs" />
+    <Compile Include="Impl\UnresolvedHostnameImpl.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnresolvedHostname.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\utils\Mpd.Generic.Types\Mpd.Generic.Types.csproj">
+      <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
+      <Name>Mpd.Generic.Types</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
+      <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
+      <Name>Mpd.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mule.Definitions\Mule.Definitions.csproj">
+      <Project>{DD446D07-5A0F-489E-9DBA-2AF66867321B}</Project>
+      <Name>Mule.Definitions</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mult.AICH\Mule.AICH.csproj">
+      <Project>{0791661F-B28A-4E8A-B62D-650E7891AA4A}</Project>
+      <Name>Mule.AICH</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

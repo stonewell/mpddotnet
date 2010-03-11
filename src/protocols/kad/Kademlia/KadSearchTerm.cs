@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Generic.Types;
 
 namespace Kademlia
 {
@@ -44,7 +45,7 @@ namespace Kademlia
     public interface KadSearchTerm
     {
         SearchTermTypeEnum TermType { get; set; }
-        KadTag Tag { get; set; }
+        Tag Tag { get; set; }
         List<string> SearchStrings { get; set;}
 
         KadSearchTerm Left { get; set; }

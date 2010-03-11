@@ -39,7 +39,7 @@ namespace Mule.Core
         public uint nLastSeen;
         public uint nUploadedHi;	// upload high 32
         public uint nDownloadedHi;	// download high 32
-        public UInt16 nReserved3;
+        public ushort nReserved3;
     };
 
     public class CreditStruct
@@ -58,7 +58,7 @@ namespace Mule.Core
         public uint nLastSeen;
         public uint nUploadedHi;	// upload high 32
         public uint nDownloadedHi;	// download high 32
-        public UInt16 nReserved3;
+        public ushort nReserved3;
         public byte nKeySize;
         public byte[] abySecureIdent;
     };

@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Generic.Types.IO;
 
 namespace Kademlia
 {
@@ -32,9 +33,11 @@ namespace Kademlia
         void MergeIPsAndFilenames(KadKeyEntry pFromEntry);
         void CleanUpTrackedPublishers();
         float GetTrustValue();
-        void WritePublishTrackingDataToFile(KadDataIO pData);
-        void ReadPublishTrackingDataFromFile(KadDataIO pData);
+
+        void WritePublishTrackingDataToFile(TagIO pData);
+        void ReadPublishTrackingDataFromFile(TagIO pData);
+        void WriteTagListWithPublishInfo(TagIO pData);
+
         void DirtyDeletePublishData();
-        void WriteTagListWithPublishInfo(KadDataIO pData);
     }
 }

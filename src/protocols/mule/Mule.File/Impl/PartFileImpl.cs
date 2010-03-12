@@ -581,7 +581,7 @@ namespace Mule.File.Impl
 
         public bool AllowSwapForSourceExchange
         {
-            get { throw new Exception("The method or operation is not implemented."); }
+            get;set;
         }
 
         public void SetSwapForSourceExchangeTick()
@@ -621,6 +621,639 @@ namespace Mule.File.Impl
         }
 
         public bool PreviewPriority { get; set; }
+
+        public bool LoadPartFile(string in_directory, string in_filename, bool getsizeonly)
+        {
+            bool isnewstyle;
+            byte version;
+            PartFileFormatEnum partmettype = PartFileFormatEnum.PMT_UNKNOWN;
+
+            Dictionary<uint, Gap> gap_map = new Dictionary<uint, Gap>(); // Slugfiller
+
+            Transferred = 0;
+            PartMetFileName = in_filename;
+            FileDirectory = (in_directory);
+            FullName = System.IO.Path.Combine(FileDirectory, PartMetFileName);
+
+            // readfile data form part.met file
+            SafeBufferedFile metFile = null;
+
+            try
+            {
+                metFile =
+                    MpdGenericObjectManager.CreateSafeBufferedFile(FullName,
+                        FileMode.Open, FileAccess.Read, FileShare.Read);
+            }
+            catch (Exception)
+            {
+                //TODO:Log
+                return false;
+            }
+
+            try
+            {
+                version = metFile.ReadUInt8();
+
+                if (version != Convert.ToByte(VersionsEnum.PARTFILE_VERSION) &&
+                    version != Convert.ToByte(VersionsEnum.PARTFILE_SPLITTEDVERSION) &&
+                    version != Convert.ToByte(VersionsEnum.PARTFILE_VERSION_LARGEFILE))
+                {
+                    metFile.Close();
+                    if (version == Convert.ToByte(83))
+                    {
+                        return ImportShareazaTempfile(in_directory, in_filename, getsizeonly);
+                    }
+                    //TODO:LogError(LOG_STATUSBAR, GetResString(IDS_ERR_BADMETVERSION), partmetfilename_, FileName);
+                    return false;
+                }
+
+                isnewstyle = (version == Convert.ToByte(VersionsEnum.PARTFILE_SPLITTEDVERSION));
+                partmettype = isnewstyle ? PartFileFormatEnum.PMT_SPLITTED : PartFileFormatEnum.PMT_DEFAULTOLD;
+                if (!isnewstyle)
+                {
+                    byte[] test = new byte[4];
+                    metFile.Seek(24, SeekOrigin.Begin);
+                    metFile.Read(test);
+
+                    metFile.Seek(1, SeekOrigin.Begin);
+
+                    if (test[0] == Convert.ToByte(0) &&
+                        test[1] == Convert.ToByte(0) &&
+                        test[2] == Convert.ToByte(2) &&
+                        test[3] == Convert.ToByte(1))
+                    {
+                        isnewstyle = true;	// edonkeys so called "old part style"
+                        partmettype = PartFileFormatEnum.PMT_NEWOLD;
+                    }
+                }
+
+                if (isnewstyle)
+                {
+                    byte[] tmpBuf = new byte[4];
+                    metFile.Read(tmpBuf);
+
+                    uint temp = BitConverter.ToUInt32(tmpBuf, 0);
+
+                    if (temp == 0)
+                    {	// 0.48 partmets - different again
+                        LoadHashsetFromFile(metFile, false);
+                    }
+                    else
+                    {
+                        byte[] gethash = new byte[16];
+                        metFile.Seek(2, SeekOrigin.Begin);
+                        LoadDateFromFile(metFile);
+                        metFile.Read(gethash);
+                        MPDUtilities.Md4Cpy(FileHash, gethash);
+                    }
+                }
+                else
+                {
+                    LoadDateFromFile(metFile);
+                    LoadHashsetFromFile(metFile, false);
+                }
+
+                uint tagcount = metFile.ReadUInt32();
+                for (uint j = 0; j < tagcount; j++)
+                {
+                    Tag newtag = MpdGenericObjectManager.CreateTag(metFile, false);
+                    if (!getsizeonly ||
+                        (getsizeonly &&
+                        (newtag.NameID == MuleConstants.FT_FILESIZE ||
+                        newtag.NameID == MuleConstants.FT_FILENAME)))
+                    {
+                        switch (newtag.NameID)
+                        {
+                            case MuleConstants.FT_FILENAME:
+                                {
+                                    if (!newtag.IsStr)
+                                    {
+                                        //TODO:Log
+                                        return false;
+                                    }
+                                    if (string.IsNullOrEmpty(FileName))
+                                        FileName = newtag.Str;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_LASTSEENCOMPLETE:
+                                {
+                                    if (newtag.IsInt)
+                                        LastSeenComplete = MPDUtilities.UInt32ToDateTime(newtag.Int);
+
+                                    break;
+                                }
+                            case MuleConstants.FT_FILESIZE:
+                                {
+                                    if (newtag.IsInt64(true))
+                                        FileSize = newtag.Int64;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_TRANSFERRED:
+                                {
+                                    if (newtag.IsInt64(true))
+                                        Transferred = newtag.Int64;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_COMPRESSION:
+                                {
+                                    //ASSERT( newtag.IsInt64(true) );
+                                    if (newtag.IsInt64(true))
+                                        CompressionGain = newtag.Int64;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_CORRUPTED:
+                                {
+                                    //ASSERT( newtag.IsInt64() );
+                                    if (newtag.IsInt64())
+                                        CorruptionLoss = newtag.Int64;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_FILETYPE:
+                                {
+                                    //ASSERT( newtag.IsStr );
+                                    if (newtag.IsStr)
+                                        FileType = newtag.Str;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_CATEGORY:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                        Category = newtag.Int;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_MAXSOURCES:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                        MaxSources = newtag.Int;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_DLPRIORITY:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                    {
+                                        if (!isnewstyle)
+                                        {
+                                            DownPriority = Convert.ToByte(newtag.Int);
+                                            if (DownPriority == Convert.ToByte(PriorityEnum.PR_AUTO))
+                                            {
+                                                DownPriority = Convert.ToByte(PriorityEnum.PR_HIGH);
+                                                IsAutoDownPriority = true;
+                                            }
+                                            else
+                                            {
+                                                if (DownPriority != Convert.ToByte(PriorityEnum.PR_LOW) &&
+                                                    DownPriority != Convert.ToByte(PriorityEnum.PR_NORMAL) &&
+                                                    DownPriority != Convert.ToByte(PriorityEnum.PR_HIGH))
+                                                    DownPriority = Convert.ToByte(PriorityEnum.PR_NORMAL);
+                                                IsAutoDownPriority = false;
+                                            }
+                                        }
+                                    }
+
+                                    break;
+                                }
+                            case MuleConstants.FT_STATUS:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                    {
+                                        Paused = newtag.Int != 0;
+                                        IsStopped = Paused;
+                                    }
+
+                                    break;
+                                }
+                            case MuleConstants.FT_ULPRIORITY:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                    {
+                                        if (!isnewstyle)
+                                        {
+                                            int iUpPriority = Convert.ToInt32(newtag.Int);
+                                            if (iUpPriority == Convert.ToInt32(PriorityEnum.PR_AUTO))
+                                            {
+                                                SetUpPriority(Convert.ToByte(PriorityEnum.PR_HIGH), false);
+                                                IsAutoUpPriority = true;
+                                            }
+                                            else
+                                            {
+                                                if (iUpPriority != Convert.ToInt32(PriorityEnum.PR_VERYLOW) &&
+                                                    iUpPriority != Convert.ToInt32(PriorityEnum.PR_LOW) &&
+                                                    iUpPriority != Convert.ToInt32(PriorityEnum.PR_NORMAL) &&
+                                                    iUpPriority != Convert.ToInt32(PriorityEnum.PR_HIGH) &&
+                                                    iUpPriority != Convert.ToInt32(PriorityEnum.PR_VERYHIGH))
+                                                    iUpPriority = Convert.ToInt32(PriorityEnum.PR_NORMAL);
+                                                SetUpPriority(Convert.ToByte(iUpPriority), false);
+                                                IsAutoUpPriority = false;
+                                            }
+                                        }
+                                    }
+
+                                    break;
+                                }
+                            case MuleConstants.FT_KADLASTPUBLISHSRC:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                    {
+                                        LastPublishTimeKadSrc = newtag.Int;
+                                        LastPublishBuddy = 0;
+
+                                        if (LastPublishTimeKadSrc > MPDUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMES)
+                                        {
+                                            //There may be a posibility of an older client that saved a random number here.. This will check for that..
+                                            LastPublishTimeKadSrc = 0;
+                                            LastPublishBuddy = 0;
+                                        }
+                                    }
+
+                                    break;
+                                }
+                            case MuleConstants.FT_KADLASTPUBLISHNOTES:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                    {
+                                        LastPublishTimeKadNotes = newtag.Int;
+                                    }
+
+                                    break;
+                                }
+                            case MuleConstants.FT_DL_PREVIEW:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.Int == 1)
+                                    {
+                                        PreviewPriority = true;
+                                    }
+                                    else
+                                    {
+                                        PreviewPriority = false;
+                                    }
+
+                                    break;
+                                }
+
+                            // statistics
+                            case MuleConstants.FT_ATTRANSFERRED:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                        Statistic.AllTimeTransferred = newtag.Int;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_ATTRANSFERREDHI:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                    {
+                                        uint hi, low;
+                                        low = Convert.ToUInt32(Statistic.AllTimeTransferred & 0xFFFFFFFF);
+                                        hi = newtag.Int;
+                                        ulong hi2;
+                                        hi2 = hi;
+                                        hi2 = hi2 << 32;
+                                        Statistic.AllTimeTransferred = low + hi2;
+                                    }
+
+                                    break;
+                                }
+                            case MuleConstants.FT_ATREQUESTED:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                        Statistic.AllTimeRequests = newtag.Int;
+
+                                    break;
+                                }
+                            case MuleConstants.FT_ATACCEPTED:
+                                {
+                                    //ASSERT( newtag.IsInt );
+                                    if (newtag.IsInt)
+                                        Statistic.AllTimeAccepts = newtag.Int;
+
+                                    break;
+                                }
+
+                            // old tags: as long as they are not needed, take the chance to purge them
+                            case MuleConstants.FT_PERMISSIONS:
+                                //ASSERT( newtag.IsInt );
+
+                                break;
+                            case MuleConstants.FT_KADLASTPUBLISHKEY:
+                                //ASSERT( newtag.IsInt );
+
+                                break;
+                            case MuleConstants.FT_DL_ACTIVE_TIME:
+                                //ASSERT( newtag.IsInt );
+                                if (newtag.IsInt)
+                                    DownloadActiveTime = newtag.Int;
+
+                                break;
+                            case MuleConstants.FT_CORRUPTEDPARTS:
+                                //ASSERT( newtag.IsStr );
+                                if (newtag.IsStr)
+                                {
+                                    //ASSERT( corrupted_list.GetHeadPosition() == NULL );
+                                    string strCorruptedParts = newtag.Str;
+                                    string[] parts = strCorruptedParts.Split(',');
+
+                                    foreach (string part in parts)
+                                    {
+                                        uint uPart = 0;
+                                        if (MPDUtilities.ScanUInt32(part, ref uPart) == 1)
+                                        {
+                                            if (uPart < PartCount && !IsCorruptedPart(uPart))
+                                                CorruptedList.Add(Convert.ToUInt16(uPart));
+                                        }
+                                    }
+                                }
+
+                                break;
+                            case MuleConstants.FT_AICH_HASH:
+                                {
+                                    //ASSERT( newtag.IsStr );
+                                    AICHHash hash = AICHObjectManager.CreateAICHHash();
+                                    if (MPDUtilities.DecodeBase32(newtag.Str.ToCharArray(), hash.RawHash) ==
+                                        Convert.ToUInt32(MuleConstants.HASHSIZE))
+                                    {
+                                        AICHHashSet.SetMasterHash(hash, AICHStatusEnum.AICH_VERIFIED);
+                                    }
+                                    else
+                                    {
+                                        //ASSERT( false );
+                                    }
+
+                                    break;
+                                }
+                            default:
+                                {
+                                    if (newtag.NameID == 0 &&
+                                        (newtag.Name[0] == Convert.ToChar(MuleConstants.FT_GAPSTART) ||
+                                        newtag.Name[0] == Convert.ToChar(MuleConstants.FT_GAPEND)))
+                                    {
+                                        //ASSERT( newtag.IsInt64(true) );
+                                        if (newtag.IsInt64(true))
+                                        {
+                                            Gap gap;
+                                            uint gapkey = uint.Parse(newtag.Name.Substring(1));
+                                            if (!gap_map.ContainsKey(gapkey))
+                                            {
+                                                gap = new Gap();
+                                                gap_map[gapkey] = gap;
+                                                gap.start = 0xFFFFFFFFFFFFFFFF;
+                                                gap.end = 0xFFFFFFFFFFFFFFFF;
+                                            }
+                                            else
+                                            {
+                                                gap = gap_map[gapkey];
+                                            }
+                                            if (newtag.Name[0] == Convert.ToChar(MuleConstants.FT_GAPSTART))
+                                                gap.start = newtag.Int64;
+                                            if (newtag.Name[0] == Convert.ToChar(MuleConstants.FT_GAPEND))
+                                                gap.end = newtag.Int64 - 1;
+                                        }
+
+                                    }
+                                    else
+                                        TagList.Add(newtag);
+
+                                    break;
+                                }
+                        }
+                    }
+                    else
+                    {
+                    }
+                }
+
+                // load the hashsets from the hybridstylepartmet
+                if (isnewstyle && !getsizeonly && (metFile.Position < metFile.Length))
+                {
+                    byte[] tempBuf = new byte[1];
+                    metFile.Read(tempBuf);
+
+                    byte temp = tempBuf[0];
+
+                    uint parts = PartCount;	// assuming we will get all hashsets
+
+                    for (uint i = 0; i < parts && (metFile.Position + 16 < metFile.Length); i++)
+                    {
+                        byte[] cur_hash = new byte[16];
+                        metFile.Read(cur_hash);
+                        Hashset.Add(cur_hash);
+                    }
+
+                    byte[] checkhash = new byte[16];
+                    if (Hashset.Count != 0)
+                    {
+                        byte[] buffer = new byte[Hashset.Count * 16];
+                        for (int i = 0; i < Hashset.Count; i++)
+                            MPDUtilities.Md4Cpy(buffer, i * 16, Hashset[i], 0, 16);
+                        CreateHash(buffer, Convert.ToUInt64(Hashset.Count * 16), checkhash);
+                    }
+                    if (MPDUtilities.Md4Cmp(FileHash, checkhash) != 0)
+                    {
+                        Hashset.Clear();
+                    }
+                }
+
+                metFile.Close();
+            }
+            catch (Exception)
+            {
+                //TODO:Logif (error.m_cause == CFileException::endOfFile)
+                //    LogError(LOG_STATUSBAR, GetResString(IDS_ERR_METCORRUPT), partmetfilename_, FileName);
+                //else{
+                //    TCHAR buffer[MAX_CFEXP_ERRORMSG];
+                //    error.GetErrorMessage(buffer,ARRSIZE(buffer));
+                //    LogError(LOG_STATUSBAR, GetResString(IDS_ERR_FILEERROR), partmetfilename_, FileName, buffer);
+                //}
+                //error.Delete();
+                return false;
+            }
+
+            if (FileSize > MuleConstants.MAX_EMULE_FILE_SIZE)
+            {
+                //TODO:LogError(LOG_STATUSBAR, GetResString(IDS_ERR_FILEERROR), partmetfilename_, FileName, _T("File size exceeds supported limit"));
+                return false;
+            }
+
+            if (getsizeonly)
+            {
+                // AAARGGGHH!!!....
+                return partmettype != PartFileFormatEnum.PMT_UNKNOWN;
+            }
+
+            // Now to flush the map into the list (Slugfiller)
+            foreach (uint gapkey in gap_map.Keys)
+            {
+                Gap gap = gap_map[gapkey];
+                // SLUGFILLER: SafeHash - revised code, and extra safety
+                if (gap.start != 0xFFFFFFFFFFFFFFFF &&
+                    gap.end != 0xFFFFFFFFFFFFFFFF &&
+                    gap.start <= gap.end && gap.start < FileSize)
+                {
+                    if (gap.end >= FileSize)
+                        gap.end = FileSize - 1; // Clipping
+                    AddGap(gap.start, gap.end); // All tags accounted for, use safe adding
+                }
+                // SLUGFILLER: SafeHash
+            }
+
+            // verify corrupted parts list
+
+            List<ushort> tmpList = new List<ushort>();
+            tmpList.AddRange(CorruptedList);
+
+            for (int i = 0; i < tmpList.Count; i++)
+            {
+                uint uCorruptedPart = Convert.ToUInt32(tmpList[i]);
+
+                if (IsComplete(Convert.ToUInt64(uCorruptedPart) * MuleConstants.PARTSIZE,
+                    Convert.ToUInt64(uCorruptedPart + 1) * MuleConstants.PARTSIZE - 1))
+                    CorruptedList.RemoveAt(i);
+            }
+
+            //check if this is a backup
+            if (string.Compare(Path.GetExtension(FullName), MuleConstants.PARTMET_TMP_EXT, true) == 0)
+                FullName = Path.GetFileNameWithoutExtension(FullName);
+
+            // open permanent handle
+            string searchpath = Path.GetFileNameWithoutExtension(FullName);
+            try
+            {
+                PartFileStream = new FileStream(searchpath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+            }
+            catch (Exception)
+            {
+                //TODO:Log
+                return false;
+            }
+
+            // read part file creation time
+            LastModified = MPDUtilities.DateTime2UInt32Time(System.IO.File.GetLastWriteTime(searchpath));
+            Created = MPDUtilities.DateTime2UInt32Time(System.IO.File.GetCreationTime(searchpath));
+
+            try
+            {
+                FilePath = (searchpath);
+
+                try
+                {
+                    FileAttributes = System.IO.File.GetAttributes(searchpath);
+                }
+                catch
+                {
+                    FileAttributes = 0;
+                }
+
+                // SLUGFILLER: SafeHash - final safety, make sure any missing part of the file is gap
+                if (Convert.ToUInt64(PartFileStream.Length) < FileSize)
+                {
+                    AddGap(Convert.ToUInt64(PartFileStream.Length), FileSize - 1);
+                }
+                // Goes both ways - Partfile should never be too large
+                if (Convert.ToUInt64(PartFileStream.Length) > FileSize)
+                {
+                    //TODO:LogTRACE(_T("Partfile \"%s\" is too large! Truncating %I64u bytes.\n"), FileName, m_hpartfile.Length) - FileSize);
+                    PartFileStream.SetLength(Convert.ToInt64(FileSize));
+                }
+                // SLUGFILLER: SafeHash
+
+                SourcePartFrequency.Clear();
+                for (uint i = 0; i < PartCount; i++)
+                    SourcePartFrequency.Add(0);
+                Status = PartFileStatusEnum.PS_EMPTY;
+                // check hashcount, filesatus etc
+                if (HashCount != ED2KPartHashCount)
+                {
+                    //ASSERT( Hashset.GetSize() == 0 );
+                    HashsetNeeded = true;
+                    return true;
+                }
+                else
+                {
+                    HashsetNeeded = false;
+                    for (uint i = 0; i < (uint)Hashset.Count; i++)
+                    {
+                        if (i < PartCount &&
+                            IsComplete((ulong)i * MuleConstants.PARTSIZE,
+                            (ulong)(i + 1) * MuleConstants.PARTSIZE - 1))
+                        {
+                            Status = PartFileStatusEnum.PS_READY;
+                            break;
+                        }
+                    }
+                }
+
+                if (GapList.Count == 0)
+                {	// is this file complete already?
+                    CompleteFile(false);
+                    return true;
+                }
+
+                if (!isnewstyle) // not for importing
+                {
+                    // check date of .Part file - if its wrong, rehash file
+                    uint fdate = MPDUtilities.DateTime2UInt32Time(System.IO.File.GetLastWriteTimeUtc(searchpath));
+                    MPDUtilities.AdjustNTFSDaylightFileTime(ref fdate, searchpath);
+
+                    if (UtcLastModified != fdate)
+                    {
+                        //TODO:Log
+                        //string strFileInfo
+                        //strFileInfo.Format(_T("%s (%s)"), GetFilePath(), FileName);
+                        //LogError(LOG_STATUSBAR, GetResString(IDS_ERR_REHASH), strFileInfo);
+                        // rehash
+                        Status = PartFileStatusEnum.PS_WAITINGFORHASH;
+                        try
+                        {
+                            //AddFileThread addfilethread = MuleEngine.CoreObjectManager.CreateAddFileThread();
+                            //FileOp = PartFileOpEnum.PFOP_HASHING;
+                            //FileOpProgress = 0;
+                            //addfilethread.SetValues(null, FileDirectory, searchpath, this);
+                            //addfilethread.Start();
+                        }
+                        catch (Exception)
+                        {
+                            //TODO:LOG:
+                            Status = PartFileStatusEnum.PS_ERROR;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //TODO:Log
+                //string strError;
+                //strError.Format(_T("Failed to initialize part file \"%s\" (%s)"), m_hpartfile.GetFilePath(), FileName);
+                //TCHAR szError[MAX_CFEXP_ERRORMSG];
+                //if (error.GetErrorMessage(szError, ARRSIZE(szError))){
+                //    strError += _T(" - ");
+                //    strError += szError;
+                //}
+                //LogError(LOG_STATUSBAR, _T("%s"), strError);
+                //error.Delete();
+                return false;
+            }
+
+            UpdateCompletedInfos();
+            return true;
+        }
 
         public bool SavePartFile()
         {
@@ -973,9 +1606,7 @@ namespace Mule.File.Impl
 
             return true;
         }
-        #endregion
 
-        #region Protected
         public bool GetNextEmptyBlockInPart(uint partNumber, RequestedBlock result)
         {
             Gap firstGap;
@@ -1081,11 +1712,6 @@ namespace Mule.File.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        protected void Init()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
         public uint WriteToBuffer(ulong transize,
             byte[] data,
             ulong start,
@@ -1145,15 +1771,10 @@ namespace Mule.File.Impl
             item.block = block;
 
             // Add to the queue in the correct position (most likely the end)
-            bool added = false;
-
             foreach (PartFileBufferedData queueItem in bufferedData_list_)
             {
                 if (item.end <= queueItem.end)
                 {
-
-                    added = true;
-
                     bufferedData_list_.Insert(bufferedData_list_.IndexOf(queueItem), item);
 
                     break;
@@ -1187,27 +1808,253 @@ namespace Mule.File.Impl
         }
         #endregion
 
+        #region Protected
+        protected void Init()
+        {
+            throw new Exception("The method or operation is not implemented.");
+        }
+        #endregion
+
         #region Private
-        private bool PerformFileComplete()
+        private bool ImportShareazaTempfile(string in_directory, string in_filename, bool getsizeonly)
         {
-            throw new Exception("The method or operation is not implemented.");
-        }
+            string fullname = System.IO.Path.Combine(in_directory, in_filename);
 
-        private static uint CompleteThreadProc(object pvParams)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
+            // open the file
+            Stream sdFile = null;
 
-        private static uint AllocateSpaceThread(object lpParam)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
+            try
+            {
+                sdFile = new FileStream(fullname, FileMode.Open, FileAccess.Read, FileShare.Read);
+            }
+            catch (Exception)
+            {
+                //TODO:Log
+                return false;
+            }
 
-        private void CharFillRange(ref string buffer, uint start, uint end, byte color)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
+            try
+            {
+                BinaryReader br = new BinaryReader(sdFile);
 
+                // Is it a valid Shareaza temp file?
+                byte[] szID = new byte[3];
+                br.Read(szID, 0, szID.Length);
+
+                string tmpStrID = Encoding.Default.GetString(szID);
+
+                if (!"SDL".Equals(tmpStrID))
+                {
+                    br.Close();
+                    sdFile.Close();
+                    return false;
+                }
+
+                // Get the version
+                int nVersion = br.ReadInt32();
+
+                // Get the File Name
+                string sRemoteName = br.ReadString();
+                FileName = sRemoteName;
+
+                ulong lSize = br.ReadUInt64();
+                ulong nSize = lSize;
+
+                FileSize = lSize;
+
+                // Get the ed2k hash
+                bool bSHA1, bTiger, bMD5, bED2K, Trusted; bMD5 = false; bED2K = false;
+                byte[] pSHA1 = new byte[20];
+                byte[] pTiger = new byte[24];
+                byte[] pMD5 = new byte[16];
+                byte[] pED2K = new byte[16];
+
+                bSHA1 = br.ReadBoolean();
+                if (bSHA1) br.Read(pSHA1, 0, pSHA1.Length);
+                if (nVersion >= 31) Trusted = br.ReadBoolean();
+
+                bTiger = br.ReadBoolean();
+                if (bTiger) br.Read(pTiger, 0, pTiger.Length);
+                if (nVersion >= 31) Trusted = br.ReadBoolean();
+
+                if (nVersion >= 22) bMD5 = br.ReadBoolean();
+                if (bMD5) br.Read(pMD5, 0, pMD5.Length);
+                if (nVersion >= 31) Trusted = br.ReadBoolean();
+
+                if (nVersion >= 13) bED2K = br.ReadBoolean();
+                if (bED2K) br.Read(pED2K, 0, pED2K.Length);
+                if (nVersion >= 31) Trusted = br.ReadBoolean();
+
+                br.Close();
+
+                if (bED2K)
+                {
+                    MPDUtilities.Md4Cpy(FileHash, pED2K);
+                }
+                else
+                {
+                    //TODO:Log(LOG_ERROR,GetResString(IDS_X_SHAREAZA_IMPORT_NO_HASH),in_filename);
+                    sdFile.Close();
+                    return false;
+                }
+
+                if (getsizeonly)
+                {
+                    sdFile.Close();
+                    return true;
+                }
+
+                // Now the tricky part
+                long basePos = sdFile.Position;
+
+                // Try to to get the gap list
+                if (MPDUtilities.GotoString(sdFile,
+                    nVersion >= 29 ? BitConverter.GetBytes(lSize) : BitConverter.GetBytes(nSize),
+                    nVersion >= 29 ? 8 : 4)) // search the gap list
+                {
+                    sdFile.Seek(sdFile.Position - (nVersion >= 29 ? 8 : 4), SeekOrigin.Begin); // - file size
+                    br = new BinaryReader(sdFile);
+
+                    bool badGapList = false;
+
+                    if (nVersion >= 29)
+                    {
+                        long nTotal, nRemaining;
+                        uint nFragments;
+
+                        nTotal = br.ReadInt64();
+                        nRemaining = br.ReadInt64();
+                        nFragments = br.ReadUInt32();
+
+                        if (nTotal >= nRemaining)
+                        {
+                            long begin, length;
+                            for (; nFragments-- > 0; )
+                            {
+                                begin = br.ReadInt64();
+                                length = br.ReadInt64();
+
+                                if (begin + length > nTotal)
+                                {
+                                    badGapList = true;
+                                    break;
+                                }
+                                AddGap(Convert.ToUInt64(begin),
+                                    Convert.ToUInt64((begin + length - 1)));
+                            }
+                        }
+                        else
+                        {
+                            badGapList = true;
+                        }
+                    }
+                    else
+                    {
+                        uint nTotal, nRemaining;
+                        uint nFragments;
+                        nTotal = br.ReadUInt32();
+                        nRemaining = br.ReadUInt32();
+                        nFragments = br.ReadUInt32();
+
+                        if (nTotal >= nRemaining)
+                        {
+                            uint begin, length;
+                            for (; nFragments-- > 0; )
+                            {
+                                begin = br.ReadUInt32();
+                                length = br.ReadUInt32();
+                                if (begin + length > nTotal)
+                                {
+                                    badGapList = true;
+                                    break;
+                                }
+                                AddGap(begin, begin + length - 1);
+                            }
+                        }
+                        else
+                        {
+                            badGapList = true;
+                        }
+                    }
+
+                    if (badGapList)
+                    {
+                        GapList.Clear();
+                        //TODO:Log(LOG_WARNING,GetResString(IDS_X_SHAREAZA_IMPORT_GAP_LIST_CORRUPT),in_filename);
+                    }
+
+                    br.Close();
+                }
+                else
+                {
+                    //TODO:Log(LOG_WARNING,GetResString(IDS_X_SHAREAZA_IMPORT_NO_GAP_LIST),in_filename);
+                    sdFile.Seek(basePos, SeekOrigin.Begin); // not found, reset start position
+                }
+
+                // Try to get the complete hashset
+                if (MPDUtilities.GotoString(sdFile, FileHash, 16)) // search the hashset
+                {
+                    sdFile.Seek(sdFile.Position - 16 - 4, SeekOrigin.Begin); // - list size - hash length
+                    br = new BinaryReader(sdFile);
+
+                    uint nCount = br.ReadUInt32();
+
+                    byte[] pMD4 = new byte[16];
+                    br.Read(pMD4, 0, pMD4.Length); // read the hash again
+
+                    // read the hashset
+                    for (uint i = 0; i < nCount; i++)
+                    {
+                        byte[] curhash = new byte[16];
+                        br.Read(curhash, 0, 16);
+                        Hashset.Add(curhash);
+                    }
+
+                    byte[] checkhash = new byte[16];
+                    if (Hashset.Count != 0)
+                    {
+                        byte[] buffer = new byte[Hashset.Count * 16];
+                        for (int i = 0; i < Hashset.Count; i++)
+                            MPDUtilities.Md4Cpy(buffer, (i * 16), Hashset[i], 0, 16);
+                        CreateHash(buffer, Convert.ToUInt64(Hashset.Count * 16), checkhash);
+                    }
+                    if (MPDUtilities.Md4Cmp(pMD4, checkhash) != 0)
+                    {
+                        Hashset.Clear();
+                        //TODOLog(LOG_WARNING,GetResString(IDS_X_SHAREAZA_IMPORT_HASH_SET_CORRUPT),in_filename);
+                    }
+
+                    br.Close();
+                }
+                else
+                {
+                    //TODO:Log(LOG_WARNING,GetResString(IDS_X_SHAREAZA_IMPORT_NO_HASH_SET),in_filename);
+                    //sdFile.Seek(basePos,CFile::begin); // not found, reset start position
+                }
+
+                // Close the file
+                sdFile.Close();
+            }
+            catch (Exception)
+            {
+                //TODO:Log
+                //TCHAR buffer[MAX_CFEXP_ERRORMSG];
+                //error.GetErrorMessage(buffer,ARRSIZE(buffer));
+                //LogError(LOG_STATUSBAR, GetResString(IDS_ERR_FILEERROR), in_filename, GetFileName(), buffer);
+                //error.Delete();
+                return false;
+            }
+
+            // The part below would be a copy of the CPartFile::LoadPartFile, 
+            // so it is smarter to save and reload the file insta dof dougling the whole stuff
+            if (!SavePartFile())
+                return false;
+
+            Hashset.Clear();
+            GapList.Clear();
+
+            return LoadPartFile(in_directory, in_filename, false);
+        }
         #endregion
     }
 }

@@ -30,7 +30,7 @@ namespace Mpd.Utilities
     /// <summary>
     /// Summary description for Scanner.
     /// </summary>
-    internal class Scanner
+    public class Scanner
     {
         protected readonly Hashtable typePatterns;
         public Scanner()

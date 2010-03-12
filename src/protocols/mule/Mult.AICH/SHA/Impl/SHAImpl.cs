@@ -26,7 +26,7 @@ using System.Text;
 
 namespace Mule.AICH.SHA.Impl
 {
-    internal class SHAImpl : SHA
+    public class SHAImpl : SHA
     {
         #region Fields
         private uint[] count_;

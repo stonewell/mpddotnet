@@ -73,17 +73,17 @@ namespace Mule.Core
             get { return sharedFiles_; }
         }
 
-        internal CoreObjectManager CoreObjectManager
+        public CoreObjectManager CoreObjectManager
         {
             get { return coreObjectManager_; }
         }
 
-        internal CoreUtilities CoreUtilities
+        public CoreUtilities CoreUtilities
         {
             get { return coreUtilities_; }
         }
 
-        internal bool IsFirewalled
+        public bool IsFirewalled
         {
             get
             {
@@ -97,7 +97,7 @@ namespace Mule.Core
             }
         }
 
-        internal ClientList ClientList
+        public ClientList ClientList
         {
             get
             {
@@ -106,7 +106,7 @@ namespace Mule.Core
         }
         #endregion
 
-        internal ServerConnect ServerConnect
+        public ServerConnect ServerConnect
         {
             get { return serverConnect_; }
         }
@@ -117,7 +117,7 @@ namespace Mule.Core
             set;
         }
 
-        internal bool CanDoCallback(UpDownClient client)
+        public bool CanDoCallback(UpDownClient client)
         {
             if (KadEngine.IsConnected)
             {
@@ -189,7 +189,7 @@ namespace Mule.Core
             }
         }
 
-        internal bool IsConnected
+        public bool IsConnected
         {
             get
             {
@@ -197,7 +197,7 @@ namespace Mule.Core
             }
         }
 
-        internal object HashLocker
+        public object HashLocker
         {
             get { return hashLocker_; }
         }

@@ -47,7 +47,7 @@ namespace Mule.Core
         #endregion
 
         #region Constructor
-        internal CoreObjectManager(MuleEngine muleEngine)
+        public CoreObjectManager(MuleEngine muleEngine)
         {
             muleEngine_ = muleEngine;
 
@@ -101,7 +101,7 @@ namespace Mule.Core
             throw new Exception("The method or operation is not implemented.");
         }
 
-        internal CoreUtilities CreateCoreUtilities()
+        public CoreUtilities CreateCoreUtilities()
         {
             return CreateObject(typeof(CoreUtilities)) as CoreUtilities;
         }
@@ -129,27 +129,26 @@ namespace Mule.Core
             return obj;
         }
 
-        internal MuleCollection CreateMuleCollection()
+        public MuleCollection CreateMuleCollection()
         {
             throw new Exception("The method or operation is not implemented.");
         }
 
-        internal FileComment CreateFileComment()
+        public FileComment CreateFileComment()
         {
             throw new Exception("The method or operation is not implemented.");
         }
 
-        internal Packet CreatePacket(SafeMemFile data, byte p)
+        public Packet CreatePacket(SafeMemFile data, byte p)
         {
             throw new Exception("The method or operation is not implemented.");
         }
 
-        internal Gap CreateGap()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        internal UpDownClient CreateUpDownClient(ushort nPort, uint dwID, uint dwServerIP, ushort nServerPort, Mule.Core.Impl.MuleDownloadTask muleDownloadTask, bool p, bool p_7)
+        public UpDownClient CreateUpDownClient(ushort nPort, 
+            uint dwID, 
+            uint dwServerIP, 
+            ushort nServerPort, 
+            PartFile parfile, bool encrypt, bool p)
         {
             throw new NotImplementedException();
         }

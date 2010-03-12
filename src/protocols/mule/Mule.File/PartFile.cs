@@ -228,5 +228,6 @@ namespace Mule.File
         bool IsPreviewing { get; set; }
         RequestedBlockList RequestedBlocks { get; }
         bool GetNextEmptyBlockInPart(uint partnumber, RequestedBlock result);
+        bool LoadPartFile(string in_directory, string in_filename, bool getsizeonly);
     }
 }

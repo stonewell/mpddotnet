@@ -111,6 +111,12 @@ namespace Mule.Core
             get { return serverConnect_; }
         }
 
+        public uint PublicIP
+        {
+            get;
+            set;
+        }
+
         internal bool CanDoCallback(UpDownClient client)
         {
             if (KadEngine.IsConnected)

@@ -403,5 +403,30 @@ namespace Mpd.Utilities
             }
             return false;
         }
+        public static void HeapSort(ref List<ushort> count, int first, int last)
+        {
+            int r;
+            for (r = first; (r & int.MinValue) == 0 && (r << 1) < last; )
+            {
+                int r2 = (r << 1) + 1;
+                if (r2 != last)
+                    if (count[r2] < count[r2 + 1])
+                        r2++;
+                if (count[r] < count[r2])
+                {
+                    ushort t = count[r2];
+                    count[r2] = count[r];
+                    count[r] = t;
+                    r = r2;
+                }
+                else
+                    break;
+            }
+        }
+
+        public static uint GetTickCount()
+        {
+            return 0;
+        }
     }
 }

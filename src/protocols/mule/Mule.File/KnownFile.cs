@@ -43,6 +43,8 @@ namespace Mule.File
 
         string FilePath { get; set; }
 
+        ushort[] AvailPartFrequency { get; set; }
+
         //load date, hashset and tags from a .met file
         bool LoadFromFile(FileDataIO file);
         bool WriteToFile(FileDataIO file);
@@ -51,8 +53,8 @@ namespace Mule.File
 
         // last file modification time in (DST corrected, if NTFS) real UTC format
         // NOTE: this value can *not* be compared with NT's version of the UTC time
-        DateTime UtcCFileDate { get; }
-        uint UtcFileDate { get; }
+        DateTime UtcFileDate { get; }
+        uint UtcLastModified { get; set; }
 
         // local available part hashs
         uint HashCount { get; }
@@ -79,6 +81,11 @@ namespace Mule.File
         uint LastPublishTimeKadSrc { get; set; }
         uint LastPublishBuddy { get; set; }
         uint LastPublishTimeKadNotes { get; set; }
+
+        uint CompleteSourcesTime { get; set; }
+        ushort CompleteSourcesCount { get; set; }
+        ushort CompleteSourcesCountLo { get; set; }
+        ushort CompleteSourcesCountHi { get; set; }
 
         // file sharing
         uint MetaDataVer { get; }
@@ -123,5 +130,6 @@ namespace Mule.File
             AICHHashTree pShaHashOut);
 
         void SetUpPriority(byte iUpPriority, bool save);
+        StatisticFile Statistic { get; }
     }
 }

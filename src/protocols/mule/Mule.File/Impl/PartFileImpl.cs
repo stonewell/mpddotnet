@@ -38,79 +38,42 @@ namespace Mule.File.Impl
     class PartFileImpl : KnownFileImpl, PartFile
     {
         #region Fields
-        private uint iLastPausePurge_;
-        private ushort count_;
         private uint[] anStates_ = new uint[MuleConstants.STATES_COUNT];
-        private ulong completedsize_;
-        private ulong uCorruptionLoss_;
-        private ulong uCompressionGain_;
-        private uint uPartsSavedDueICH_;
-        private uint datarate_;
-        private string fullname_;
-        private string partmetfilename_;
-        private ulong uTransferred_;
-        private uint uMaxSources_;
-        private bool paused_;
-        private bool stopped_;
-        private bool insufficient_;
-        private bool bCompletionError_;
-        private byte iDownPriority_;
-        private bool bAutoDownPriority_;
-        private PartFileStatusEnum status_;
-        private bool newdate_;	// indicates if there was a writeaccess to the .part file
-        private uint lastpurgetime_;
-        private uint LastNoNeededCheck_;
-        private List<Gap> gaplist_ = new List<Gap>();
-        private List<RequestedBlock> requestedblocks_list_ = new List<RequestedBlock>();
+        private GapList gaplist_ = new GapList();
+        private RequestedBlockList requestedblocks_list_ = new RequestedBlockList();
         private List<ushort> srcpartFrequency_ = new List<ushort>();
-        private float percentcompleted_;
         private List<ushort> corrupted_list_ = new List<ushort>();
-        private uint clientSrcAnswered_;
-        private uint availablePartsCount_;
-        private Thread allocateThread_;
-        private uint lastRefreshedDLDisplay_;
-        private bool bDeleteAfterAlloc_;
-        private bool bpreviewprio_;
         private List<PartFileBufferedData> bufferedData_list_ = new List<PartFileBufferedData>();
-        private ulong nTotalBufferData_;
-        private uint nLastBufferFlushTime_;
-        private uint category_;
-        private System.IO.FileAttributes dwFileAttributes_;
-        private ulong tActivated_;
-        private uint nDlActiveTime_;
-        private uint tLastModified_;	// last file modification time (NT's version of UTC), to be used for stats only!
         private System.Threading.Mutex fileCompleteMutex_ = new Mutex();		// Lord KiRon - Mutex for file completion
         private ushort[] src_stats_ = new ushort[4];
         private ushort[] net_stats_ = new ushort[3];
 
-        private System.IO.Stream hpartfile_;
-        private uint tCreated_;
-        private DateTime lastseencomplete_;
-
-        private struct MetaTagsStruct
+        public uint Category { get; set; }
+        public bool PartFileUpdated { get; set; }
+        public uint LastBufferFlushTime { get; set; }
+        public ulong TotalBufferData { get; set; }
+        public uint[] AnStates { get { return anStates_; } set { anStates_ = value; } }
+        public bool Paused { get; set; }
+        public byte DownPriority { get; set; }
+        public uint LastPurgeTime { get; set; }
+        public System.IO.FileAttributes FileAttributes { get; set; }
+        public uint DownloadActiveTime { get; set; }
+        public ushort[] SourceStates { get { return src_stats_; } set { src_stats_ = value; } }
+        public ushort[] NetStates { get { return net_stats_; } set { net_stats_ = value; } }
+        public bool IsLocalSrcReqQueued { get; set; }
+        public bool IsPreviewing { get; set; }
+        public System.IO.Stream PartFileStream { get; set; }
+        public uint Created { get; set; }
+        public DateTime LastSeenComplete { get; set; }
+        public List<ushort> CorruptedList { get { return corrupted_list_; } }
+        public List<ushort> SourcePartFrequency { get { return srcpartFrequency_; } }
+        public bool HashsetNeeded { get; set; }
+        public ulong GainDueToCompression { get; set; }
+        public RequestedBlockList RequestedBlocks
         {
-            public MetaTagsStruct(byte name, byte type)
-            {
-                nName = name;
-                nType = type;
-            }
-
-            public byte nName;
-            public byte nType;
-        };
-
-        private static readonly MetaTagsStruct[] _aMetaTags =
-            new MetaTagsStruct[] 
-			{
-				new MetaTagsStruct( MuleConstants.FT_MEDIA_ARTIST,  2 ),
-				new MetaTagsStruct( MuleConstants.FT_MEDIA_ALBUM,   2 ),
-				new MetaTagsStruct( MuleConstants.FT_MEDIA_TITLE,   2 ),
-				new MetaTagsStruct( MuleConstants.FT_MEDIA_LENGTH,  3 ),
-				new MetaTagsStruct( MuleConstants.FT_MEDIA_BITRATE, 3 ),
-				new MetaTagsStruct( MuleConstants.FT_MEDIA_CODEC,   2 ),
-				new MetaTagsStruct( MuleConstants.FT_FILETYPE,		2 ),
-				new MetaTagsStruct( MuleConstants.FT_FILEFORMAT,	2 )
-			};
+            get { return requestedblocks_list_; }
+            set { requestedblocks_list_ = value; }
+        }
         #endregion
 
         #region Constructors
@@ -121,118 +84,27 @@ namespace Mule.File.Impl
         public PartFileImpl(uint cat)
         {
             Init();
-            category_ = cat;
+            Category = cat;
         }
-
-        public PartFileImpl(SearchFile searchresult)
-            : this(searchresult, 0)
-        {
-        }
-
-        public PartFileImpl(SearchFile searchresult, uint cat)
-        {
-            Init();
-
-            //foreach (KadEntry entry in searchresult.KadNotes)
-            //{
-            //    KadNotes.Add(entry.Copy());
-            //}
-            //UpdateFileRatingCommentAvail();
-
-            MPDUtilities.Md4Cpy(FileHash, searchresult.FileHash);
-            foreach (Tag pTag in searchresult.Tags)
-            {
-                switch (pTag.NameID)
-                {
-                    case MuleConstants.FT_FILENAME:
-                        {
-                            if (pTag.IsStr)
-                            {
-                                if (string.IsNullOrEmpty(FileName))
-                                    SetFileName(pTag.Str, true, true, false);
-                            }
-                            break;
-                        }
-                    case MuleConstants.FT_FILESIZE:
-                        {
-                            if (pTag.IsInt64(true))
-                                FileSize = pTag.Int64;
-                            break;
-                        }
-                    default:
-                        {
-                            bool bTagAdded = false;
-                            if (pTag.NameID != 0 && pTag.Name == null && (pTag.IsStr || pTag.IsInt))
-                            {
-                                for (int t = 0; t < _aMetaTags.Length; t++)
-                                {
-                                    if (pTag.TagType == _aMetaTags[t].nType && pTag.NameID == _aMetaTags[t].nName)
-                                    {
-                                        // skip string tags with empty string values
-                                        if (pTag.IsStr && string.IsNullOrEmpty(pTag.Str))
-                                            break;
-
-                                        // skip integer tags with '0' values
-                                        if (pTag.IsInt && pTag.Int == 0)
-                                            break;
-
-                                        Tag newtag = MpdGenericObjectManager.CreateTag(pTag);
-                                        taglist_.Add(newtag);
-                                        bTagAdded = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            if (!bTagAdded)
-                            {
-                                //TODO:    TRACE(_T("CPartFile::CPartFile(CSearchFile*): ignored tag %s\n"), pTag.GetFullInfo(DbgGetFileMetaTagName));
-                            }
-                        }
-                        break;
-                }
-            }
-            CreatePartFile(cat);
-            category_ = cat;
-        }
-
         #endregion
 
         #region PartFile Members
 
-        public string PartMetFileName
-        {
-            get { return partmetfilename_; }
-        }
+        public string PartMetFileName { get; set; }
 
-        public string FullName
-        {
-            get
-            {
-                return fullname_;
-            }
-            set
-            {
-                fullname_ = value;
-            }
-        }
+        public string FullName { get; set; }
 
         public string TempPath
         {
-            get { return System.IO.Path.GetDirectoryName(fullname_); }
+            get { return System.IO.Path.GetDirectoryName(FullName); }
         }
 
         public bool IsNormalFile
         {
             get
             {
-                return (dwFileAttributes_ & (System.IO.FileAttributes.Compressed | System.IO.FileAttributes.SparseFile)) == 0;
+                return (FileAttributes & (System.IO.FileAttributes.Compressed | System.IO.FileAttributes.SparseFile)) == 0;
             }
-        }
-
-        public bool IsAllocating
-        {
-            get { return allocateThread_ != null; }
         }
 
         [DllImport("kernel32.dll")]
@@ -284,34 +156,23 @@ namespace Mule.File.Impl
         {
             get
             {
-                if (Convert.ToUInt64(hpartfile_.Length) > FileSize)
+                if (Convert.ToUInt64(PartFileStream.Length) > FileSize)
                     return 0;
-                return FileSize - Convert.ToUInt64(hpartfile_.Length);
+                return FileSize - Convert.ToUInt64(PartFileStream.Length);
             }
         }
 
-        public DateTime CFileDate
+        public DateTime LastModifiedDate
         {
-            get { return new DateTime(tLastModified_); }
+            get { return new DateTime(LastModified); }
         }
 
-        public uint FileDate
-        {
-            get { return tLastModified_; }
-        }
+        public uint LastModified { get; set; }
 
-        public DateTime CrCFileDate
+        public DateTime CreatedDate
         {
-            get { return new DateTime(tCreated_); }
+            get { return new DateTime(Created); }
         }
-
-        public uint CrFileDate
-        {
-            get { return tCreated_; }
-        }
-
-        [DllImport("Kernel32.dll")]
-        private static extern uint GetTickCount();
 
         public bool HashSinglePart(uint partnumber)
         {
@@ -326,14 +187,14 @@ namespace Mule.File.Impl
             else
             {
                 byte[] hashresult = new byte[16];
-                hpartfile_.Seek(Convert.ToInt64(MuleConstants.PARTSIZE * partnumber), SeekOrigin.Begin);
+                PartFileStream.Seek(Convert.ToInt64(MuleConstants.PARTSIZE * partnumber), SeekOrigin.Begin);
                 uint length = Convert.ToUInt32(MuleConstants.PARTSIZE);
-                if (Convert.ToInt64(MuleConstants.PARTSIZE * (partnumber + 1)) > hpartfile_.Length)
+                if (Convert.ToInt64(MuleConstants.PARTSIZE * (partnumber + 1)) > PartFileStream.Length)
                 {
-                    length = Convert.ToUInt32(hpartfile_.Length - Convert.ToInt64(MuleConstants.PARTSIZE * partnumber));
+                    length = Convert.ToUInt32(PartFileStream.Length - Convert.ToInt64(MuleConstants.PARTSIZE * partnumber));
                     //ASSERT( length <= PARTSIZE );
                 }
-                CreateHash(hpartfile_, length, hashresult, null);
+                CreateHash(PartFileStream, length, hashresult, null);
 
                 if (PartCount > 1 || FileSize == MuleConstants.PARTSIZE)
                 {
@@ -362,7 +223,7 @@ namespace Mule.File.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public bool IsComplete(ulong start, ulong end, bool bIgnoreBufferedData)
+        public bool IsComplete(ulong start, ulong end)
         {
             throw new Exception("The method or operation is not implemented.");
         }
@@ -372,7 +233,7 @@ namespace Mule.File.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public bool IsAlreadyRequested(ulong start, ulong end, bool bCheckBuffers)
+        public bool IsAlreadyRequested(ulong start, ulong end)
         {
             throw new Exception("The method or operation is not implemented.");
         }
@@ -428,27 +289,14 @@ namespace Mule.File.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public PartFileStatusEnum Status
-        {
-            get
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
-            set
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
-        }
+        public PartFileStatusEnum Status { get; set; }
 
         public void NotifyStatusChange()
         {
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public bool IsStopped
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public bool IsStopped { get; set; }
 
         public bool CompletionError
         {
@@ -475,79 +323,33 @@ namespace Mule.File.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public byte DownPriority
-        {
-            get
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
-            set
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
-        }
-
-        public bool IsAutoDownPriority
-        {
-            get
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
-            set
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
-        }
+        public bool IsAutoDownPriority { get; set; }
 
         public void UpdateAutoDownPriority()
         {
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public uint SourceCount
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public uint SourceCount { get; set; }
 
-        public uint SrcA4AFCount
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public uint SrcA4AFCount { get; set; }
 
         public uint GetSrcStatisticsValue(DownloadStateEnum nDLState)
         {
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public uint TransferringSrcCount
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public uint TransferringSrcCount { get; set; }
 
-        public ulong Transferred
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public ulong Transferred { get; set; }
 
-        public uint Datarate
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public uint DataRate { get; set; }
 
-        public float PercentCompleted
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public float PercentCompleted { get; set; }
 
-        public uint NotCurrentSourcesCount
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public uint NotCurrentSourcesCount { get; set; }
 
-        public int ValidSourcesCount
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public int ValidSourcesCount { get; set; }
 
         public bool IsArchive(bool onlyPreviewable)
         {
@@ -559,20 +361,9 @@ namespace Mule.File.Impl
             get { throw new Exception("The method or operation is not implemented."); }
         }
 
-        public ulong TimeRemaining
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public ulong TimeRemaining { get; set; }
 
-        public ulong TimeRemainingSimple
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
-
-        public uint DlActiveTime
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public ulong TimeRemainingSimple { get; set; }
 
         public void FlushBuffer()
         {
@@ -593,9 +384,9 @@ namespace Mule.File.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public GapList FilledList
+        public GapList GapList
         {
-            get { throw new Exception("The method or operation is not implemented."); }
+            get { return gaplist_; }
         }
 
         public void RemoveAllRequestedBlocks()
@@ -710,15 +501,9 @@ namespace Mule.File.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public ulong CorruptionLoss
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public ulong CorruptionLoss { get; set; }
 
-        public ulong CompressionGain
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public ulong CompressionGain { get; set; }
 
         public uint RecoveredPartsByICH
         {
@@ -743,18 +528,6 @@ namespace Mule.File.Impl
         public void UpdateDisplayedInfo(bool force)
         {
             throw new Exception("The method or operation is not implemented.");
-        }
-
-        public uint Category
-        {
-            get
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
-            set
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
         }
 
         public bool CheckShowItemInGivenCat(int inCategory)
@@ -816,48 +589,42 @@ namespace Mule.File.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public uint PrivateMaxSources
-        {
-            get
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
-            set
-            {
-                throw new Exception("The method or operation is not implemented.");
-            }
-        }
+        public uint PrivateMaxSources { get; set; }
 
-        public uint MaxSources
-        {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
+        public uint MaxSources { get; set; }
 
         public uint MaxSourcePerFileSoft
         {
-            get { throw new Exception("The method or operation is not implemented."); }
+            get
+            {
+                uint temp = (MaxSources * 9) / 10;
+                if (temp > MuleConstants.MAX_SOURCES_FILE_SOFT)
+                {
+                    return MuleConstants.MAX_SOURCES_FILE_SOFT;
+                }
+                return temp;
+            }
         }
 
         public uint MaxSourcePerFileUDP
         {
-            get { throw new Exception("The method or operation is not implemented."); }
-        }
-
-        public bool PreviewPrio
-        {
             get
             {
-                throw new Exception("The method or operation is not implemented.");
-            }
-            set
-            {
-                throw new Exception("The method or operation is not implemented.");
+                uint temp = (MaxSources * 3) / 4;
+                if (temp > MuleConstants.MAX_SOURCES_FILE_UDP)
+                {
+                    return MuleConstants.MAX_SOURCES_FILE_UDP;
+                }
+
+                return temp;
             }
         }
+
+        public bool PreviewPriority { get; set; }
 
         public bool SavePartFile()
         {
-            switch (status_)
+            switch (Status)
             {
                 case PartFileStatusEnum.PS_WAITINGFORHASH:
                 case PartFileStatusEnum.PS_HASHING:
@@ -865,18 +632,18 @@ namespace Mule.File.Impl
             }
 
             // search part file
-            if (!System.IO.File.Exists(Path.GetFileNameWithoutExtension(fullname_)))
+            if (!System.IO.File.Exists(Path.GetFileNameWithoutExtension(FullName)))
             {
                 //TODO:LogError(GetResString(IDS_ERR_SAVEMET) + _T(" - %s"), m_partmetfilename, GetFileName(), GetResString(IDS_ERR_PART_FNF));
                 return false;
             }
 
             // get filedate
-            tLastModified_ =
-                MPDUtilities.DateTime2UInt32Time(System.IO.File.GetLastWriteTime(Path.GetFileNameWithoutExtension(fullname_)));
-            if (tLastModified_ == 0)
-                tLastModified_ = 0xFFFFFFFF;
-            tUtcLastModified_ = tLastModified_;
+            LastModified =
+                MPDUtilities.DateTime2UInt32Time(System.IO.File.GetLastWriteTime(Path.GetFileNameWithoutExtension(FullName)));
+            if (LastModified == 0)
+                LastModified = 0xFFFFFFFF;
+            tUtcLastModified_ = LastModified;
             if (tUtcLastModified_ == 0xFFFFFFFF)
             {
                 //TODO:Log
@@ -884,9 +651,9 @@ namespace Mule.File.Impl
                 //    AddDebugLogLine(false, _T("Failed to get file date of \"%s\" (%s)"), m_partmetfilename, GetFileName());
             }
             else
-                MPDUtilities.AdjustNTFSDaylightFileTime(ref tUtcLastModified_, Path.GetFileNameWithoutExtension(fullname_));
+                MPDUtilities.AdjustNTFSDaylightFileTime(ref tUtcLastModified_, Path.GetFileNameWithoutExtension(FullName));
 
-            string strTmpFile = fullname_;
+            string strTmpFile = FullName;
             strTmpFile += MuleConstants.PARTMET_TMP_EXT;
 
             // save file data to part.met file
@@ -936,32 +703,32 @@ namespace Mule.File.Impl
                 sizetag.WriteTagToFile(file);
                 uTagCount++;
 
-                if (uTransferred_ > 0)
+                if (Transferred > 0)
                 {
                     Tag transtag =
                         MpdGenericObjectManager.CreateTag(MuleConstants.FT_TRANSFERRED,
-                        uTransferred_, IsLargeFile);
+                        Transferred, IsLargeFile);
                     transtag.WriteTagToFile(file);
                     uTagCount++;
                 }
-                if (uCompressionGain_ > 0)
+                if (CompressionGain > 0)
                 {
                     Tag transtag =
                         MpdGenericObjectManager.CreateTag(MuleConstants.FT_COMPRESSION,
-                        uCompressionGain_, IsLargeFile);
+                        CompressionGain, IsLargeFile);
                     transtag.WriteTagToFile(file);
                     uTagCount++;
                 }
-                if (uCorruptionLoss_ > 0)
+                if (CorruptionLoss > 0)
                 {
                     Tag transtag =
                         MpdGenericObjectManager.CreateTag(MuleConstants.FT_CORRUPTED,
-                        uCorruptionLoss_, IsLargeFile);
+                        CorruptionLoss, IsLargeFile);
                     transtag.WriteTagToFile(file);
                     uTagCount++;
                 }
 
-                if (paused_)
+                if (Paused)
                 {
                     Tag statustag = MpdGenericObjectManager.CreateTag(MuleConstants.FT_STATUS, 1);
                     statustag.WriteTagToFile(file);
@@ -970,7 +737,7 @@ namespace Mule.File.Impl
 
                 Tag prioritytag =
                     MpdGenericObjectManager.CreateTag(MuleConstants.FT_DLPRIORITY,
-                    IsAutoDownPriority ? Convert.ToByte(PriorityEnum.PR_AUTO) : iDownPriority_);
+                    IsAutoDownPriority ? Convert.ToByte(PriorityEnum.PR_AUTO) : DownPriority);
                 prioritytag.WriteTagToFile(file);
                 uTagCount++;
 
@@ -980,19 +747,19 @@ namespace Mule.File.Impl
                 ulprioritytag.WriteTagToFile(file);
                 uTagCount++;
 
-                if (MPDUtilities.DateTime2UInt32Time(lastseencomplete_) > 0)
+                if (MPDUtilities.DateTime2UInt32Time(LastSeenComplete) > 0)
                 {
                     Tag lsctag =
                         MpdGenericObjectManager.CreateTag(MuleConstants.FT_LASTSEENCOMPLETE,
-                        MPDUtilities.DateTime2UInt32Time(lastseencomplete_));
+                        MPDUtilities.DateTime2UInt32Time(LastSeenComplete));
                     lsctag.WriteTagToFile(file);
                     uTagCount++;
                 }
 
-                if (category_ > 0)
+                if (Category > 0)
                 {
                     Tag categorytag =
-                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_CATEGORY, category_);
+                        MpdGenericObjectManager.CreateTag(MuleConstants.FT_CATEGORY, Category);
                     categorytag.WriteTagToFile(file);
                     uTagCount++;
                 }
@@ -1015,20 +782,20 @@ namespace Mule.File.Impl
                     uTagCount++;
                 }
 
-                if (DlActiveTime > 0)
+                if (DownloadActiveTime > 0)
                 {
-                    Tag tagDlActiveTime =
+                    Tag tagDownloadActiveTime =
                         MpdGenericObjectManager.CreateTag(MuleConstants.FT_DL_ACTIVE_TIME,
-                        DlActiveTime);
-                    tagDlActiveTime.WriteTagToFile(file);
+                        DownloadActiveTime);
+                    tagDownloadActiveTime.WriteTagToFile(file);
                     uTagCount++;
                 }
 
-                if (PreviewPrio)
+                if (PreviewPriority)
                 {
                     Tag tagDlPreview =
                         MpdGenericObjectManager.CreateTag(MuleConstants.FT_DL_PREVIEW,
-                        PreviewPrio ? (uint)1 : (uint)0);
+                        PreviewPriority ? (uint)1 : (uint)0);
                     tagDlPreview.WriteTagToFile(file);
                     uTagCount++;
                 }
@@ -1067,11 +834,11 @@ namespace Mule.File.Impl
                     uTagCount++;
                 }
 
-                if (uMaxSources_ > 0)
+                if (MaxSources > 0)
                 {
                     Tag attag3 =
                         MpdGenericObjectManager.CreateTag(MuleConstants.FT_MAXSOURCES,
-                        uMaxSources_);
+                        MaxSources);
                     attag3.WriteTagToFile(file);
                     uTagCount++;
                 }
@@ -1099,11 +866,11 @@ namespace Mule.File.Impl
                     aichtag.WriteTagToFile(file);
                     uTagCount++;
                 }
-                for (int j = 0; j < taglist_.Count; j++)
+                for (int j = 0; j < tagList_.Count; j++)
                 {
-                    if (taglist_[j].IsStr || taglist_[j].IsInt)
+                    if (tagList_[j].IsStr || tagList_[j].IsInt)
                     {
-                        taglist_[j].WriteTagToFile(file);
+                        tagList_[j].WriteTagToFile(file);
                         uTagCount++;
                     }
                 }
@@ -1166,7 +933,7 @@ namespace Mule.File.Impl
             // after successfully writing the temporary part.met file...
             try
             {
-                System.IO.File.Delete(fullname_);
+                System.IO.File.Delete(FullName);
             }
             catch (Exception)
             {
@@ -1175,7 +942,7 @@ namespace Mule.File.Impl
 
             try
             {
-                System.IO.File.Move(strTmpFile, fullname_);
+                System.IO.File.Move(strTmpFile, FullName);
             }
             catch (Exception)
             {
@@ -1193,11 +960,11 @@ namespace Mule.File.Impl
             }
 
             // create a backup of the successfully written part.met file
-            string bakname = fullname_ + MuleConstants.PARTMET_BAK_EXT;
+            string bakname = FullName + MuleConstants.PARTMET_BAK_EXT;
 
             try
             {
-                System.IO.File.Copy(fullname_, bakname, false);
+                System.IO.File.Copy(FullName, bakname, false);
             }
             catch (Exception)
             {
@@ -1209,22 +976,107 @@ namespace Mule.File.Impl
         #endregion
 
         #region Protected
-        protected bool GetNextEmptyBlockInPart(uint partnumber, RequestedBlock result)
+        public bool GetNextEmptyBlockInPart(uint partNumber, RequestedBlock result)
+        {
+            Gap firstGap;
+            ulong end;
+            ulong blockLimit;
+
+            // Find start of this part
+            ulong partStart = (MuleConstants.PARTSIZE * partNumber);
+            ulong start = partStart;
+
+            // What is the end limit of this block, i.e. can't go outside part (or filesize)
+            ulong partEnd = (MuleConstants.PARTSIZE * ((ulong)partNumber + 1)) - 1;
+            if (partEnd >= FileSize)
+            {
+                partEnd = FileSize - 1;
+            }
+            // Loop until find a suitable gap and return true, or no more gaps and return false
+            while (true)
+            {
+                firstGap = null;
+
+                // Find the first gap from the start position
+                foreach (Gap currentGap in GapList)
+                {
+
+                    // Want gaps that overlap start<.partEnd
+                    if ((currentGap.start <= partEnd) && (currentGap.end >= start))
+                    {
+                        // Is this the first gap?
+                        if ((firstGap == null) || (currentGap.start < firstGap.start))
+                        {
+                            firstGap = currentGap;
+                        }
+                    }
+                }
+
+                // If no gaps after start, exit
+                if (firstGap == null)
+                {
+                    return false;
+                }
+                // Update start position if gap starts after current pos
+                if (start < firstGap.start)
+                {
+                    start = firstGap.start;
+                }
+                // If this is not within part, exit
+                if (start > partEnd)
+                {
+                    return false;
+                }
+                // Find end, keeping within the max block size and the part limit
+                end = firstGap.end;
+                blockLimit = partStart + (MuleConstants.EMBLOCKSIZE * (((start - partStart) / MuleConstants.EMBLOCKSIZE) + 1)) - 1;
+                if (end > blockLimit)
+                {
+                    end = blockLimit;
+                }
+                if (end > partEnd)
+                {
+                    end = partEnd;
+                }
+                // If this gap has not already been requested, we have found a valid entry
+                if (!IsAlreadyRequested(start, end))
+                {
+                    // Was this block to be returned
+                    if (result != null)
+                    {
+                        result.StartOffset = start;
+                        result.EndOffset = end;
+                        MPDUtilities.Md4Cpy(result.FileID, FileHash);
+                        result.Transferred = 0;
+                    }
+                    return true;
+                }
+                else
+                {
+                    // Reposition to end of that gap
+                    start = end + 1;
+                }
+                // If tried all gaps then break out of the loop
+                if (end == partEnd)
+                {
+                    break;
+                }
+            }
+            // No suitable gap found
+            return false;
+        }
+
+        public void CompleteFile(bool hashingdone)
         {
             throw new Exception("The method or operation is not implemented.");
         }
 
-        protected void CompleteFile(bool hashingdone)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        protected void CreatePartFile()
+        public void CreatePartFile()
         {
             CreatePartFile(0);
         }
 
-        protected void CreatePartFile(uint cat)
+        public void CreatePartFile(uint cat)
         {
             throw new Exception("The method or operation is not implemented.");
         }
@@ -1234,6 +1086,105 @@ namespace Mule.File.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
+        public uint WriteToBuffer(ulong transize,
+            byte[] data,
+            ulong start,
+            ulong end,
+            RequestedBlock block)
+        {
+            // Increment transferred bytes counter for this file
+            Transferred += transize;
+
+            // This is needed a few times
+            // Kry - should not need a ulong here - no block is larger than
+            // 2GB even after uncompressed.
+            uint lenData = (uint)(end - start + 1);
+
+            if (lenData > transize)
+            {
+                GainDueToCompression += lenData - transize;
+            }
+
+            // Occasionally packets are duplicated, no point writing it twice
+            if (IsComplete(start, end))
+            {
+                //AddDebugLogLineM(false, logPartFile,	
+                //			CFormat(wxT("File '%s' has already been written from %u to %u"))
+                //				% GetFileName() % start % end);
+                return 0;
+            }
+
+            // security sanitize check to make sure we do not write anything into an already hashed complete chunk
+            ulong nStartChunk = start / MuleConstants.PARTSIZE;
+            ulong nEndChunk = end / MuleConstants.PARTSIZE;
+            if (IsComplete(MuleConstants.PARTSIZE * (ulong)nStartChunk,
+                (MuleConstants.PARTSIZE * (ulong)(nStartChunk + 1)) - 1))
+            {
+                //AddDebugLogLineM(false, logPartFile, CFormat(wxT("Received data touches already hashed chunk - ignored (start): %u-%u; File=%s")) % start % end % GetFileName());
+                return 0;
+            }
+            else if (nStartChunk != nEndChunk)
+            {
+                if (IsComplete(MuleConstants.PARTSIZE * (ulong)nEndChunk,
+                    (MuleConstants.PARTSIZE * (ulong)(nEndChunk + 1)) - 1))
+                {
+                    //AddDebugLogLineM(false, logPartFile, CFormat(wxT("Received data touches already hashed chunk - ignored (end): %u-%u; File=%s")) % start % end % GetFileName());
+                    return 0;
+                }
+                else
+                {
+                    //AddDebugLogLineM(false, logPartFile, CFormat(wxT("Received data crosses chunk boundaries: %u-%u; File=%s")) % start % end % GetFileName());
+                }
+            }
+
+            // Create a new buffered queue entry
+            PartFileBufferedData item = new PartFileBufferedData();
+            item.data = data;
+            item.start = start;
+            item.end = end;
+            item.block = block;
+
+            // Add to the queue in the correct position (most likely the end)
+            bool added = false;
+
+            foreach (PartFileBufferedData queueItem in bufferedData_list_)
+            {
+                if (item.end <= queueItem.end)
+                {
+
+                    added = true;
+
+                    bufferedData_list_.Insert(bufferedData_list_.IndexOf(queueItem), item);
+
+                    break;
+                }
+            }
+
+            // Increment buffer size marker
+            TotalBufferData += lenData;
+
+            // Mark this small section of the file as filled
+            FillGap(item.start, item.end);
+
+            // Update the flushed mark on the requested block 
+            // The loop here is unfortunate but necessary to detect deleted blocks.
+
+            foreach (RequestedBlock rb in requestedblocks_list_)
+            {
+                if (rb.Equals(item.block))
+                {
+                    item.block.Transferred += lenData;
+                }
+            }
+
+            if (gaplist_.Count == 0)
+            {
+                FlushBuffer(true);
+            }
+
+            // Return the length of data written to the buffer
+            return lenData;
+        }
         #endregion
 
         #region Private

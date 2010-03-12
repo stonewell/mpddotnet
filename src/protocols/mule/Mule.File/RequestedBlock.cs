@@ -26,11 +26,15 @@ using System.Text;
 
 namespace Mule.File
 {
-    public interface RequestedBlock
+    public class RequestedBlockList : List<RequestedBlock>
     {
-        ulong StartOffset { get; set; }
-        ulong EndOffset { get; set; }
-        byte[] FileID { get; set; }
-        ulong Transferred { get; set; }
+    }
+
+    public class RequestedBlock
+    {
+        public ulong StartOffset { get; set; }
+        public ulong EndOffset { get; set; }
+        public byte[] FileID { get; set; }
+        public ulong Transferred { get; set; }
     }
 }

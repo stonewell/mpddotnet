@@ -53,7 +53,6 @@ namespace Mule.File.Impl
         private bool bPublishedED2K_;
         private uint lastPublishTimeKadSrc_;
         private uint lastPublishTimeKadNotes_;
-        private uint lastBuddyIP_;
         private uint uMetaDataVer_;
         private FileTypeEnum verifiedFileType_;
 
@@ -72,6 +71,18 @@ namespace Mule.File.Impl
         #endregion
 
         #region KnownFile Members
+        public StatisticFile Statistic { get { return statistic_; } }
+        public uint CompleteSourcesTime { get; set; }
+        public ushort CompleteSourcesCount { get; set; }
+        public ushort CompleteSourcesCountLo { get; set; }
+        public ushort CompleteSourcesCountHi { get; set; }
+
+        public ushort[] AvailPartFrequency
+        {
+            get { return availPartFrequency_; }
+            set { availPartFrequency_ = value; }
+        }
+
         public string FileDirectory
         {
             get
@@ -209,11 +220,11 @@ namespace Mule.File.Impl
             }
 
             //other tags
-            for (int j = 0; j < taglist_.Count; j++)
+            for (int j = 0; j < tagList_.Count; j++)
             {
-                if (taglist_[j].IsStr || taglist_[j].IsInt)
+                if (tagList_[j].IsStr || tagList_[j].IsInt)
                 {
-                    taglist_[j].WriteTagToFile(file);
+                    tagList_[j].WriteTagToFile(file);
                     uTagCount++;
                 }
             }
@@ -238,14 +249,15 @@ namespace Mule.File.Impl
             }
         }
 
-        public DateTime UtcCFileDate
+        public DateTime UtcFileDate
         {
             get { return new DateTime(tUtcLastModified_); }
         }
 
-        public uint UtcFileDate
+        public uint UtcLastModified
         {
             get { return tUtcLastModified_; }
+            set { tUtcLastModified_ = value; }
         }
 
         public override ulong FileSize
@@ -361,7 +373,7 @@ namespace Mule.File.Impl
             }
         }
 
-        public bool SetHashSet(ByteArrayArray newHashSet)
+        private bool SetHashSet(ByteArrayArray newHashSet)
         {
             hashlist_.Clear();
 
@@ -515,17 +527,7 @@ namespace Mule.File.Impl
             }
         }
 
-        public uint LastPublishBuddy
-        {
-            get
-            {
-                return lastBuddyIP_;
-            }
-            set
-            {
-                lastBuddyIP_ = value;
-            }
-        }
+        public uint LastPublishBuddy { get; set; }
 
         public uint LastPublishTimeKadNotes
         {
@@ -567,11 +569,11 @@ namespace Mule.File.Impl
             {
                 int i = 0;
 
-                while (i < taglist_.Count)
+                while (i < tagList_.Count)
                 {
-                    if (taglist_[i].NameID == _aEmuleMetaTags[j])
+                    if (tagList_[i].NameID == _aEmuleMetaTags[j])
                     {
-                        taglist_.RemoveAt(i);
+                        tagList_.RemoveAt(i);
                     }
                     else
                     {
@@ -721,14 +723,14 @@ namespace Mule.File.Impl
                             if (newtag.IsInt)
                             {
                                 lastPublishTimeKadSrc_ = newtag.Int;
-                                lastBuddyIP_ = 0;
+                                LastPublishBuddy = 0;
                             }
 
                             if (lastPublishTimeKadSrc_ > MPDUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMES)
                             {
                                 //There may be a posibility of an older client that saved a random number here.. This will check for that..
                                 lastPublishTimeKadSrc_ = 0;
-                                lastBuddyIP_ = 0;
+                                LastPublishBuddy = 0;
                             }
 
                             break;
@@ -781,7 +783,7 @@ namespace Mule.File.Impl
                         ED2KUtilities.ConvertED2KTag(ref newtag);
                         if (newtag != null)
                         {
-                            taglist_.Add(newtag);
+                            tagList_.Add(newtag);
                         }
                         break;
                 }
@@ -915,27 +917,5 @@ namespace Mule.File.Impl
         }
         #endregion
 
-        #region Private Functions
-        private static void HeapSort(ref List<ushort> count, int first, int last)
-        {
-            int r;
-            for (r = first; (r & int.MinValue) == 0 && (r << 1) < last; )
-            {
-                int r2 = (r << 1) + 1;
-                if (r2 != last)
-                    if (count[r2] < count[r2 + 1])
-                        r2++;
-                if (count[r] < count[r2])
-                {
-                    ushort t = count[r2];
-                    count[r2] = count[r];
-                    count[r] = t;
-                    r = r2;
-                }
-                else
-                    break;
-            }
-        }
-        #endregion
     }
 }

@@ -61,35 +61,36 @@ namespace Mule.File
         bool SavePartFile();
 
         // part.met filename (without path!)
-        string PartMetFileName { get; }
+        string PartMetFileName { get; set; }
+        DateTime LastSeenComplete { get; set; }
+        System.IO.Stream PartFileStream { get; set; }
 
         // full path to part.met file or completed file
-        string FullName { get; set;}
+        string FullName { get; set; }
         string TempPath { get; }
 
         // local file system related properties
         bool IsNormalFile { get; }
-        bool IsAllocating { get; }
         ulong RealFileSize { get; }
         void GetLeftToTransferAndAdditionalNeededSpace(ref ulong ui64LeftToTransfer, ref ulong pui32AdditionalNeededSpace);
         ulong NeededSpace { get; }
 
         // last file modification time (NT's version of UTC), to be used for stats only!
-        DateTime CFileDate { get; }
-        uint FileDate { get; }
+        DateTime LastModifiedDate { get; }
+        uint LastModified { get; set;}
 
         // file creation time (NT's version of UTC), to be used for stats only!
-        DateTime CrCFileDate { get; }
-        uint CrFileDate { get; }
+        DateTime CreatedDate { get; }
+        uint Created { get; set; }
 
         // true = ok , false = corrupted
         bool HashSinglePart(uint partnumber);
 
         void AddGap(ulong start, ulong end);
         void FillGap(ulong start, ulong end);
-        bool IsComplete(ulong start, ulong end, bool bIgnoreBufferedData);
+        bool IsComplete(ulong start, ulong end);
         bool IsPureGap(ulong start, ulong end);
-        bool IsAlreadyRequested(ulong start, ulong end, bool bCheckBuffers);
+        bool IsAlreadyRequested(ulong start, ulong end);
         bool ShrinkToAvoidAlreadyRequested(ref ulong start, ref ulong end);
         bool IsCorruptedPart(uint partnumber);
         ulong GetTotalGapSizeInRange(ulong uRangeStart, ulong uRangeEnd);
@@ -102,25 +103,24 @@ namespace Mule.File
         void AddSources(SafeMemFile sources, uint serverip, ushort serverport, bool bWithObfuscationAndHash);
         void AddSource(string pszURL, uint nIP);
 
-        PartFileStatusEnum Status { get; set;}
+        PartFileStatusEnum Status { get; set; }
         void NotifyStatusChange();
-        bool IsStopped { get; }
+        bool IsStopped { get; set; }
         bool CompletionError { get; }
         ulong CompletedSize { get; }
         string PartfileStatus { get; }
         int PartfileStatusRang { get; }
         void SetActive(bool bActive);
 
-        byte DownPriority { get; set;}
-        bool IsAutoDownPriority { get;set; }
+        bool IsAutoDownPriority { get; set; }
         void UpdateAutoDownPriority();
 
         uint SourceCount { get; }
         uint SrcA4AFCount { get; }
         uint GetSrcStatisticsValue(DownloadStateEnum nDLState);
         uint TransferringSrcCount { get; }
-        ulong Transferred { get; }
-        uint Datarate { get; }
+        ulong Transferred { get; set; }
+        uint DataRate { get; set; }
         float PercentCompleted { get; }
         uint NotCurrentSourcesCount { get; }
         int ValidSourcesCount { get; }
@@ -129,7 +129,6 @@ namespace Mule.File
         bool IsPreviewableFileType { get; }
         ulong TimeRemaining { get; }
         ulong TimeRemainingSimple { get; }
-        uint DlActiveTime { get; }
 
         // Barry - Added as replacement for BlockReceived to buffer data before writing to disk
         void FlushBuffer();
@@ -138,7 +137,7 @@ namespace Mule.File
         void FlushBuffer(bool forcewait, bool bForceICH, bool bNoAICH);
         // Barry - This will invert the gap list, up to caller to delete gaps when done
         // 'Gaps' returned are really the filled areas, and guaranteed to be in order
-        GapList FilledList { get;}
+        GapList GapList { get; }
 
         // Barry - Added to prevent list containing deleted blocks on shutdown
         void RemoveAllRequestedBlocks();
@@ -164,11 +163,11 @@ namespace Mule.File
         uint AvailablePartCount { get; }
         void UpdateAvailablePartsCount();
 
-        uint LastAnsweredTime { get; set;}
+        uint LastAnsweredTime { get; set; }
         void UpdateLastAnsweredTimeTimeout();
 
-        ulong CorruptionLoss { get; }
-        ulong CompressionGain { get; }
+        ulong CorruptionLoss { get; set; }
+        ulong CompressionGain { get; set; }
         uint RecoveredPartsByICH { get; }
 
         string GetProgressString(ushort size);
@@ -177,33 +176,31 @@ namespace Mule.File
         void UpdateDisplayedInfo();
         void UpdateDisplayedInfo(bool force);
 
-        uint Category { get; set; }
         bool CheckShowItemInGivenCat(int inCategory);
 
         byte[] MMCreatePartStatus();
 
         void PerformFileCompleteEnd(uint dwResult);
 
-        PartFileOpEnum FileOp { get;set;}
-        uint FileOpProgress { get;set;}
+        PartFileOpEnum FileOp { get; set; }
+        uint FileOpProgress { get; set; }
 
         void RequestAICHRecovery(uint nPart);
         void AICHRecoveryDataAvailable(uint nPart);
 
-        bool AllowSwapForSourceExchange { get;}
+        bool AllowSwapForSourceExchange { get; }
         void SetSwapForSourceExchangeTick();
 
-        uint PrivateMaxSources { get;set;}
-        uint MaxSources { get;}
-        uint MaxSourcePerFileSoft { get;}
-        uint MaxSourcePerFileUDP { get;}
+        uint PrivateMaxSources { get; set; }
+        uint MaxSources { get; set; }
+        uint MaxSourcePerFileSoft { get; }
+        uint MaxSourcePerFileUDP { get; }
 
-        bool PreviewPrio { get;set;}
+        bool PreviewPriority { get; set; }
+        bool Paused { get; set; }
+        byte DownPriority { get; set; }
 
         /* Protected 
-        bool GetNextEmptyBlockInPart(uint partnumber, RequestedBlock result);
-        void CompleteFile(bool hashingdone);
-        void CreatePartFile(uint cat);
         void Init();
         */
 
@@ -211,5 +208,25 @@ namespace Mule.File
         bool PerformFileComplete();
         void CharFillRange(ref string buffer, uint start, uint end, char color);
          */
+        void CreatePartFile();
+        void CreatePartFile(uint cat);
+        void CompleteFile(bool hashingdone);
+        uint DownloadActiveTime { get; set; }
+        List<ushort> CorruptedList { get; }
+        System.IO.FileAttributes FileAttributes { get; set; }
+        List<ushort> SourcePartFrequency { get; }
+        bool HashsetNeeded { get; set; }
+        uint[] AnStates { get; set; }
+        ushort[] SourceStates { get; set; }
+        ushort[] NetStates { get; set; }
+        uint LastPurgeTime { get; set; }
+        ulong TotalBufferData { get; set; }
+        uint LastBufferFlushTime { get; set; }
+        uint Category { get; set; }
+        bool PartFileUpdated { get; set; }
+        bool IsLocalSrcReqQueued { get; set; }
+        bool IsPreviewing { get; set; }
+        RequestedBlockList RequestedBlocks { get; }
+        bool GetNextEmptyBlockInPart(uint partnumber, RequestedBlock result);
     }
 }

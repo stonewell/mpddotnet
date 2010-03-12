@@ -55,13 +55,13 @@ namespace Mule.File.Impl
                 return false;
             }
 
-            taglist_.Add(MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILEHASH, pFileLink.HashKey));
+            tagList_.Add(MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILEHASH, pFileLink.HashKey));
             MPDUtilities.Md4Cpy(FileHash, pFileLink.HashKey);
 
-            taglist_.Add(MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILESIZE, pFileLink.Size, true));
+            tagList_.Add(MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILESIZE, pFileLink.Size, true));
             FileSize = pFileLink.Size;
 
-            taglist_.Add(MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILENAME, pFileLink.Name));
+            tagList_.Add(MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILENAME, pFileLink.Name));
             SetFileName(pFileLink.Name, false, false, false);
 
             return true;
@@ -69,9 +69,9 @@ namespace Mule.File.Impl
 
         public void WriteCollectionInfo(FileDataIO out_data)
         {
-            out_data.WriteUInt32(Convert.ToUInt32(taglist_.Count));
+            out_data.WriteUInt32(Convert.ToUInt32(tagList_.Count));
 
-            foreach (Tag tag in taglist_)
+            foreach (Tag tag in tagList_)
             {
                 tag.WriteNewEd2kTag(out_data, Utf8StrEnum.utf8strRaw);
             }

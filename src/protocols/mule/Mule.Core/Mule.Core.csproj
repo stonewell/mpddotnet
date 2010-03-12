@@ -68,8 +68,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddFileThread.cs" />
     <Compile Include="CBBRecord.cs" />
+    <Compile Include="Chunk.cs" />
     <Compile Include="ClientCredits.cs" />
     <Compile Include="ClientList.cs" />
     <Compile Include="CoreFunctions.cs" />
@@ -77,6 +77,7 @@
     <Compile Include="DownloadQueue.cs" />
     <Compile Include="Impl\MuleBaseObjectImpl.cs" />
     <Compile Include="Impl\MuleDownloadTask.cs" />
+    <Compile Include="Impl\MuleFileTask.cs" />
     <Compile Include="Impl\MuleTask.cs" />
     <Compile Include="Impl\MuleUploadTask.cs" />
     <Compile Include="MuleBaseObject.cs" />

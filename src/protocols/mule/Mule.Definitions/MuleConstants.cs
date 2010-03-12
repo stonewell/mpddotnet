@@ -226,5 +226,7 @@ namespace Mule.Definitions
         public const uint KADEMLIATOTALFILE = 5;
         public const uint KADEMLIAREASKTIME = 1 * 3600 * 1000;
         public const uint SERVERREASKTIME = 15 * 60 * 1000;
+        public const uint MAX_SOURCES_FILE_SOFT = 500;
+        public const uint MAX_SOURCES_FILE_UDP = 50;
     }
 }

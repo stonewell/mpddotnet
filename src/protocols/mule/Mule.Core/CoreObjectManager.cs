@@ -149,9 +149,9 @@ namespace Mule.Core
             throw new Exception("The method or operation is not implemented.");
         }
 
-        internal AddFileThread CreateAddFileThread()
+        internal UpDownClient CreateUpDownClient(ushort nPort, uint dwID, uint dwServerIP, ushort nServerPort, Mule.Core.Impl.MuleDownloadTask muleDownloadTask, bool p, bool p_7)
         {
-            return CreateObject(typeof(AddFileThread), null) as AddFileThread;
+            throw new NotImplementedException();
         }
     }
 }

@@ -33,10 +33,12 @@ namespace Mule.File.Impl
     abstract class AbstractFileImpl : AbstractFile
     {
         #region Fields
-        protected TagList taglist_ = new TagList();
+        protected TagList tagList_ = new TagList();
         #endregion
 
         #region Properties
+        public object KadNotes { get; set; }
+
         private string FileName_;
         public string FileName
         {
@@ -72,21 +74,14 @@ namespace Mule.File.Impl
             } 
         }
 
-        //private KadEntryList kad_entry_notes_ = new KadEntryList();
-        //public KadEntryList KadNotes
-        //{
-        //    get { return kad_entry_notes_; }
-        //}
-
         public virtual bool IsPartFile
         {
             get { return false; }
         }
 
-        private TagList tags_ = new TagList();
-        public TagList Tags
+        public TagList TagList
         {
-            get { return tags_; }
+            get { return tagList_; }
         }
 
         public bool HasComment {get;set;}
@@ -114,7 +109,7 @@ namespace Mule.File.Impl
         #region AbstractFile Members
         public uint GetIntTagValue(byte nameId)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == Convert.ToUInt32(nameId) && tag.IsInt)
                 {
@@ -127,7 +122,7 @@ namespace Mule.File.Impl
 
         public uint GetIntTagValue(string tagname)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == 0 && 
                     tag.IsInt &&
@@ -142,7 +137,7 @@ namespace Mule.File.Impl
 
         public bool GetIntTagValue(byte nameId, ref uint ruValue)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == Convert.ToUInt32(nameId) && tag.IsInt)
                 {
@@ -157,7 +152,7 @@ namespace Mule.File.Impl
 
         public ulong GetInt64TagValue(byte nameId)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == nameId &&
                     tag.IsInt64(true))
@@ -171,7 +166,7 @@ namespace Mule.File.Impl
 
         public ulong GetInt64TagValue(string tagname)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == 0 &&
                     tag.IsInt64(true) &&
@@ -186,7 +181,7 @@ namespace Mule.File.Impl
 
         public bool GetInt64TagValue(byte nameId, ref ulong ruValue)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == Convert.ToUInt32(nameId) && tag.IsInt64(true))
                 {
@@ -201,7 +196,7 @@ namespace Mule.File.Impl
 
         public void SetIntTagValue(byte nameId, uint uValue)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == nameId &&
                     tag.IsInt)
@@ -213,12 +208,12 @@ namespace Mule.File.Impl
 
             Tag newTag = MpdGenericObjectManager.CreateTag(nameId, uValue);
 
-            tags_.Add(newTag);
+            tagList_.Add(newTag);
         }
 
         public void SetInt64TagValue(byte nameId, ulong uValue)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == nameId &&
                     tag.IsInt64(true))
@@ -230,12 +225,12 @@ namespace Mule.File.Impl
 
             Tag newTag = MpdGenericObjectManager.CreateTag(nameId, uValue);
 
-            tags_.Add(newTag);
+            tagList_.Add(newTag);
         }
 
         public string GetStrTagValue(byte nameId)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == nameId &&
                     tag.IsStr)
@@ -249,7 +244,7 @@ namespace Mule.File.Impl
 
         public string GetStrTagValue(string tagname)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == 0 &&
                     tag.IsStr &&
@@ -264,7 +259,7 @@ namespace Mule.File.Impl
 
         public void SetStrTagValue(byte nameId, string val)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == nameId &&
                     tag.IsStr)
@@ -276,12 +271,12 @@ namespace Mule.File.Impl
 
             Tag newTag = MpdGenericObjectManager.CreateTag(nameId, val);
 
-            tags_.Add(newTag);
+            tagList_.Add(newTag);
         }
 
         public Tag GetTag(byte nameId, byte tagtype)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == nameId &&
                     tag.TagType == tagtype)
@@ -295,7 +290,7 @@ namespace Mule.File.Impl
 
         public Tag GetTag(string tagname, byte tagtype)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == 0 &&
                     tag.TagType == tagtype &&
@@ -310,7 +305,7 @@ namespace Mule.File.Impl
 
         public Tag GetTag(byte nameId)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == nameId)
                 {
@@ -323,7 +318,7 @@ namespace Mule.File.Impl
 
         public Tag GetTag(string tagname)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == 0 &&
                     string.Compare(tag.Name, tagname) == 0)
@@ -337,29 +332,29 @@ namespace Mule.File.Impl
 
         public void AddTagUnique(Tag pTag)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if ((tag.NameID != 0 && tag.NameID == pTag.NameID ||
                     tag.Name != null && string.Compare(tag.Name, pTag.Name) == 0) &&
                     tag.TagType == pTag.TagType)
                 {
-                    int index = tags_.IndexOf(tag);
-                    tags_.RemoveAt(index);
-                    tags_.Insert(index, pTag);
+                    int index = tagList_.IndexOf(tag);
+                    tagList_.RemoveAt(index);
+                    tagList_.Insert(index, pTag);
                     return;
                 }
             }
 
-            tags_.Add(pTag);
+            tagList_.Add(pTag);
         }
 
         public void DeleteTag(byte tagname)
         {
-            foreach (Tag tag in tags_)
+            foreach (Tag tag in tagList_)
             {
                 if (tag.NameID == tagname)
                 {
-                    tags_.Remove(tag);
+                    tagList_.Remove(tag);
                     return;
                 }
             }
@@ -367,19 +362,19 @@ namespace Mule.File.Impl
 
         public void DeleteTag(Tag pTag)
         {
-            tags_.Remove(pTag);
+            tagList_.Remove(pTag);
         }
 
         public void ClearTags()
         {
-            tags_.Clear();
+            tagList_.Clear();
         }
 
         public void CopyTags(TagList tags)
         {
             foreach (Tag tag in tags)
             {
-                tags_.Add(MpdGenericObjectManager.CreateTag(tag));
+                tagList_.Add(MpdGenericObjectManager.CreateTag(tag));
             }
         }
 

@@ -60,7 +60,7 @@ namespace Mule.File
         Tag GetTag(string tagname, byte tagtype);
         Tag GetTag(byte tagname);
         Tag GetTag(string tagname);
-        TagList Tags { get; }
+        TagList TagList { get; }
         void AddTagUnique(Tag pTag);
         void DeleteTag(byte tagname);
         void DeleteTag(Tag pTag);
@@ -77,5 +77,6 @@ namespace Mule.File
         string FileComment { get; set; }
         uint FileRating { get; set;}
 
+        object KadNotes { get; set; }
     }
 }

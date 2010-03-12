@@ -53,7 +53,6 @@
     <Compile Include="Impl\KnownFileImpl.cs" />
     <Compile Include="Impl\PartFileImpl.cs" />
     <Compile Include="Impl\PendingBlockImpl.cs" />
-    <Compile Include="Impl\RequestedBlockImpl.cs" />
     <Compile Include="KnownFile.cs" />
     <Compile Include="PartFile.cs" />
     <Compile Include="PendingBlock.cs" />

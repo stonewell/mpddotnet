@@ -209,7 +209,7 @@ namespace Mule.Core
         uint GetLastAskedTime(PartFile partFile);
         void SetLastAskedTime();
         bool IsPartAvailable(uint iPart);
-        byte PartStatus { get;}
+        List<bool> PartStatus { get;}
         ushort PartCount { get;}
         uint DownloadDatarate { get;}
         uint RemoteQueueRank { get;}
@@ -345,7 +345,7 @@ namespace Mule.Core
         Friend Friend { get;}
         PartFileList OtherRequestsList { get;}
         PartFileList OtherNoNeededList { get;}
-        ushort LastPartAsked { get;}
+        ushort LastPartAsked { get; set; }
         bool DoesAddNextConnect { get;}
 
 

@@ -23,8 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mpd.Generic.Types;
-using Mpd.Generic.Types.IO;
+using Mpd.Generic;
+using Mpd.Generic.IO;
 
 namespace Kademlia
 {

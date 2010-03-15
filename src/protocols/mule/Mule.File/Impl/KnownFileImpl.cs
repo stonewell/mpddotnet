@@ -27,8 +27,8 @@ using Mule.AICH;
 using System.Collections;
 using System.IO;
 using Mule.ED2K;
-using Mpd.Generic.Types.IO;
-using Mpd.Generic.Types;
+using Mpd.Generic.IO;
+using Mpd.Generic;
 using Mule.Definitions;
 using Mpd.Utilities;
 
@@ -135,23 +135,23 @@ namespace Mule.File.Impl
             if (ED2KUtilities.WriteOptED2KUTF8Tag(file, FileName, MuleConstants.FT_FILENAME))
                 uTagCount++;
 
-            Tag nametag = MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILENAME, FileName);
+            Tag nametag = MpdObjectManager.CreateTag(MuleConstants.FT_FILENAME, FileName);
             nametag.WriteTagToFile(file);
             uTagCount++;
 
-            Tag sizetag = MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILESIZE, FileSize, IsLargeFile);
+            Tag sizetag = MpdObjectManager.CreateTag(MuleConstants.FT_FILESIZE, FileSize, IsLargeFile);
             sizetag.WriteTagToFile(file);
             uTagCount++;
 
             // statistic
             if (statistic_.AllTimeTransferred > 0)
             {
-                Tag attag1 = MpdGenericObjectManager.CreateTag(MuleConstants.FT_ATTRANSFERRED,
+                Tag attag1 = MpdObjectManager.CreateTag(MuleConstants.FT_ATTRANSFERRED,
                     Convert.ToUInt32(statistic_.AllTimeTransferred & 0xFFFFFFFF));
                 attag1.WriteTagToFile(file);
                 uTagCount++;
 
-                Tag attag4 = MpdGenericObjectManager.CreateTag(MuleConstants.FT_ATTRANSFERREDHI,
+                Tag attag4 = MpdObjectManager.CreateTag(MuleConstants.FT_ATTRANSFERREDHI,
                     Convert.ToUInt32(statistic_.AllTimeTransferred >> 32));
                 attag4.WriteTagToFile(file);
                 uTagCount++;
@@ -159,7 +159,7 @@ namespace Mule.File.Impl
 
             if (statistic_.AllTimeRequests > 0)
             {
-                Tag attag2 = MpdGenericObjectManager.CreateTag(MuleConstants.FT_ATREQUESTED,
+                Tag attag2 = MpdObjectManager.CreateTag(MuleConstants.FT_ATREQUESTED,
                     statistic_.AllTimeRequests);
                 attag2.WriteTagToFile(file);
                 uTagCount++;
@@ -167,14 +167,14 @@ namespace Mule.File.Impl
 
             if (statistic_.AllTimeAccepts > 0)
             {
-                Tag attag3 = MpdGenericObjectManager.CreateTag(MuleConstants.FT_ATACCEPTED,
+                Tag attag3 = MpdObjectManager.CreateTag(MuleConstants.FT_ATACCEPTED,
                     statistic_.AllTimeAccepts);
                 attag3.WriteTagToFile(file);
                 uTagCount++;
             }
 
             // priority N permission
-            Tag priotag = MpdGenericObjectManager.CreateTag(MuleConstants.FT_ULPRIORITY,
+            Tag priotag = MpdObjectManager.CreateTag(MuleConstants.FT_ULPRIORITY,
                 IsAutoUpPriority ? Convert.ToByte(PriorityEnum.PR_AUTO) : iUpPriority_);
             priotag.WriteTagToFile(file);
             uTagCount++;
@@ -184,7 +184,7 @@ namespace Mule.File.Impl
                 (AICHHashSet.Status == AICHStatusEnum.AICH_HASHSETCOMPLETE ||
                     AICHHashSet.Status == AICHStatusEnum.AICH_VERIFIED))
             {
-                Tag aichtag = MpdGenericObjectManager.CreateTag(MuleConstants.FT_AICH_HASH,
+                Tag aichtag = MpdObjectManager.CreateTag(MuleConstants.FT_AICH_HASH,
                     AICHHashSet.GetMasterHash().HashString);
                 aichtag.WriteTagToFile(file);
                 uTagCount++;
@@ -193,14 +193,14 @@ namespace Mule.File.Impl
 
             if (lastPublishTimeKadSrc_ > 0)
             {
-                Tag kadLastPubSrc = MpdGenericObjectManager.CreateTag(MuleConstants.FT_KADLASTPUBLISHSRC, lastPublishTimeKadSrc_);
+                Tag kadLastPubSrc = MpdObjectManager.CreateTag(MuleConstants.FT_KADLASTPUBLISHSRC, lastPublishTimeKadSrc_);
                 kadLastPubSrc.WriteTagToFile(file);
                 uTagCount++;
             }
 
             if (lastPublishTimeKadNotes_ > 0)
             {
-                Tag kadLastPubNotes = MpdGenericObjectManager.CreateTag(MuleConstants.FT_KADLASTPUBLISHNOTES, lastPublishTimeKadNotes_);
+                Tag kadLastPubNotes = MpdObjectManager.CreateTag(MuleConstants.FT_KADLASTPUBLISHNOTES, lastPublishTimeKadNotes_);
                 kadLastPubNotes.WriteTagToFile(file);
                 uTagCount++;
             }
@@ -214,7 +214,7 @@ namespace Mule.File.Impl
                 //				1 = we have created that meta data by examining the file contents.
                 // Bits 31-4: Reserved
                 uint uFlags = uMetaDataVer_ & 0x0F;
-                Tag tagFlags = MpdGenericObjectManager.CreateTag(MuleConstants.FT_FLAGS, uFlags);
+                Tag tagFlags = MpdObjectManager.CreateTag(MuleConstants.FT_FLAGS, uFlags);
                 tagFlags.WriteTagToFile(file);
                 uTagCount++;
             }
@@ -381,7 +381,7 @@ namespace Mule.File.Impl
             for (int i = 0; i < newHashSet.Count; i++)
             {
                 byte[] pucHash = new byte[16];
-                MPDUtilities.Md4Cpy(pucHash, newHashSet[i]);
+                MpdUtilities.Md4Cpy(pucHash, newHashSet[i]);
                 hashlist_.Add(pucHash);
             }
 
@@ -392,10 +392,10 @@ namespace Mule.File.Impl
             byte[] aucHashsetHash = new byte[16];
             byte[] buffer = new byte[hashlist_.Count * 16];
             for (int i = 0; i < hashlist_.Count; i++)
-                MPDUtilities.Md4Cpy(buffer, (i * 16), hashlist_[i], 0, 16);
+                MpdUtilities.Md4Cpy(buffer, (i * 16), hashlist_[i], 0, 16);
             CreateHash(buffer, Convert.ToUInt64(buffer.Length), aucHashsetHash);
 
-            bool bResult = (MPDUtilities.Md4Cmp(aucHashsetHash, FileHash) == 0);
+            bool bResult = (MpdUtilities.Md4Cmp(aucHashsetHash, FileHash) == 0);
             if (!bResult)
             {
                 // delete hashset
@@ -468,11 +468,11 @@ namespace Mule.File.Impl
 
             if (!checkhash)
             {
-                MPDUtilities.Md4Cpy(FileHash, checkid);
+                MpdUtilities.Md4Cpy(FileHash, checkid);
                 if (parts <= 1)	// nothing to check
                     return true;
             }
-            else if (MPDUtilities.Md4Cmp(FileHash, checkid) != 0)
+            else if (MpdUtilities.Md4Cmp(FileHash, checkid) != 0)
             {
                 hashlist_.Clear();
                 return false;	// wrong file?
@@ -491,10 +491,10 @@ namespace Mule.File.Impl
             {
                 byte[] buffer = new byte[hashlist_.Count * 16];
                 for (int i = 0; i < hashlist_.Count; i++)
-                    MPDUtilities.Md4Cpy(buffer, (i * 16), hashlist_[i], 0, 16);
+                    MpdUtilities.Md4Cpy(buffer, (i * 16), hashlist_[i], 0, 16);
                 CreateHash(buffer, Convert.ToUInt64(buffer.Length), checkid);
             }
-            if (MPDUtilities.Md4Cmp(FileHash, checkid) == 0)
+            if (MpdUtilities.Md4Cmp(FileHash, checkid) == 0)
                 return true;
             else
             {
@@ -645,7 +645,7 @@ namespace Mule.File.Impl
             uint tagcount = file.ReadUInt32();
             for (uint j = 0; j < tagcount; j++)
             {
-                Tag newtag = MpdGenericObjectManager.CreateTag(file, false);
+                Tag newtag = MpdObjectManager.CreateTag(file, false);
                 switch (newtag.NameID)
                 {
                     case MuleConstants.FT_FILENAME:
@@ -726,7 +726,7 @@ namespace Mule.File.Impl
                                 LastPublishBuddy = 0;
                             }
 
-                            if (lastPublishTimeKadSrc_ > MPDUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMES)
+                            if (lastPublishTimeKadSrc_ > MpdUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMES)
                             {
                                 //There may be a posibility of an older client that saved a random number here.. This will check for that..
                                 lastPublishTimeKadSrc_ = 0;
@@ -769,7 +769,7 @@ namespace Mule.File.Impl
                             }
 
                             AICHHash hash = AICHObjectManager.CreateAICHHash();
-                            if (MPDUtilities.DecodeBase32(newtag.Str.ToCharArray(), hash.RawHash) ==
+                            if (MpdUtilities.DecodeBase32(newtag.Str.ToCharArray(), hash.RawHash) ==
                                 MuleConstants.HASHSIZE)
                                 pAICHHashSet_.SetMasterHash(hash, AICHStatusEnum.AICH_HASHSETCOMPLETE);
                             else
@@ -898,7 +898,7 @@ namespace Mule.File.Impl
             {
                 md4.Add(X, (uint)required);
                 md4.Finish();
-                MPDUtilities.Md4Cpy(pucHash, md4.GetHash());
+                MpdUtilities.Md4Cpy(pucHash, md4.GetHash());
             }
 
             return true;

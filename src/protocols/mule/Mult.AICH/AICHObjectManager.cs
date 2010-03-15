@@ -22,7 +22,7 @@ namespace Mule.AICH
             return new Impl.AICHHashSetImpl();
         }
 
-        public static AICHHash CreateAICHHash(Mpd.Generic.Types.IO.FileDataIO fileInput)
+        public static AICHHash CreateAICHHash(Mpd.Generic.IO.FileDataIO fileInput)
         {
             AICHHash hash = CreateAICHHash();
             hash.Read(fileInput);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mule.File.Impl;
-using Mpd.Generic.Types;
+using Mpd.Generic;
 
 namespace Mule.File
 {
@@ -16,12 +16,12 @@ namespace Mule.File
 
         public static PartFile CreatePartFile(params object[] parameters)
         {
-            return MpdGenericObjectManager.CreateObject(typeof(PartFileImpl), parameters) as PartFile;
+            return MpdObjectManager.CreateObject(typeof(PartFileImpl), parameters) as PartFile;
         }
 
         public static KnownFile CreateKnownFile()
         {
-            return MpdGenericObjectManager.CreateObject(typeof(KnownFileImpl)) as KnownFile;
+            return MpdObjectManager.CreateObject(typeof(KnownFileImpl)) as KnownFile;
         }
     }
 }

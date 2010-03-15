@@ -188,14 +188,14 @@ namespace Mule.Definitions
         PFOP_UNCOMPRESSING
     };
 
-    public enum EMSocketStateEnum
+    public enum EMSocketStateEnum : byte
     {
         ES_DISCONNECTED = 0xFF,
         ES_NOTCONNECTED = 0x00,
         ES_CONNECTED = 0x01
     };
 
-    public enum EMSocketErrorCodeEnum
+    public enum EMSocketErrorCodeEnum : int
     {
         ERR_WRONGHEADER = 0x01,
         ERR_TOOBIG = 0x02,

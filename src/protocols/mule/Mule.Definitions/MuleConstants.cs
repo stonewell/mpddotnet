@@ -208,9 +208,6 @@ namespace Mule.Definitions
         public const byte TAGTYPE_STR21 = 0x25;	// accepted by eMule 0.42f (02-Mai-2004) in receiving code only because of a flaw, those tags are handled correctly, but should not be handled at all
         public const byte TAGTYPE_STR22 = 0x26;	// accepted by eMule 0.42f (02-Mai-2004) in receiving code only because of a flaw, those tags are handled correctly, but should not be handled at all
 
-        public const uint KADEMLIAREPUBLISHTIMES = 5 * 60 * 60;
-        public const uint KADEMLIAREPUBLISHTIMEN = 24 * 60 * 60;
-
         public const uint META_DATA_VER = 1;
 
         public const string FT_ED2K_MEDIA_ARTIST = "Artist";	// <string>
@@ -223,10 +220,91 @@ namespace Mule.Definitions
         public const string TAG_ONIP = "ip";
         public const string TAG_ONPORT = "port";
 
-        public const uint KADEMLIATOTALFILE = 5;
-        public const uint KADEMLIAREASKTIME = 1 * 3600 * 1000;
-        public const uint SERVERREASKTIME = 15 * 60 * 1000;
+        private const uint ONE_SEC_MS = 1000;
+        private const uint ONE_MIN_MS = ONE_SEC_MS * 60;
+        private const uint ONE_HOUR_MS = 60 * ONE_MIN_MS;
+        private const uint ONE_DAY_MS = 24 * ONE_HOUR_MS;
+        private const uint ONE_MIN_SEC = 60;
+        private const uint ONE_HOUR_SEC = 60 * ONE_MIN_SEC;
+        private const uint ONE_DAY_SEC = 24 * ONE_HOUR_SEC;
+
         public const uint MAX_SOURCES_FILE_SOFT = 500;
         public const uint MAX_SOURCES_FILE_UDP = 50;
+
+        public const uint MAGICVALUE_REQUESTER = 34;							// modification of the requester-send and server-receive key
+        public const uint MAGICVALUE_SERVER = 203;						// modification of the server-send and requester-send key
+        public const uint MAGICVALUE_SYNC = 0x835E6FC4;					// value to check if we have a working encrypted stream 
+        public const uint DHAGREEMENT_A_BITS = 128;
+
+        public const uint PRIMESIZE_BYTES = 96;
+        // MOD Note: Do not change this part - Merkur
+        public const uint UDPSEARCHSPEED = ONE_SEC_MS * 1;	//1 sec - if this value is too low you will miss sources
+        public const uint MAX_RESULTS = 100;			// max global search results
+        public const uint MAX_MORE_SEARCH_REQ = 5;			// this gives a max. total search results of (1+5)*201 = 1206 or (1+5)*300 = 1800
+        public const uint MAX_CLIENTCONNECTIONTRY = 2;
+        public const uint CONNECTION_TIMEOUT = ONE_SEC_MS * 40;	//40 secs - set his lower if you want less connections at once, set it higher if you have enough sockets (edonkey has its own timout too, so a very high value won't effect this
+        public const uint FILEREASKTIME = ONE_MIN_MS * 29;	//29 mins
+        public const uint SERVERREASKTIME = ONE_MIN_MS * 15;	//15 mins - don't set this too low, it wont speed up anything, but it could kill emule or your internetconnection
+        public const uint UDPSERVERREASKTIME = ONE_MIN_MS * 30;	//30 mins
+        public const uint MAX_SERVERFAILCOUNT = 10;
+        public const uint SOURCECLIENTREASKS = ONE_MIN_MS * 40;	//40 mins
+        public const uint SOURCECLIENTREASKF = ONE_MIN_MS * 5;	//5 mins
+        public const uint KADEMLIAASKTIME = ONE_SEC_MS * 1;	//1 second
+        public const uint KADEMLIATOTALFILE = 5;			//Total files to search sources for.
+        public const uint KADEMLIAREASKTIME = ONE_HOUR_MS * 1;	//1 hour
+        public const uint KADEMLIAPUBLISHTIME = 2;		//2 second
+        public const uint KADEMLIATOTALSTORENOTES = 1;			//Total hashes to store.
+        public const uint KADEMLIATOTALSTORESRC = 3;			//Total hashes to store.
+        public const uint KADEMLIATOTALSTOREKEY = 2;			//Total hashes to store.
+        public const uint KADEMLIAREPUBLISHTIMES = ONE_HOUR_SEC * 5;		//5 hours
+        public const uint KADEMLIAREPUBLISHTIMEN = ONE_HOUR_SEC * 24;	//24 hours
+        public const uint KADEMLIAREPUBLISHTIMEK = ONE_HOUR_SEC * 24;	//24 hours
+        public const uint KADEMLIADISCONNECTDELAY = ONE_MIN_SEC * 20;	//20 mins
+        public const uint KADEMLIAMAXINDEX = 50000;		//Total keyword indexes.
+        public const uint KADEMLIAMAXENTRIES = 60000;		//Total keyword entries.
+        public const uint KADEMLIAMAXSOUCEPERFILE = 1000;		//Max number of sources per file in index.
+        public const uint KADEMLIAMAXNOTESPERFILE = 150;			//Max number of notes per entry in index.
+        public const uint KADEMLIAFIREWALLCHECKS = 4;		//Firewallcheck Request at a time
+
+
+        public const uint ED2KREPUBLISHTIME = ONE_MIN_MS * 1;	//1 min
+        public const uint MINCOMMONPENALTY = 4;
+        public const uint UDPSERVERSTATTIME = ONE_SEC_MS * 5;	//5 secs
+        public const uint UDPSERVSTATREASKTIME = ONE_HOUR_SEC * 9 / 2;	//4.5 hours (A random time of up to one hour is reduced during runtime after each ping;
+        public const uint UDPSERVSTATMINREASKTIME = ONE_MIN_SEC * 20;	//minimum time between two pings even when trying to force a premature ping for a new UDP key
+        public const uint UDPSERVERPORT = 4665;		//default udp port
+        public const uint UDPMAXQUEUETIME = ONE_SEC_MS * 30;	//30 Seconds
+        public const uint RSAKEYSIZE = 384;			//384 bits
+        public const uint MAX_SOP_JOIN_ROOMOURCES_FILE_SOFT = 750;
+        public const ulong SESSIONMAXTRANS = (PARTSIZE + 20 * 1024); // "Try to send complete chunks" always sends this amount of data
+        public const uint SESSIONMAXTIME = ONE_HOUR_MS * 1;	//1 hour
+        // MOD Note: end
+
+        public const string CONFIGFOLDER = "config\\";
+        public const uint MAXCONPER5SEC = 20;
+        public const uint MAXCON5WIN9X = 10;
+        public const uint UPLOAD_CHECK_CLIENT_DR = 2048;
+        public const uint UPLOAD_CLIENT_DATARATE = 3072;		// uploadspeed per client in bytes - you may want to adjust this if you have a slow connection or T1-T3 ;)
+        public const uint MAX_UP_CLIENTS_ALLOWED = 100;			// max. clients allowed regardless UPLOAD_CLIENT_DATARATE or any other factors. Don't set this too low, use DATARATE to adjust uploadspeed per client
+        public const uint MIN_UP_CLIENTS_ALLOWED = 2;		// min. clients allowed to download regardless UPLOAD_CLIENT_DATARATE or any other factors. Don't set this too high
+        public const uint DOWNLOADTIMEOUT = ONE_SEC_MS * 100;
+        public const uint CONSERVTIMEOUT = ONE_SEC_MS * 25;	// agelimit for pending connection attempts
+        public const uint RARE_FILE = 50;
+        public const uint BADCLIENTBAN = 4;
+        public const uint MIN_REQUESTTIME = ONE_MIN_MS * 10;
+        public const uint MAX_PURGEQUEUETIME = ONE_HOUR_MS * 1;
+        public const uint PURGESOURCESWAPSTOP = ONE_MIN_MS * 15;	// (15 mins), how long forbid swapping a source to a certain file (NNP,...;
+        public const uint CONNECTION_LATENCY = 22050;		// latency for responces
+        public const uint MINWAIT_BEFORE_DLDISPLAY_WINDOWUPDATE = 1000;
+        public const uint MINWAIT_BEFORE_ULDISPLAY_WINDOWUPDATE = 1000;
+        public const uint CLIENTBANTIME = ONE_HOUR_MS * 2;	// 2h
+        public const uint TRACKED_CLEANUP_TIME = ONE_HOUR_MS * 1;	// 1 hour
+        public const uint KEEPTRACK_TIME = ONE_HOUR_MS * 2;	// 2h	//how long to keep track of clients which were once in the uploadqueue
+        public const uint LOCALSERVERREQUESTS = 20000;	// only one local src request during this timespan (WHERE IS THIS USED?)
+        public const uint DISKSPACERECHECKTIME = ONE_MIN_MS * 15;
+        public const uint CLIENTLIST_CLEANUP_TIME = ONE_MIN_MS * 34;	// 34 min
+        public const uint MAXPRIORITYCOLL_SIZE = 50 * 1024;		// max file size for collection file which are allowed to bypass the queue
+        public const uint SEARCH_SPAM_THRESHOLD = 60;
+        public const uint OLDFILES_PARTIALLYPURGE = ONE_DAY_SEC * 31;	// time after which some data about a know file in the known.met and known2.met is deleted
     }
 }

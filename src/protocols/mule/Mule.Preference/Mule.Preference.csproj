@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7C8BA2B1-6367-4365-8631-6E388614EC10}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mule.Preference</RootNamespace>
+    <AssemblyName>Mule.Preference</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.85.5.452, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\libs\ICSharpCode.Net\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MulePreference.cs" />
+    <Compile Include="MuleStatistics.cs" />
+    <Compile Include="FileComments.cs" />
+    <Compile Include="Impl\BackupUtil.cs" />
+    <Compile Include="Impl\MulePreferenceImpl.cs" />
+    <Compile Include="Impl\MuleStatisticsImpl.cs" />
+    <Compile Include="Impl\FileCommentsImpl.cs" />
+    <Compile Include="Impl\ProxySettingsImpl.cs" />
+    <Compile Include="Impl\ServerAddressImpl.cs" />
+    <Compile Include="Impl\SharedDirectoryImpl.cs" />
+    <Compile Include="MuleApplication.cs" />
+    <Compile Include="PreferenceObjectManager.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProxySettings.cs" />
+    <Compile Include="ServerAddress.cs" />
+    <Compile Include="SharedDirectory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\utils\Mpd.Generic\Mpd.Generic.csproj">
+      <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
+      <Name>Mpd.Generic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
+      <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
+      <Name>Mpd.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mule.Definitions\Mule.Definitions.csproj">
+      <Project>{DD446D07-5A0F-489E-9DBA-2AF66867321B}</Project>
+      <Name>Mule.Definitions</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

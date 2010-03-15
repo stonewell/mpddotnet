@@ -28,5 +28,13 @@ namespace CryptoPP
 {
     public interface Integer
     {
+        void Randomize(AutoSeededRandomPool cryptRandomGen_, uint p);
+
+        uint MinEncodedSize();
+
+        void Encode(byte[] aBuffer, uint p);
+
+        bool IsZero { get; }
+        int Int32Value { get; set; }
     }
 }

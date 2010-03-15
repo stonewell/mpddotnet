@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mpd.Generic.Types;
+using Mpd.Generic;
 using Mule.ED2K;
 using Mule.Definitions;
 using Mpd.Utilities;
@@ -102,7 +102,7 @@ namespace Mule.File.Impl
 
         public bool HasNullHash
         {
-            get { return MPDUtilities.IsNullMd4(FileHash_); }
+            get { return MpdUtilities.IsNullMd4(FileHash_); }
         }
         #endregion
 
@@ -206,7 +206,7 @@ namespace Mule.File.Impl
                 }
             }
 
-            Tag newTag = MpdGenericObjectManager.CreateTag(nameId, uValue);
+            Tag newTag = MpdObjectManager.CreateTag(nameId, uValue);
 
             tagList_.Add(newTag);
         }
@@ -223,7 +223,7 @@ namespace Mule.File.Impl
                 }
             }
 
-            Tag newTag = MpdGenericObjectManager.CreateTag(nameId, uValue);
+            Tag newTag = MpdObjectManager.CreateTag(nameId, uValue);
 
             tagList_.Add(newTag);
         }
@@ -269,7 +269,7 @@ namespace Mule.File.Impl
                 }
             }
 
-            Tag newTag = MpdGenericObjectManager.CreateTag(nameId, val);
+            Tag newTag = MpdObjectManager.CreateTag(nameId, val);
 
             tagList_.Add(newTag);
         }
@@ -374,7 +374,7 @@ namespace Mule.File.Impl
         {
             foreach (Tag tag in tags)
             {
-                tagList_.Add(MpdGenericObjectManager.CreateTag(tag));
+                tagList_.Add(MpdObjectManager.CreateTag(tag));
             }
         }
 

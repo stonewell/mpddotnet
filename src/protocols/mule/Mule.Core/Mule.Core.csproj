@@ -83,43 +83,12 @@
     <Compile Include="MuleBaseObject.cs" />
     <Compile Include="MuleCollection.cs" />
     <Compile Include="MuleEngine.cs" />
-    <Compile Include="Network\ClientRequestSocket.cs" />
-    <Compile Include="Network\HttpClientRequestSocket.cs" />
-    <Compile Include="Network\PeerCacheDownloadSocket.cs" />
-    <Compile Include="Network\PeerCacheSocket.cs" />
-    <Compile Include="Network\PeerCacheUploadSocket.cs" />
-    <Compile Include="Network\ServerSocket.cs" />
-    <Compile Include="Preference\Impl\BackupUtil.cs" />
-    <Compile Include="Preference\Impl\FileCommentsImpl.cs" />
-    <Compile Include="Preference\Impl\ProxySettingsImpl.cs" />
-    <Compile Include="Preference\CorePreference.cs" />
-    <Compile Include="Preference\FileComments.cs" />
-    <Compile Include="Preference\Impl\CorePreferenceImpl.cs" />
     <Compile Include="CoreObjectManager.cs" />
-    <Compile Include="Preference\CoreStats.cs" />
     <Compile Include="CoreUtilities.cs" />
     <Compile Include="Friend.cs" />
-    <Compile Include="Network\AsynchSocket\AsyncProxySocketLayer.cs" />
-    <Compile Include="Network\AsynchSocket\AsyncSocketEx.cs" />
-    <Compile Include="Network\AsynchSocket\AsyncSocketExLayer.cs" />
-    <Compile Include="Network\AsynchSocket\Impl\AsyncSocketExImpl.cs" />
-    <Compile Include="Network\EMSocket.cs" />
-    <Compile Include="Network\EncryptedStreamSocket.cs" />
-    <Compile Include="Network\Impl\EMSocketImpl.cs" />
-    <Compile Include="Network\Impl\EncryptedStreamSocketImpl.cs" />
-    <Compile Include="Preference\Impl\ServerAddressImpl.cs" />
-    <Compile Include="Preference\Impl\SharedDirectoryImpl.cs" />
-    <Compile Include="Preference\ProxySettings.cs" />
-    <Compile Include="Network\ThrottledControlSocket.cs" />
-    <Compile Include="Network\ThrottledFileSocket.cs" />
-    <Compile Include="Preference\Impl\CoreStatsImpl.cs" />
-    <Compile Include="Preference\ServerAddress.cs" />
-    <Compile Include="Preference\SharedDirectory.cs" />
-    <Compile Include="RC4Key.cs" />
     <Compile Include="ServerConnect.cs" />
     <Compile Include="SharedFileList.cs" />
     <Compile Include="UpDownClient.cs" />
-    <Compile Include="Packet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -131,9 +100,9 @@
       <Project>{CDF24B9E-6F85-4B3B-A22E-E23FE301D2E1}</Project>
       <Name>CxImage-VS2008</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\utils\Mpd.Generic.Types\Mpd.Generic.Types.csproj">
+    <ProjectReference Include="..\..\..\utils\Mpd.Generic\Mpd.Generic.csproj">
       <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
-      <Name>Mpd.Generic.Types</Name>
+      <Name>Mpd.Generic</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
       <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
@@ -154,6 +123,14 @@
     <ProjectReference Include="..\Mule.File\Mule.File.csproj">
       <Project>{92AF81B4-BBB9-4D27-A683-B40D6C2191DF}</Project>
       <Name>Mule.File</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mule.Network\Mule.Network.csproj">
+      <Project>{0607E40F-0382-4E55-9F7A-1C2C5DAC386E}</Project>
+      <Name>Mule.Network</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mule.Preference\Mule.Preference.csproj">
+      <Project>{7C8BA2B1-6367-4365-8631-6E388614EC10}</Project>
+      <Name>Mule.Preference</Name>
     </ProjectReference>
     <ProjectReference Include="..\Mult.AICH\Mule.AICH.csproj">
       <Project>{0791661F-B28A-4E8A-B62D-650E7891AA4A}</Project>
@@ -186,9 +163,6 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Network\Proxy\Impl\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

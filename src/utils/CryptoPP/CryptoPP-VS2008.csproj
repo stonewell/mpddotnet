@@ -57,6 +57,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoSeededRandomPool.cs" />
+    <Compile Include="CryptoPPObjectManager.cs" />
+    <Compile Include="CryptoPPUtilities.cs" />
     <Compile Include="Integer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RSASSA_PKCS1v15_SHA_Signer.cs" />

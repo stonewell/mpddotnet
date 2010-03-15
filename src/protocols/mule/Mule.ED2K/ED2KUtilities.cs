@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Mpd.Generic.Types;
-using Mpd.Generic.Types.IO;
+using Mpd.Generic;
+using Mpd.Generic.IO;
 using Mule.Definitions;
 using Mpd.Utilities;
 
@@ -16,7 +16,7 @@ namespace Mule.ED2K
         {
             if (!NeedUTF8String(filename))
                 return false;
-            Tag tag = MpdGenericObjectManager.CreateTag(uTagName, filename);
+            Tag tag = MpdObjectManager.CreateTag(uTagName, filename);
             tag.WriteTagToFile(file, Utf8StrEnum.utf8strOptBOM);
             return true;
         }
@@ -80,18 +80,18 @@ namespace Mule.ED2K
                                 uint hour = 0, min = 0, sec = 0;
                                 DateTime dt = DateTime.Now;
 
-                                if (MPDUtilities.Scan3UInt32(pTag.Str, ref hour, ref min, ref sec) == 3)
+                                if (MpdUtilities.Scan3UInt32(pTag.Str, ref hour, ref min, ref sec) == 3)
                                     nMediaLength = hour * 3600 + min * 60 + sec;
-                                else if (MPDUtilities.Scan2UInt32(pTag.Str, ref min, ref sec) == 2)
+                                else if (MpdUtilities.Scan2UInt32(pTag.Str, ref min, ref sec) == 2)
                                     nMediaLength = min * 60 + sec;
-                                else if (MPDUtilities.ScanUInt32(pTag.Str, ref sec) == 1)
+                                else if (MpdUtilities.ScanUInt32(pTag.Str, ref sec) == 1)
                                     nMediaLength = sec;
 
                                 if (nMediaLength == 0)
                                     pTag = null;
                                 else
                                     pTag =
-                                        MpdGenericObjectManager.CreateTag(_aEmuleToED2KMetaTagsMap[j].nID,
+                                        MpdObjectManager.CreateTag(_aEmuleToED2KMetaTagsMap[j].nID,
                                             nMediaLength);
                             }
                             else
@@ -99,7 +99,7 @@ namespace Mule.ED2K
                                 if (!string.IsNullOrEmpty(pTag.Str))
                                 {
                                     pTag =
-                                        MpdGenericObjectManager.CreateTag(_aEmuleToED2KMetaTagsMap[j].nID, pTag.Str);
+                                        MpdObjectManager.CreateTag(_aEmuleToED2KMetaTagsMap[j].nID, pTag.Str);
                                 }
                                 else
                                 {
@@ -112,7 +112,7 @@ namespace Mule.ED2K
                             if (pTag.Int != 0)
                             {
                                 pTag =
-                                    MpdGenericObjectManager.CreateTag(_aEmuleToED2KMetaTagsMap[j].nID, pTag.Int);
+                                    MpdObjectManager.CreateTag(_aEmuleToED2KMetaTagsMap[j].nID, pTag.Int);
                             }
                             else
                             {

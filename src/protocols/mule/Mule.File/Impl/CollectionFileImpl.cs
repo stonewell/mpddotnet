@@ -24,8 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Mule.ED2K;
-using Mpd.Generic.Types.IO;
-using Mpd.Generic.Types;
+using Mpd.Generic.IO;
+using Mpd.Generic;
 using Mpd.Utilities;
 using Mule.Definitions;
 
@@ -55,13 +55,13 @@ namespace Mule.File.Impl
                 return false;
             }
 
-            tagList_.Add(MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILEHASH, pFileLink.HashKey));
-            MPDUtilities.Md4Cpy(FileHash, pFileLink.HashKey);
+            tagList_.Add(MpdObjectManager.CreateTag(MuleConstants.FT_FILEHASH, pFileLink.HashKey));
+            MpdUtilities.Md4Cpy(FileHash, pFileLink.HashKey);
 
-            tagList_.Add(MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILESIZE, pFileLink.Size, true));
+            tagList_.Add(MpdObjectManager.CreateTag(MuleConstants.FT_FILESIZE, pFileLink.Size, true));
             FileSize = pFileLink.Size;
 
-            tagList_.Add(MpdGenericObjectManager.CreateTag(MuleConstants.FT_FILENAME, pFileLink.Name));
+            tagList_.Add(MpdObjectManager.CreateTag(MuleConstants.FT_FILENAME, pFileLink.Name));
             SetFileName(pFileLink.Name, false, false, false);
 
             return true;

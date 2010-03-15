@@ -24,10 +24,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using Mule.Core.Network;
+using Mule.Network;
 using Kademlia;
 using Mule.File;
-using Mpd.Generic.Types.IO;
+using Mpd.Generic.IO;
 
 namespace Mule.Core
 {

@@ -65,9 +65,9 @@
     <Compile Include="UnresolvedHostname.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\utils\Mpd.Generic.Types\Mpd.Generic.Types.csproj">
+    <ProjectReference Include="..\..\..\utils\Mpd.Generic\Mpd.Generic.csproj">
       <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
-      <Name>Mpd.Generic.Types</Name>
+      <Name>Mpd.Generic</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
       <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>

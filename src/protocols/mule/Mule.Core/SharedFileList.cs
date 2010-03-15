@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Text;
 using Mule.File;
 using Mule.ED2K;
-using Mpd.Generic.Types.IO;
+using Mpd.Generic.IO;
 
 namespace Mule.Core
 {

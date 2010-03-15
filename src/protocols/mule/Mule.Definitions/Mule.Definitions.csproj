@@ -50,6 +50,13 @@
     <Compile Include="MuleException.cs" />
     <Compile Include="MuleUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RC4Key.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
+      <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
+      <Name>Mpd.Utilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

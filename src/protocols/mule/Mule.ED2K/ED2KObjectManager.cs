@@ -6,7 +6,7 @@ using System.Reflection;
 using Mule.ED2K.Impl;
 using Mule.Definitions;
 using Mpd.Utilities;
-using Mpd.Generic.Types;
+using Mpd.Generic;
 
 namespace Mule.ED2K
 {
@@ -14,12 +14,12 @@ namespace Mule.ED2K
     {
         public static ED2KServerLink CreateED2KServerLink(string ip, string port)
         {
-            return MpdGenericObjectManager.CreateObject(typeof(ED2KServerLinkImpl), ip, port) as ED2KServerLink;
+            return MpdObjectManager.CreateObject(typeof(ED2KServerLinkImpl), ip, port) as ED2KServerLink;
         }
 
         public static ED2KNodesListLink CreateED2KNodesListLink(string address)
         {
-            return MpdGenericObjectManager.CreateObject(typeof(ED2KNodesListLinkImpl), address) as ED2KNodesListLink;
+            return MpdObjectManager.CreateObject(typeof(ED2KNodesListLinkImpl), address) as ED2KNodesListLink;
         }
 
         public static ED2KFileLink CreateED2KFileLink(string pszName,
@@ -28,21 +28,21 @@ namespace Mule.ED2K
             string[] allParams,
             string pszSources)
         {
-            return MpdGenericObjectManager.CreateObject(typeof(ED2KFileLinkImpl), pszName, pszSize, pszHash, allParams, pszSources) as ED2KFileLink;
+            return MpdObjectManager.CreateObject(typeof(ED2KFileLinkImpl), pszName, pszSize, pszHash, allParams, pszSources) as ED2KFileLink;
         }
 
         public static UnresolvedHostname CreateUnresolvedHostname()
         {
-            return MpdGenericObjectManager.CreateObject(typeof(UnresolvedHostnameImpl)) as UnresolvedHostname;
+            return MpdObjectManager.CreateObject(typeof(UnresolvedHostnameImpl)) as UnresolvedHostname;
         }
 
         public static ED2KServerListLink CreateED2KServerListLink(string address)
         {
-            return MpdGenericObjectManager.CreateObject(typeof(ED2KServerListLinkImpl), address) as ED2KServerListLink;
+            return MpdObjectManager.CreateObject(typeof(ED2KServerListLinkImpl), address) as ED2KServerListLink;
         }
         public static ED2KFileTypes CreateED2KFileTypes()
         {
-            return MpdGenericObjectManager.CreateObject(typeof(ED2KFileTypesImpl)) as ED2KFileTypes;
+            return MpdObjectManager.CreateObject(typeof(ED2KFileTypesImpl)) as ED2KFileTypes;
         }
 
         public static ED2KLink CreateLinkFromUrl(string strURI)

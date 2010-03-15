@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Mpd.Utilities
 {
-    public static class MPDUtilities
+    public static class MpdUtilities
     {
         private static readonly Random radom0_ = new Random(0);
 
@@ -219,17 +219,30 @@ namespace Mpd.Utilities
             return sb.ToString();
         }
 
-        public const int RAND_MAX = 0x7fff;
+        public const int RAND_UINT16_MAX = 0x7fff;
+        public const int RAND_BYTE_MAX = 0x7f;
 
         public static ushort GetRandomUInt16()
         {
             int rand0 =
-                radom0_.Next(RAND_MAX);
+                radom0_.Next(RAND_UINT16_MAX);
             int rand1 =
-                radom0_.Next(RAND_MAX);
+                radom0_.Next(RAND_UINT16_MAX);
 
             ushort val =
-                Convert.ToUInt16(rand0 | (rand1 >= RAND_MAX / 2 ? 0x8000 : 0x0000));
+                Convert.ToUInt16(rand0 | (rand1 >= RAND_UINT16_MAX / 2 ? 0x8000 : 0x0000));
+            return val;
+        }
+
+        public static byte GetRandomUInt8()
+        {
+            int rand0 =
+                radom0_.Next(RAND_BYTE_MAX);
+            int rand1 =
+                radom0_.Next(RAND_BYTE_MAX);
+
+            byte val =
+                Convert.ToByte(rand0 | (rand1 >= RAND_BYTE_MAX / 2 ? 0x8000 : 0x0000));
             return val;
         }
 
@@ -427,6 +440,30 @@ namespace Mpd.Utilities
         public static uint GetTickCount()
         {
             return 0;
+        }
+
+        public static void SwapByte(ref byte a, ref byte b)
+        {
+            byte bySwap;
+            bySwap = a;
+            a = b;
+            b = bySwap;
+        }
+
+        public static void AddDebugLogLine(params object[] args)
+        {
+        }
+
+        public static void DebugLog(params object[] args)
+        {
+        }
+
+        public static void DebugLogError(params object[] args)
+        {
+        }
+
+        public static void DebugLogWarning(params object[] argss)
+        {
         }
     }
 }

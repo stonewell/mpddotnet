@@ -5,11 +5,12 @@ using System.Text;
 using Mule.File;
 using System.IO;
 using Mpd.Utilities;
-using Mpd.Generic.Types.IO;
-using Mpd.Generic.Types;
+using Mpd.Generic.IO;
+using Mpd.Generic;
 using Mule.Definitions;
 using Kademlia;
 using Mule.AICH;
+using Mule.Network;
 
 namespace Mule.Core.Impl
 {
@@ -31,7 +32,7 @@ namespace Mule.Core.Impl
             if (clientUploadList_.Count == 0)
                 return null;
 
-            if (MPDUtilities.Md4Cmp(forClient.UploadFileID, KnownFile.FileHash) != 0)
+            if (MpdUtilities.Md4Cmp(forClient.UploadFileID, KnownFile.FileHash) != 0)
             {
                 // should never happen
                 //TODO:DEBUG_ONLY( DebugLogError(_T("*** %hs - client (%s) upload file \"%s\" does not match file \"%s\""), __FUNCTION__, forClient.DbgGetClientInfo(), DbgGetFileInfo(forClient.GetUploadFileID()), FileName) );
@@ -50,7 +51,7 @@ namespace Mule.Core.Impl
                 return null;
             }
 
-            SafeMemFile data = MpdGenericObjectManager.CreateSafeMemFile(1024);
+            SafeMemFile data = MpdObjectManager.CreateSafeMemFile(1024);
 
             byte byUsedVersion;
             bool bIsSX2Packet;
@@ -191,7 +192,7 @@ namespace Mule.Core.Impl
             data.Seek(bIsSX2Packet ? 17 : 16, SeekOrigin.Begin);
             data.WriteUInt16(nCount);
 
-            Packet result = MuleEngine.CoreObjectManager.CreatePacket(data, MuleConstants.OP_EMULEPROT);
+            Packet result = NetworkObjectManager.CreatePacket(data, MuleConstants.OP_EMULEPROT);
             result.OperationCode = bIsSX2Packet ? OperationCodeEnum.OP_ANSWERSOURCES2 : OperationCodeEnum.OP_ANSWERSOURCES;
             // (1+)16+2+501*(4+2+4+2+16+1) = 14547 (14548) bytes max.
             if (result.Size > 354)
@@ -265,7 +266,7 @@ namespace Mule.Core.Impl
         {
             // Cache part count
             uint partcount = KnownFile.PartCount;
-            bool flag = (MPDUtilities.Time() - KnownFile.CompleteSourcesTime) > 0;
+            bool flag = (MpdUtilities.Time() - KnownFile.CompleteSourcesTime) > 0;
 
             // Reset part counters
             ushort[] availPartFrequency = new ushort[KnownFile.AvailPartFrequency.Length];
@@ -322,13 +323,13 @@ namespace Mule.Core.Impl
                     // SLUGFILLER: heapsortCompletesrc
                     int r;
                     for (r = n / 2; r-- > 0; )
-                        MPDUtilities.HeapSort(ref count, r, n - 1);
+                        MpdUtilities.HeapSort(ref count, r, n - 1);
                     for (r = n; --r > 0; )
                     {
                         ushort t = count[r];
                         count[r] = count[0];
                         count[0] = t;
-                        MPDUtilities.HeapSort(ref count, 0, r - 1);
+                        MpdUtilities.HeapSort(ref count, 0, r - 1);
                     }
                     // SLUGFILLER: heapsortCompletesrc
 
@@ -373,7 +374,7 @@ namespace Mule.Core.Impl
                             KnownFile.CompleteSourcesCountHi = KnownFile.CompleteSourcesCount;
                     }
                 }
-                KnownFile.CompleteSourcesTime = MPDUtilities.Time() + 60;
+                KnownFile.CompleteSourcesTime = MpdUtilities.Time() + 60;
             }
         }
 
@@ -425,7 +426,7 @@ namespace Mule.Core.Impl
                     if (lastBuddyIP != KnownFile.LastPublishBuddy)
                     {
                         KnownFile.LastPublishTimeKadSrc =
-                            MPDUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMES;
+                            MpdUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMES;
                         KnownFile.LastPublishBuddy = lastBuddyIP;
                         return true;
                     }
@@ -436,31 +437,31 @@ namespace Mule.Core.Impl
                 }
             }
 
-            if (KnownFile.LastPublishTimeKadSrc > MPDUtilities.Time())
+            if (KnownFile.LastPublishTimeKadSrc > MpdUtilities.Time())
                 return false;
 
             KnownFile.LastPublishTimeKadSrc =
-                MPDUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMES;
+                MpdUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMES;
             KnownFile.LastPublishBuddy = lastBuddyIP;
             return true;
         }
 
         public bool PublishNotes()
         {
-            if (KnownFile.LastPublishTimeKadNotes > MPDUtilities.Time())
+            if (KnownFile.LastPublishTimeKadNotes > MpdUtilities.Time())
             {
                 return false;
             }
 
             if (!string.IsNullOrEmpty(KnownFile.FileComment))
             {
-                KnownFile.LastPublishTimeKadNotes = MPDUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMEN;
+                KnownFile.LastPublishTimeKadNotes = MpdUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMEN;
                 return true;
             }
 
             if (KnownFile.FileRating != 0)
             {
-                KnownFile.LastPublishTimeKadNotes = MPDUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMEN;
+                KnownFile.LastPublishTimeKadNotes = MpdUtilities.Time() + MuleConstants.KADEMLIAREPUBLISHTIMEN;
                 return true;
             }
 
@@ -593,7 +594,7 @@ namespace Mule.Core.Impl
                     }
 
                     byte[] lasthash = new byte[16];
-                    MPDUtilities.Md4Clr(lasthash);
+                    MpdUtilities.Md4Clr(lasthash);
                     try
                     {
                         KnownFile.CreateHash(fs, togo, lasthash, pBlockAICHHashTree);
@@ -621,18 +622,18 @@ namespace Mule.Core.Impl
 
                     if (hashcount == 0)
                     {
-                        MPDUtilities.Md4Cpy(KnownFile.FileHash, lasthash);
+                        MpdUtilities.Md4Cpy(KnownFile.FileHash, lasthash);
                     }
                     else
                     {
                         KnownFile.Hashset.Add(lasthash);
                         byte[] buffer = new byte[KnownFile.Hashset.Count * 16];
                         for (int i = 0; i < KnownFile.Hashset.Count; i++)
-                            MPDUtilities.Md4Cpy(buffer, i * 16, KnownFile.Hashset[i], 0, KnownFile.Hashset[i].Length);
+                            MpdUtilities.Md4Cpy(buffer, i * 16, KnownFile.Hashset[i], 0, KnownFile.Hashset[i].Length);
                         KnownFile.CreateHash(buffer, Convert.ToUInt64(buffer.Length), KnownFile.FileHash);
                     }
 
-                    KnownFile.UtcLastModified = MPDUtilities.DateTime2UInt32Time(System.IO.File.GetLastWriteTimeUtc(KnownFile.FilePath));
+                    KnownFile.UtcLastModified = MpdUtilities.DateTime2UInt32Time(System.IO.File.GetLastWriteTimeUtc(KnownFile.FilePath));
                 }
             }
             catch (FileNotFoundException/* ex*/)
@@ -670,7 +671,7 @@ namespace Mule.Core.Impl
             fullpath += MuleConstants.KNOWN2_MET_FILENAME;
 
             SafeFile file =
-                MpdGenericObjectManager.OpenSafeFile(fullpath,
+                MpdObjectManager.OpenSafeFile(fullpath,
                 FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
 
             if (file == null)

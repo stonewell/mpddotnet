@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mpd.Generic.Types.IO;
+using Mpd.Generic.IO;
 
 namespace Mule.AICH
 {

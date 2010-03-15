@@ -22,13 +22,13 @@
 
 using System;
 
-using Mule.Core.Network;
+using Mule.Network;
 using Mule.File;
 using Mule.AICH;
 using System.Collections.Generic;
 using Mule.Definitions;
-using Mpd.Generic.Types.IO;
-using Mpd.Generic.Types;
+using Mpd.Generic.IO;
+using Mpd.Generic;
 
 namespace Mule.Core
 {
@@ -341,7 +341,7 @@ namespace Mule.Core
         uint LastTriedToConnectTime { get; }
         // <-- ZZ:DownloadManager
 
-        ClientRequestSocket ClientRequestSocket { get;}
+        ClientSocket ClientSocket { get;}
         Friend Friend { get;}
         PartFileList OtherRequestsList { get;}
         PartFileList OtherNoNeededList { get;}

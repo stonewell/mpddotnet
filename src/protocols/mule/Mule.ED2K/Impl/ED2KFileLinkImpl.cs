@@ -27,8 +27,8 @@ using Mule.AICH;
 using System.Net;
 using Mule.Definitions;
 using Mpd.Utilities;
-using Mpd.Generic.Types.IO;
-using Mpd.Generic.Types;
+using Mpd.Generic.IO;
+using Mpd.Generic;
 
 namespace Mule.ED2K.Impl
 {
@@ -88,7 +88,7 @@ namespace Mule.ED2K.Impl
             if (pszHash.Length != 32)
                 throw new MuleException("Invalid File Hash Format:" + pszHash);
 
-            if (!MPDUtilities.DecodeHexString(pszHash, hash_))
+            if (!MpdUtilities.DecodeHexString(pszHash, hash_))
             {
                 throw new MuleException("Invalid File Hash Format:" + pszHash);
             }
@@ -146,7 +146,7 @@ namespace Mule.ED2K.Impl
                 return string.Format("ed2k://|file|{0}|{1}|{2}|/",
                     Uri.EscapeDataString(name_),
                     strSize_,
-                    MPDUtilities.EncodeHexString(hash_));
+                    MpdUtilities.EncodeHexString(hash_));
             }
         }
         #endregion
@@ -212,7 +212,7 @@ namespace Mule.ED2K.Impl
             // increment pCh to point to the first "ip:port" and check for sources
             if (bAllowSources && ++pCh < pEnd)
             {
-                SourcesList = MpdGenericObjectManager.CreateSafeMemFile(256);
+                SourcesList = MpdObjectManager.CreateSafeMemFile(256);
                 // init to 0, we'll fix this at the end.
                 SourcesList.WriteUInt16(nCount);
                 // for each "ip:port" source string until the end
@@ -365,7 +365,7 @@ namespace Mule.ED2K.Impl
                         break;
                     }
 
-                    HashSet = MpdGenericObjectManager.CreateSafeMemFile(256);
+                    HashSet = MpdObjectManager.CreateSafeMemFile(256);
                     HashSet.WriteHash16(hash_);
                     HashSet.WriteUInt16(0);
 
@@ -381,7 +381,7 @@ namespace Mule.ED2K.Impl
                         }
 
                         byte[] aucPartHash = new byte[16];
-                        if (!MPDUtilities.DecodeHexString(strHashs[iPartHashs], aucPartHash))
+                        if (!MpdUtilities.DecodeHexString(strHashs[iPartHashs], aucPartHash))
                         {
                             bError = true;
                             break;
@@ -402,7 +402,7 @@ namespace Mule.ED2K.Impl
                     string strHash = strParam.Substring(strTok.Length + 1);
                     if (!string.IsNullOrEmpty(strHash))
                     {
-                        if (MPDUtilities.DecodeBase32(strHash.ToCharArray(), aichHash_.RawHash) == MuleConstants.HASHSIZE)
+                        if (MpdUtilities.DecodeBase32(strHash.ToCharArray(), aichHash_.RawHash) == MuleConstants.HASHSIZE)
                         {
                             aichHashValid_ = true;
                         }

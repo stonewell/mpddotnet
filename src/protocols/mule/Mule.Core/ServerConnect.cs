@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Core.Network;
+using Mule.Network;
 using Mule.ED2K;
 
 namespace Mule.Core

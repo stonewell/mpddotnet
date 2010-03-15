@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mpd.Generic.Types.IO;
+using Mpd.Generic.IO;
 using Mpd.Utilities;
 using Mule.Definitions;
 
@@ -71,7 +71,7 @@ namespace Mule.AICH.Impl
 
         public string HashString
         {
-            get { return MPDUtilities.EncodeBase32(byBuffer_); }
+            get { return MpdUtilities.EncodeBase32(byBuffer_); }
         }
 
         public byte[] RawHash

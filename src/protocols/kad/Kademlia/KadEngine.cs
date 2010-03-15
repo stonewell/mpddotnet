@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Kademlia.Preference;
-using Mpd.Generic.Types;
+using Mpd.Generic;
 
 namespace Kademlia
 {

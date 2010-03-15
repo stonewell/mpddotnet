@@ -26,22 +26,24 @@ using System.Text;
 using Mule.AICH;
 using Mule.AICH.Impl;
 using Mule.File;
-using Mule.Core.Preference;
 using Mule.AICH.SHA;
-using Mule.Core.Preference.Impl;
 using System.IO;
 using Mule.ED2K;
 using Mule.ED2K.Impl;
 using Mule.File.Impl;
 using System.Reflection;
-using Mpd.Generic.Types.IO;
+using Mpd.Generic.IO;
+using Mule.Network;
+using Mule.Preference.Impl;
+using Mule.Preference;
+using Mpd.Generic;
 
 namespace Mule.Core
 {
     sealed public class CoreObjectManager
     {
         #region Fields
-        private CorePreference preference_ = null;
+        private MulePreference preference_ = null;
         private Random radom0_ = new Random(0);
         private MuleEngine muleEngine_ = null;
         #endregion
@@ -53,13 +55,13 @@ namespace Mule.Core
 
             try
             {
-                preference_ = new CorePreferenceImpl();
+                preference_ = new MulePreferenceImpl();
                 preference_.Load();
             }
             catch
             {
                 //TODO:Log
-                preference_ = new CorePreferenceImpl();
+                preference_ = new MulePreferenceImpl();
                 preference_.Init();
             }
         }
@@ -70,7 +72,7 @@ namespace Mule.Core
         #endregion
 
         #region Methods
-        public CorePreference Preference
+        public MulePreference Preference
         {
             get
             {
@@ -83,27 +85,11 @@ namespace Mule.Core
             get { return radom0_; }
         }
 
-        public CoreStats CreateCoreStatistics()
-        {
-            return CreateObject(typeof(CoreStatsImpl)) as CoreStats;
-        }
-
-        public ProxySettings CreateProxySettings()
-        {
-            return CreateObject(typeof(ProxySettingsImpl)) as ProxySettings;
-        }
-
-
         #endregion
-
-        public FileComments CreateFileComments(string p)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
 
         public CoreUtilities CreateCoreUtilities()
         {
-            return CreateObject(typeof(CoreUtilities)) as CoreUtilities;
+            return MpdObjectManager.CreateObject(typeof(CoreUtilities)) as CoreUtilities;
         }
 
         public SharedFileList CreateSharedFileList()
@@ -111,35 +97,7 @@ namespace Mule.Core
             throw new Exception("The method or operation is not implemented.");
         }
 
-        private object CreateObject(Type t, params object[] parameters)
-        {
-            object obj = t.Assembly.CreateInstance(t.FullName,
-                true,
-                BindingFlags.CreateInstance,
-                null,
-                parameters,
-                null,
-                null);
-
-            if (obj is MuleBaseObject)
-            {
-                (obj as MuleBaseObject).MuleEngine = muleEngine_;
-            }
-
-            return obj;
-        }
-
         public MuleCollection CreateMuleCollection()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public FileComment CreateFileComment()
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public Packet CreatePacket(SafeMemFile data, byte p)
         {
             throw new Exception("The method or operation is not implemented.");
         }

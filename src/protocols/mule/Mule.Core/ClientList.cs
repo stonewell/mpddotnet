@@ -24,79 +24,79 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Kademlia;
-using Mule.Core.Network;
-using Mpd.Generic.Types;
+using Mule.Network;
+using Mpd.Generic;
 
 namespace Mule.Core
 {
     public interface ClientList
     {
-	// Clients
-	void	AddClient(UpDownClient toadd/*,bool bSkipDupTest = false*/);
-	void	AddClient(UpDownClient toadd,bool bSkipDupTest);
-	void	RemoveClient(UpDownClient toremove/*, LPCTSTR pszReason = NULL*/);
-	void	RemoveClient(UpDownClient toremove, string pszReason);
-	void	GetStatistics(ref uint totalclient, int[] stats,
-						  Dictionary<uint,uint> clientVersionEDonkey,
-						  Dictionary<uint,uint> clientVersionEDonkeyHybrid,
-						  Dictionary<uint,uint> clientVersionEMule,
-						  Dictionary<uint,uint> clientVersionAMule);
-	uint	GetClientCount {get;}
-	void	DeleteAll();
-	bool	AttachToAlreadyKnown(out UpDownClient client, ClientRequestSocket sender);
-	UpDownClient FindClientByIP(uint clientip, uint port);
-	UpDownClient FindClientByUserHash(byte[] clienthash, uint dwIP, ushort nTCPPort) ;
-	UpDownClient FindClientByIP(uint clientip);
-	UpDownClient FindClientByIP_UDP(uint clientip, uint nUDPport);
-	UpDownClient FindClientByServerID(uint uServerIP, uint uUserID);
-	UpDownClient FindClientByUserID_KadPort(uint clientID,ushort kadPort);
-	UpDownClient FindClientByIP_KadPort(uint ip, ushort port);
+        // Clients
+        void AddClient(UpDownClient toadd/*,bool bSkipDupTest = false*/);
+        void AddClient(UpDownClient toadd, bool bSkipDupTest);
+        void RemoveClient(UpDownClient toremove/*, LPCTSTR pszReason = NULL*/);
+        void RemoveClient(UpDownClient toremove, string pszReason);
+        void GetStatistics(ref uint totalclient, int[] stats,
+                              Dictionary<uint, uint> clientVersionEDonkey,
+                              Dictionary<uint, uint> clientVersionEDonkeyHybrid,
+                              Dictionary<uint, uint> clientVersionEMule,
+                              Dictionary<uint, uint> clientVersionAMule);
+        uint GetClientCount { get; }
+        void DeleteAll();
+        bool AttachToAlreadyKnown(out UpDownClient client, ClientSocket sender);
+        UpDownClient FindClientByIP(uint clientip, uint port);
+        UpDownClient FindClientByUserHash(byte[] clienthash, uint dwIP, ushort nTCPPort);
+        UpDownClient FindClientByIP(uint clientip);
+        UpDownClient FindClientByIP_UDP(uint clientip, uint nUDPport);
+        UpDownClient FindClientByServerID(uint uServerIP, uint uUserID);
+        UpDownClient FindClientByUserID_KadPort(uint clientID, ushort kadPort);
+        UpDownClient FindClientByIP_KadPort(uint ip, ushort port);
 
-	// Banned clients
-	void	AddBannedClient(uint dwIP);
-	bool	IsBannedClient(uint dwIP) ;
-	void	RemoveBannedClient(uint dwIP);
-	uint	BannedCount {get;}
-	void	RemoveAllBannedClients();
+        // Banned clients
+        void AddBannedClient(uint dwIP);
+        bool IsBannedClient(uint dwIP);
+        void RemoveBannedClient(uint dwIP);
+        uint BannedCount { get; }
+        void RemoveAllBannedClients();
 
-	// Tracked clients
-	void	AddTrackClient(UpDownClient toadd);
-	bool	ComparePriorUserhash(uint dwIP, ushort nPort, byte[] pNewHash);
-	uint	GetClientsFromIP(uint dwIP) ;
-	void	TrackBadRequest( UpDownClient upcClient, int nIncreaseCounter);
-	uint	GetBadRequests( UpDownClient upcClient) ;
-	uint	TrackedCount {get;}
-	void	RemoveAllTrackedClients();
+        // Tracked clients
+        void AddTrackClient(UpDownClient toadd);
+        bool ComparePriorUserhash(uint dwIP, ushort nPort, byte[] pNewHash);
+        uint GetClientsFromIP(uint dwIP);
+        void TrackBadRequest(UpDownClient upcClient, int nIncreaseCounter);
+        uint GetBadRequests(UpDownClient upcClient);
+        uint TrackedCount { get; }
+        void RemoveAllTrackedClients();
 
-	// Kad client list, buddy handling
-	bool	RequestTCP(KadContact contact, byte byConnectOptions);
-	void	RequestBuddy(KadContact contact, byte byConnectOptions);
-	bool	IncomingBuddy(KadContact contact, UInt128 buddyID);
-	void	RemoveFromKadList(UpDownClient torem);
-	void	AddToKadList(UpDownClient toadd);
-	bool	DoRequestFirewallCheckUDP( KadContact contact);
-        byte BuddyStatus { get;}
-        UpDownClient Buddy { get;}
+        // Kad client list, buddy handling
+        bool RequestTCP(KadContact contact, byte byConnectOptions);
+        void RequestBuddy(KadContact contact, byte byConnectOptions);
+        bool IncomingBuddy(KadContact contact, UInt128 buddyID);
+        void RemoveFromKadList(UpDownClient torem);
+        void AddToKadList(UpDownClient toadd);
+        bool DoRequestFirewallCheckUDP(KadContact contact);
+        byte BuddyStatus { get; }
+        UpDownClient Buddy { get; }
 
-	void	AddKadFirewallRequest(uint dwIP);
-	bool	IsKadFirewallCheckIP(uint dwIP) ;
+        void AddKadFirewallRequest(uint dwIP);
+        bool IsKadFirewallCheckIP(uint dwIP);
 
-	// Direct Callback List
-	void	AddTrackCallbackRequests(uint dwIP);
-	bool	AllowCalbackRequest(uint dwIP) ;
+        // Direct Callback List
+        void AddTrackCallbackRequests(uint dwIP);
+        bool AllowCalbackRequest(uint dwIP);
 
-	// Connecting Clients
-	void	AddConnectingClient(UpDownClient pToAdd);
-	void	RemoveConnectingClient(UpDownClient pToRemove);
+        // Connecting Clients
+        void AddConnectingClient(UpDownClient pToAdd);
+        void RemoveConnectingClient(UpDownClient pToRemove);
 
-	void	Process();
-	bool	IsValidClient(UpDownClient tocheck) ;
-	void	Debug_SocketDeleted(ClientRequestSocket deleted) ;
+        void Process();
+        bool IsValidClient(UpDownClient tocheck);
+        void Debug_SocketDeleted(ClientSocket deleted);
 
-    // ZZ:UploadSpeedSense -->
-        bool GiveClientsForTraceRoute { get;}
-	// ZZ:UploadSpeedSense <--
+        // ZZ:UploadSpeedSense -->
+        bool GiveClientsForTraceRoute { get; }
+        // ZZ:UploadSpeedSense <--
 
-    void	ProcessA4AFClients() ; // ZZ:DownloadManager
+        void ProcessA4AFClients(); // ZZ:DownloadManager
     }
 }

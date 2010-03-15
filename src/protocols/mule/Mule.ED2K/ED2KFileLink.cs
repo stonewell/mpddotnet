@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Mule.AICH;
-using Mpd.Generic.Types.IO;
+using Mpd.Generic.IO;
 
 namespace Mule.ED2K
 {

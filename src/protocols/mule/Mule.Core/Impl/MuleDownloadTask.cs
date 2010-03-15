@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using Mule.File;
 using Mule.Definitions;
-using Mpd.Generic.Types.IO;
-using Mpd.Generic.Types;
+using Mpd.Generic.IO;
+using Mpd.Generic;
 using System.IO;
 using Mpd.Utilities;
 using Mule.AICH;
@@ -296,7 +296,7 @@ namespace Mule.Core.Impl
 
                         // Use a random access to avoid that everybody tries to download the 
                         // same chunks at the same time (=> spread the selected chunk among clients)
-                        ushort randomness = Convert.ToUInt16(1 + (int)(((float)(chunkCount - 1)) * new Random().NextDouble() / (MPDUtilities.RAND_MAX + 1.0)));
+                        ushort randomness = Convert.ToUInt16(1 + (int)(((float)(chunkCount - 1)) * new Random().NextDouble() / (MpdUtilities.RAND_UINT16_MAX + 1.0)));
 
                         foreach (Chunk cur_chunk in chunksList)
                         {
@@ -626,7 +626,7 @@ namespace Mule.Core.Impl
 
             UpdateFileRatingCommentAvail();
 
-            MPDUtilities.Md4Cpy(PartFile.FileHash, searchresult.FileHash);
+            MpdUtilities.Md4Cpy(PartFile.FileHash, searchresult.FileHash);
             foreach (Tag pTag in searchresult.TagList)
             {
                 switch (pTag.NameID)
@@ -664,7 +664,7 @@ namespace Mule.Core.Impl
                                         if (pTag.IsInt && pTag.Int == 0)
                                             break;
 
-                                        Tag newtag = MpdGenericObjectManager.CreateTag(pTag);
+                                        Tag newtag = MpdObjectManager.CreateTag(pTag);
                                         PartFile.TagList.Add(newtag);
                                         bTagAdded = true;
                                         break;
@@ -692,7 +692,7 @@ namespace Mule.Core.Impl
             {
                 PartFile.SetFileName(fileLink.Name, true, true, false);
                 PartFile.FileSize = fileLink.Size;
-                MPDUtilities.Md4Cpy(PartFile.FileHash, fileLink.HashKey);
+                MpdUtilities.Md4Cpy(PartFile.FileHash, fileLink.HashKey);
                 if (!MuleEngine.DownloadQueue.IsFileExisting(PartFile.FileHash))
                 {
                     if (fileLink.HashSet != null && fileLink.HashSet.Length > 0)
@@ -736,7 +736,7 @@ namespace Mule.Core.Impl
         public uint Process(uint reducedownload, uint icounter)
         {
             uint nOldTransSourceCount = PartFile.GetSrcStatisticsValue(DownloadStateEnum.DS_DOWNLOADING);
-            uint dwCurTick = MPDUtilities.GetTickCount();
+            uint dwCurTick = MpdUtilities.GetTickCount();
 
             // If buffer size exceeds limit, or if not written within time limit, flush data
             if ((PartFile.TotalBufferData > MuleEngine.CoreObjectManager.Preference.FileBufferSize) ||
@@ -757,7 +757,7 @@ namespace Mule.Core.Impl
                 {
                     if (cur_src != null && cur_src.DownloadState == DownloadStateEnum.DS_DOWNLOADING)
                     {
-                        if (cur_src.ClientRequestSocket != null)
+                        if (cur_src.ClientSocket != null)
                         {
                             cur_src.CheckDownloadTimeout();
                             cur_datarate = cur_src.CalculateDownloadRate();
@@ -775,7 +775,7 @@ namespace Mule.Core.Impl
                                     limit = 20;
                                 else if (limit < 1)
                                     limit = 1;
-                                cur_src.ClientRequestSocket.SetDownloadLimit(limit);
+                                cur_src.ClientSocket.SetDownloadLimit(limit);
                                 if (cur_src.IsDownloadingFromPeerCache &&
                                     cur_src.PeerCacheDownloadSocket != null &&
                                     cur_src.PeerCacheDownloadSocket.IsConnected)
@@ -831,7 +831,7 @@ namespace Mule.Core.Impl
                     {
                         case DownloadStateEnum.DS_DOWNLOADING:
                             {
-                                if (cur_src.ClientRequestSocket != null)
+                                if (cur_src.ClientSocket != null)
                                 {
                                     cur_src.CheckDownloadTimeout();
                                     uint cur_datarate = cur_src.CalculateDownloadRate();
@@ -849,7 +849,7 @@ namespace Mule.Core.Impl
                                             limit = 20;
                                         else if (limit < 1)
                                             limit = 1;
-                                        cur_src.ClientRequestSocket.SetDownloadLimit(limit);
+                                        cur_src.ClientSocket.SetDownloadLimit(limit);
                                         if (cur_src.IsDownloadingFromPeerCache &&
                                             cur_src.PeerCacheDownloadSocket != null &&
                                             cur_src.PeerCacheDownloadSocket.IsConnected)
@@ -858,7 +858,7 @@ namespace Mule.Core.Impl
                                     }
                                     else
                                     {
-                                        cur_src.ClientRequestSocket.DisableDownloadLimit();
+                                        cur_src.ClientSocket.DisableDownloadLimit();
                                         if (cur_src.IsDownloadingFromPeerCache &&
                                             cur_src.PeerCacheDownloadSocket != null &&
                                             cur_src.PeerCacheDownloadSocket.IsConnected)
@@ -937,14 +937,14 @@ namespace Mule.Core.Impl
                                 if (MuleEngine.IsConnected &&
                                     cur_src.GetTimeUntilReask() < 2 * 60 * 1000 &&
                                     cur_src.GetTimeUntilReask() > 1 * 1000 &&
-                                    MPDUtilities.GetTickCount() - cur_src.LastTriedToConnectTime > 20 * 60 * 1000) // ZZ:DownloadManager (one resk timestamp for each file)
+                                    MpdUtilities.GetTickCount() - cur_src.LastTriedToConnectTime > 20 * 60 * 1000) // ZZ:DownloadManager (one resk timestamp for each file)
                                 {
                                     cur_src.UDPReaskForDownload();
                                 }
 
                                 if (MuleEngine.IsConnected &&
                                     cur_src.GetTimeUntilReask() == 0 &&
-                                    MPDUtilities.GetTickCount() - cur_src.LastTriedToConnectTime > 20 * 60 * 1000) // ZZ:DownloadManager (one resk timestamp for each file)
+                                    MpdUtilities.GetTickCount() - cur_src.LastTriedToConnectTime > 20 * 60 * 1000) // ZZ:DownloadManager (one resk timestamp for each file)
                                 {
                                     if (!cur_src.DoesAskForDownload) // NOTE: This may *delete* the client!!
                                         break; //I left this break here just as a reminder just in case re rearange things..
@@ -960,7 +960,7 @@ namespace Mule.Core.Impl
                             {
                                 if (MuleEngine.IsConnected &&
                                     cur_src.GetTimeUntilReask() == 0 &&
-                                    MPDUtilities.GetTickCount() - cur_src.LastTriedToConnectTime > 20 * 60 * 1000) // ZZ:DownloadManager (one resk timestamp for each file)
+                                    MpdUtilities.GetTickCount() - cur_src.LastTriedToConnectTime > 20 * 60 * 1000) // ZZ:DownloadManager (one resk timestamp for each file)
                                 {
                                     if (!cur_src.DoesAskForDownload) // NOTE: This may *delete* the client!!
                                         break; //I left this break here just as a reminder just in case re rearange things..
@@ -1053,7 +1053,7 @@ namespace Mule.Core.Impl
             {
                 if (PartFile.IsComplete(0, PartFile.FileSize - (ulong)1))
                 {
-                    if (MPDUtilities.Md4Cmp(result.FileHash, PartFile.FileHash) != 0)
+                    if (MpdUtilities.Md4Cmp(result.FileHash, PartFile.FileHash) != 0)
                     {
                         //TODO:LogWarning(GetResString(IDS_ERR_FOUNDCORRUPTION), 1, GetFileName());
                         PartFile.AddGap(0, PartFile.FileSize - (ulong)1);
@@ -1077,7 +1077,7 @@ namespace Mule.Core.Impl
                         (ulong)(i + 1) * MuleConstants.PARTSIZE - 1))
                     {
                         if (!(result.GetPartHash(i) != null &&
-                            MPDUtilities.Md4Cmp(result.GetPartHash(i), PartFile.GetPartHash(i)) == 0))
+                            MpdUtilities.Md4Cmp(result.GetPartHash(i), PartFile.GetPartHash(i)) == 0))
                         {
                             //TODO:LogWarning(GetResString(IDS_ERR_FOUNDCORRUPTION), i + 1, GetFileName());
                             PartFile.AddGap((ulong)i * MuleConstants.PARTSIZE,

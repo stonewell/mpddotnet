@@ -26,7 +26,7 @@ using System.Text;
 
 namespace Mule.Network
 {
-    public interface PeerCacheSocket : HttpClientSocket
+    public interface PeerCacheSocket : HttpClientReqSocket
     {
     }
 }

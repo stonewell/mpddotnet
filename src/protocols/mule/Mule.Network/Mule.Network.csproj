@@ -45,11 +45,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncSocket.cs" />
     <Compile Include="ClientSocket.cs" />
     <Compile Include="EMSocket.cs" />
     <Compile Include="EncryptedStreamSocket.cs" />
     <Compile Include="HttpClientSocket.cs" />
     <Compile Include="HttpClientDownloadSocket.cs" />
+    <Compile Include="Impl\AsyncSocketImpl.cs" />
     <Compile Include="Impl\EMSocketImpl.cs" />
     <Compile Include="Impl\EncryptedStreamSocketImpl.cs" />
     <Compile Include="NetworkObjectManager.cs" />

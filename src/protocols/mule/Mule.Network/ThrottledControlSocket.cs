@@ -28,6 +28,13 @@ namespace Mule.Network
 {
     public struct SocketSentBytes
     {
+        public SocketSentBytes(bool s, uint sp, uint cp)
+        {
+            Success = s;
+            SentBytesControlPackets = cp;
+            SentBytesStandardPackets = sp;
+        }
+
         public bool Success;
         public uint SentBytesStandardPackets;
         public uint SentBytesControlPackets;

@@ -341,7 +341,7 @@ namespace Mule.Core
         uint LastTriedToConnectTime { get; }
         // <-- ZZ:DownloadManager
 
-        ClientSocket ClientSocket { get;}
+        ClientReqSocket ClientSocket { get;}
         Friend Friend { get;}
         PartFileList OtherRequestsList { get;}
         PartFileList OtherNoNeededList { get;}

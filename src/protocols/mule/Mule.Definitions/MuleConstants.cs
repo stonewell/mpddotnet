@@ -28,7 +28,7 @@ namespace Mule.Definitions
 {
     public sealed class MuleConstants
     {
-        private MuleConstants()
+        public MuleConstants()
         {
         }
 
@@ -220,13 +220,13 @@ namespace Mule.Definitions
         public const string TAG_ONIP = "ip";
         public const string TAG_ONPORT = "port";
 
-        private const uint ONE_SEC_MS = 1000;
-        private const uint ONE_MIN_MS = ONE_SEC_MS * 60;
-        private const uint ONE_HOUR_MS = 60 * ONE_MIN_MS;
-        private const uint ONE_DAY_MS = 24 * ONE_HOUR_MS;
-        private const uint ONE_MIN_SEC = 60;
-        private const uint ONE_HOUR_SEC = 60 * ONE_MIN_SEC;
-        private const uint ONE_DAY_SEC = 24 * ONE_HOUR_SEC;
+        public const uint ONE_SEC_MS = 1000;
+        public const uint ONE_MIN_MS = ONE_SEC_MS * 60;
+        public const uint ONE_HOUR_MS = 60 * ONE_MIN_MS;
+        public const uint ONE_DAY_MS = 24 * ONE_HOUR_MS;
+        public const uint ONE_MIN_SEC = 60;
+        public const uint ONE_HOUR_SEC = 60 * ONE_MIN_SEC;
+        public const uint ONE_DAY_SEC = 24 * ONE_HOUR_SEC;
 
         public const uint MAX_SOURCES_FILE_SOFT = 500;
         public const uint MAX_SOURCES_FILE_UDP = 50;

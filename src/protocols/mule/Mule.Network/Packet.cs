@@ -42,6 +42,7 @@ namespace Mule.Network
         uint Size { get; set;}
         OperationCodeEnum OperationCode { get; set; }
         byte Protocol { get; set; }
+        byte[] Buffer { get; set; }
     }
 
     public interface RawPacket : Packet

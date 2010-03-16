@@ -7,6 +7,5 @@ namespace Mpd.Generic
 {
     public sealed class MpdConstants
     {
-        public const int SOCKET_ERROR = -1;
     }
 }

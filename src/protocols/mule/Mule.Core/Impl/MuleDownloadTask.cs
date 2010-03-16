@@ -775,11 +775,11 @@ namespace Mule.Core.Impl
                                     limit = 20;
                                 else if (limit < 1)
                                     limit = 1;
-                                cur_src.ClientSocket.SetDownloadLimit(limit);
+                                cur_src.ClientSocket.DownloadLimit = limit;
                                 if (cur_src.IsDownloadingFromPeerCache &&
                                     cur_src.PeerCacheDownloadSocket != null &&
                                     cur_src.PeerCacheDownloadSocket.IsConnected)
-                                    cur_src.PeerCacheDownloadSocket.SetDownloadLimit(limit);
+                                    cur_src.PeerCacheDownloadSocket.DownloadLimit = limit;
                             }
                         }
                     }
@@ -849,20 +849,20 @@ namespace Mule.Core.Impl
                                             limit = 20;
                                         else if (limit < 1)
                                             limit = 1;
-                                        cur_src.ClientSocket.SetDownloadLimit(limit);
+                                        cur_src.ClientSocket.DownloadLimit = limit;
                                         if (cur_src.IsDownloadingFromPeerCache &&
                                             cur_src.PeerCacheDownloadSocket != null &&
                                             cur_src.PeerCacheDownloadSocket.IsConnected)
-                                            cur_src.PeerCacheDownloadSocket.SetDownloadLimit(limit);
+                                            cur_src.PeerCacheDownloadSocket.DownloadLimit = limit;
 
                                     }
                                     else
                                     {
-                                        cur_src.ClientSocket.DisableDownloadLimit();
+                                        cur_src.ClientSocket.EnableDownloadLimit = false;
                                         if (cur_src.IsDownloadingFromPeerCache &&
                                             cur_src.PeerCacheDownloadSocket != null &&
                                             cur_src.PeerCacheDownloadSocket.IsConnected)
-                                            cur_src.PeerCacheDownloadSocket.DisableDownloadLimit();
+                                            cur_src.PeerCacheDownloadSocket.EnableDownloadLimit = false;
                                     }
                                 }
                                 break;

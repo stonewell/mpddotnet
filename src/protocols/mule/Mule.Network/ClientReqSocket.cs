@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mule.Network
 {
-    public interface ClientSocket : EMSocket
+    public interface ClientReqSocket : EMSocket
     {
     }
 }

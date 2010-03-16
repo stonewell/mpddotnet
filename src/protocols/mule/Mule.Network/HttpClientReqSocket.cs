@@ -26,7 +26,7 @@ using System.Text;
 
 namespace Mule.Network
 {
-    public interface HttpClientSocket : ClientSocket
+    public interface HttpClientReqSocket : ClientReqSocket
     {
     }
 }

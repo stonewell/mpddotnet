@@ -43,7 +43,7 @@ namespace Mule.Core
                               Dictionary<uint, uint> clientVersionAMule);
         uint GetClientCount { get; }
         void DeleteAll();
-        bool AttachToAlreadyKnown(out UpDownClient client, ClientSocket sender);
+        bool AttachToAlreadyKnown(out UpDownClient client, ClientReqSocket sender);
         UpDownClient FindClientByIP(uint clientip, uint port);
         UpDownClient FindClientByUserHash(byte[] clienthash, uint dwIP, ushort nTCPPort);
         UpDownClient FindClientByIP(uint clientip);
@@ -91,7 +91,7 @@ namespace Mule.Core
 
         void Process();
         bool IsValidClient(UpDownClient tocheck);
-        void Debug_SocketDeleted(ClientSocket deleted);
+        void Debug_SocketDeleted(ClientReqSocket deleted);
 
         // ZZ:UploadSpeedSense -->
         bool GiveClientsForTraceRoute { get; }

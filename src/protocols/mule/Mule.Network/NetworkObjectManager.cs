@@ -8,7 +8,7 @@ namespace Mule.Network
 {
     public class NetworkObjectManager
     {
-        public static Packet CreatePacket(SafeMemFile data, byte opProtocol)
+        public static Packet CreatePacket(params object[] args)
         {
             throw new Exception("The method or operation is not implemented.");
         }

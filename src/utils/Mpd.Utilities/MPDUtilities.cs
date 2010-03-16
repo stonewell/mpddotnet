@@ -465,5 +465,10 @@ namespace Mpd.Utilities
         public static void DebugLogWarning(params object[] argss)
         {
         }
+
+        public static void QueueDebugLogLine(bool p, string p_2)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

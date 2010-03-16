@@ -37,7 +37,7 @@ using Mule.Preference;
 
 namespace Mule.Network.Impl
 {
-    abstract class EncryptedStreamSocketImpl : Socket, EncryptedStreamSocket
+    abstract class EncryptedStreamSocketImpl : AsyncSocketImpl, EncryptedStreamSocket
     {
         #region Static Fields
         private static readonly AutoSeededRandomPool cryptRandomGen_ =
@@ -58,10 +58,8 @@ namespace Mule.Network.Impl
 
         #region Constructor
         public EncryptedStreamSocketImpl(MuleApplication muleApp) : 
-            base(new IPEndPoint(0, 0).AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+            base(muleApp, new IPEndPoint(0, 0).AddressFamily, SocketType.Stream, ProtocolType.Tcp)
         {
-            MuleApp = muleApp;
-
             streamCryptState_ =
                 MuleApp.Preference.IsClientCryptLayerSupported ? StreamCryptStateEnum.ECS_UNKNOWN : StreamCryptStateEnum.ECS_NONE;
             negotiatingState_ = NegotiatingStateEnum.ONS_NONE;
@@ -84,8 +82,6 @@ namespace Mule.Network.Impl
         #endregion
 
         #region EncryptedStreamSocket Members
-        public MuleApplication MuleApp { get; set; }
-
         public void SetConnectionEncryption(bool bEnabled, byte[] pTargetClientHash, bool bServerConnection)
         {
             if (streamCryptState_ != StreamCryptStateEnum.ECS_UNKNOWN &&
@@ -167,9 +163,9 @@ namespace Mule.Network.Impl
         #endregion
 
         #region Protects
-        protected int Send(byte[] lpBuf, int nBufLen, int nFlags)
+        public override int Send(byte[] lpBuf, int offset, int nBufLen, SocketFlags nFlags)
         {
-            if (!IsEncryptionLayerReady())
+            if (!IsEncryptionLayerReady)
             {
                 Debug.Assert(false); // must be a bug
                 return 0;
@@ -181,8 +177,8 @@ namespace Mule.Network.Impl
                 Debug.Assert(negotiatingState_ == NegotiatingStateEnum.ONS_BASIC_SERVER_DELAYEDSENDING);
                 // handshakedata was delayed to put it into one frame with the first paypload to the server
                 // do so now with the payload attached
-                int nRes = SendNegotiatingData(lpBuf, Convert.ToUInt32(nBufLen), Convert.ToUInt32(nBufLen));
-                Debug.Assert(nRes != MpdConstants.SOCKET_ERROR);
+                int nRes = SendNegotiatingData(lpBuf, Convert.ToUInt32(nBufLen), Convert.ToUInt32(offset + nBufLen));
+                Debug.Assert(nRes != SOCKET_ERROR);
                 return nBufLen;	// report a full send, even if we didn't for some reason - the data is know in our buffer and will be handled later
             }
             else if (negotiatingState_ == NegotiatingStateEnum.ONS_BASIC_SERVER_DELAYEDSENDING)
@@ -196,15 +192,16 @@ namespace Mule.Network.Impl
                 MpdUtilities.DebugLogError(("CEncryptedStreamSocket: Overwriting State ECS_UNKNOWN with ECS_NONE because of premature Send() (%s)"), DbgGetIPString());
             }
 
-            return SendDirect(lpBuf, nBufLen, nFlags);
+            return base.Send(lpBuf, offset, nBufLen, nFlags);
         }
 
-        protected int Receive(byte[] lpBuf, int nBufLen, int nFlags)
+        public override int Receive(byte[] lpBuf, int offset, int nBufLen, SocketFlags nFlags)
         {
-            obfuscationBytesReceived_ = ReceiveDirect(lpBuf, nBufLen, nFlags);
+            obfuscationBytesReceived_ = base.Receive(lpBuf, offset, nBufLen, nFlags);
+
             fullReceive_ = obfuscationBytesReceived_ == (uint)nBufLen;
 
-            if (obfuscationBytesReceived_ == MpdConstants.SOCKET_ERROR || obfuscationBytesReceived_ <= 0)
+            if (obfuscationBytesReceived_ == SOCKET_ERROR || obfuscationBytesReceived_ <= 0)
             {
                 return obfuscationBytesReceived_;
             }
@@ -222,7 +219,7 @@ namespace Mule.Network.Impl
                     {
                         int nRead = 1;
                         bool bNormalHeader = false;
-                        switch (lpBuf[0])
+                        switch (lpBuf[offset])
                         {
                             case MuleConstants.OP_EDONKEYPROT:
                             case MuleConstants.OP_PACKEDPROT:
@@ -233,7 +230,7 @@ namespace Mule.Network.Impl
                         if (!bNormalHeader)
                         {
                             StartNegotiation(false);
-                            int nNegRes = Negotiate(lpBuf, nRead, obfuscationBytesReceived_ - nRead);
+                            int nNegRes = Negotiate(lpBuf, offset + nRead, obfuscationBytesReceived_ - nRead);
                             if (nNegRes == (-1))
                                 return 0;
                             nRead += nNegRes;
@@ -283,11 +280,11 @@ namespace Mule.Network.Impl
                     }
                 case StreamCryptStateEnum.ECS_ENCRYPTING:
                     // basic obfuscation enabled and set, so decrypt and pass along
-                    MuleUtilities.RC4Crypt(lpBuf, lpBuf, Convert.ToUInt32(obfuscationBytesReceived_), rc4ReceiveKey_);
+                    MuleUtilities.RC4Crypt(lpBuf, offset, lpBuf, offset, Convert.ToUInt32(obfuscationBytesReceived_), rc4ReceiveKey_);
                     return obfuscationBytesReceived_;
                 case StreamCryptStateEnum.ECS_NEGOTIATING:
                     {
-                        int nRead = Negotiate(lpBuf, obfuscationBytesReceived_);
+                        int nRead = Negotiate(lpBuf, offset, obfuscationBytesReceived_);
                         if (nRead == (-1))
                             return 0;
                         else if (nRead != obfuscationBytesReceived_ &&
@@ -302,7 +299,7 @@ namespace Mule.Network.Impl
                         {
                             // we finished the handshake and if we this was an outgoing connection it is allowed (but strange and unlikely) that the client sent payload
                             MpdUtilities.DebugLogWarning(("CEncryptedStreamSocket: Client %s has finished the handshake but also sent payload on a outgoing connection"), DbgGetIPString());
-                            Array.Copy(lpBuf, 0, lpBuf, nRead, obfuscationBytesReceived_ - nRead);
+                            Array.Copy(lpBuf, offset + 0, lpBuf, offset + nRead, obfuscationBytesReceived_ - nRead);
                             return obfuscationBytesReceived_ - nRead;
                         }
                         else
@@ -314,9 +311,7 @@ namespace Mule.Network.Impl
             }
         }
 
-        protected abstract void OnError(int nErrorCode);
-
-        protected virtual void OnSend(int nErrorCode)
+        protected override void OnSend(int nErrorCode)
         {
             // if the socket just connected and this is outgoing, we might want to start the handshake here
             if (streamCryptState_ == StreamCryptStateEnum.ECS_PENDING ||
@@ -340,7 +335,7 @@ namespace Mule.Network.Impl
 
         protected void CryptPrepareSendData(byte[] pBuffer, uint nLen)
         {
-            if (!IsEncryptionLayerReady())
+            if (!IsEncryptionLayerReady)
             {
                 Debug.Assert(false); // must be a bug
                 return;
@@ -356,14 +351,17 @@ namespace Mule.Network.Impl
                 MuleUtilities.RC4Crypt(pBuffer, pBuffer, nLen, rc4SendKey_);
         }
 
-        protected bool IsEncryptionLayerReady()
+        protected bool IsEncryptionLayerReady
         {
-            return ((streamCryptState_ == StreamCryptStateEnum.ECS_NONE ||
-                streamCryptState_ == StreamCryptStateEnum.ECS_ENCRYPTING ||
-                streamCryptState_ == StreamCryptStateEnum.ECS_UNKNOWN)
-                && (fiSendBuffer_ == null ||
-                (serverCrypt_ &&
-                negotiatingState_ == NegotiatingStateEnum.ONS_BASIC_SERVER_DELAYEDSENDING)));
+            get
+            {
+                return ((streamCryptState_ == StreamCryptStateEnum.ECS_NONE ||
+                    streamCryptState_ == StreamCryptStateEnum.ECS_ENCRYPTING ||
+                    streamCryptState_ == StreamCryptStateEnum.ECS_UNKNOWN)
+                    && (fiSendBuffer_ == null ||
+                    (serverCrypt_ &&
+                    negotiatingState_ == NegotiatingStateEnum.ONS_BASIC_SERVER_DELAYEDSENDING)));
+            }
         }
 
         protected byte GetSemiRandomNotProtocolMarker()
@@ -783,8 +781,8 @@ namespace Mule.Network.Impl
             Debug.Assert(fiSendBuffer_ == null);
             int result = 0;
             if (!bDelaySend)
-                result = SendDirect(pBuffer, Convert.ToInt32(nBufLen));
-            if (result == MpdConstants.SOCKET_ERROR || bDelaySend)
+                result = base.Send(pBuffer, Convert.ToInt32(nBufLen));
+            if (result == SOCKET_ERROR || bDelaySend)
             {
                 fiSendBuffer_ = MpdObjectManager.CreateSafeMemFile(128);
                 fiSendBuffer_.Write(pBuffer, 0, Convert.ToInt32(nBufLen));
@@ -801,42 +799,6 @@ namespace Mule.Network.Impl
             }
         }
 
-        protected int SendDirect(byte[] pBuffer, int nBufLen)
-        {
-            return SendDirect(pBuffer, nBufLen, (int)SocketFlags.None);
-        }
-
-        protected int SendDirect(byte[] pBuffer, int nBufLen, int nFlags)
-        {
-            try
-            {
-                return Send(pBuffer, nBufLen, (SocketFlags)nFlags);
-            }
-            catch (SocketException ex)
-            {
-                MpdUtilities.DebugLogError("Send Direct Fail", ex);
-                return -1;
-            }
-        }
-
-        protected int ReceiveDirect(byte[] pBuffer, int nBufLen)
-        {
-            return ReceiveDirect(pBuffer, nBufLen, (int)SocketFlags.None);
-        }
-
-        protected int ReceiveDirect(byte[] pBuffer, int nBufLen, int nFlags)
-        {
-            try
-            {
-                return Receive(pBuffer, nBufLen, (SocketFlags)nFlags);
-            }
-            catch (SocketException ex)
-            {
-                MpdUtilities.DebugLogError("Receive Direct Fail", ex);
-                return -1;
-            }
-        }
-
         private RC4Key rc4SendKey_;
         private RC4Key rc4ReceiveKey_;
         private NegotiatingStateEnum negotiatingState_;
@@ -847,24 +809,5 @@ namespace Mule.Network.Impl
         private CryptoPP.Integer cryptDHA_;
         #endregion
 
-        #region IDisposable Members
-        private bool disposed_ = false;
-
-        protected override void Dispose(bool disposing)
-        {
-            // Check to see if Dispose has already been called.
-            if (!this.disposed_)
-            {
-                try
-                {
-                    disposed_ = true;
-                }
-                finally
-                {
-                    base.Dispose(disposing);
-                }
-            }
-        }
-        #endregion
     }
 }

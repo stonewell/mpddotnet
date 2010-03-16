@@ -26,33 +26,47 @@ using System.Text;
 
 namespace Mule.Network
 {
-    public class StandardPacketQueueEntry
+    //public class StandardPacketQueueEntry
+    //{
+    //    public StandardPacketQueueEntry(Packet packet,uint size)
+    //    {
+    //        Packet = packet;
+    //        ActualPayloadSize = size;
+    //    }
+
+    //    public uint ActualPayloadSize
+    //    {
+    //        get;
+    //        set;
+    //    }
+
+    //    public Packet Packet
+    //    {
+    //        get;
+    //        set;
+    //    }
+    //};
+    public struct StandardPacketQueueEntry
     {
-        private uint actualPayloadSize_ = 0;
-        private Packet packet_ = null;
-
-        uint ActualPayloadSize
+        public StandardPacketQueueEntry(Packet packet, uint size)
         {
-            get { return actualPayloadSize_; }
-            set { actualPayloadSize_ = value; }
+            Packet = packet;
+            ActualPayloadSize = size;
         }
 
-        Packet Packet
-        {
-            get { return packet_; }
-            set { packet_ = value; }
-        }
+        public uint ActualPayloadSize;
+
+        public Packet Packet;
     };
 
     public interface EMSocket : EncryptedStreamSocket, ThrottledFileSocket
     {
         void SendPacket(Packet packet, bool delpacket, bool controlpacket, uint actualPayloadSize, bool bForceImmediateSend);
         bool IsConnected { get; }
-        byte ConState { get; }
+        byte ConnectionState { get; }
         bool IsRawDataMode { get; }
-        void SetDownloadLimit(uint limit);
-        void DisableDownloadLimit();
-        bool AsyncSelect(long lEvent);
+        uint DownloadLimit { get; set; }
+        bool EnableDownloadLimit { get; set; }
 
         uint TimeOut { get; set;}
 
@@ -70,6 +84,8 @@ namespace Mule.Network
         ulong GetSentBytesControlPacketSinceLastCallAndReset();
         ulong GetSentPayloadSinceLastCallAndReset();
         void TruncateQueues();
+
+        void CleanUp();
 
     }
 }

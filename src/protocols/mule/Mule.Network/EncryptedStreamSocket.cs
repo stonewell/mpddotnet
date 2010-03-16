@@ -27,9 +27,8 @@ using Mule.Preference;
 
 namespace Mule.Network
 {
-    public interface EncryptedStreamSocket
+    public interface EncryptedStreamSocket : AsyncSocket
     {
-        MuleApplication MuleApp { get; set; }
         void SetConnectionEncryption(bool bEnabled,
             byte[] pTargetClientHash, bool bServerConnection);
 

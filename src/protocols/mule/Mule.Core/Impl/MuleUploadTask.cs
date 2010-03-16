@@ -390,24 +390,24 @@ namespace Mule.Core.Impl
 
             if (QueuedCount > 20)
             {
-                if (KnownFile.UpPriority != Convert.ToByte(PriorityEnum.PR_LOW))
+                if (KnownFile.UpPriority != PriorityEnum.PR_LOW)
                 {
-                    KnownFile.UpPriority = Convert.ToByte(PriorityEnum.PR_LOW);
+                    KnownFile.UpPriority = PriorityEnum.PR_LOW;
                 }
                 return;
             }
             if (QueuedCount > 1)
             {
-                if (KnownFile.UpPriority != Convert.ToByte(PriorityEnum.PR_NORMAL))
+                if (KnownFile.UpPriority != PriorityEnum.PR_NORMAL)
                 {
-                    KnownFile.UpPriority = Convert.ToByte(PriorityEnum.PR_NORMAL);
+                    KnownFile.UpPriority = PriorityEnum.PR_NORMAL;
                 }
                 return;
             }
 
-            if (KnownFile.UpPriority != Convert.ToByte(PriorityEnum.PR_HIGH))
+            if (KnownFile.UpPriority != PriorityEnum.PR_HIGH)
             {
-                KnownFile.UpPriority = Convert.ToByte(PriorityEnum.PR_HIGH);
+                KnownFile.UpPriority = PriorityEnum.PR_HIGH;
             }
         }
 

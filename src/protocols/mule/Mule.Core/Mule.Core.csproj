@@ -80,6 +80,7 @@
     <Compile Include="Impl\MuleFileTask.cs" />
     <Compile Include="Impl\MuleTask.cs" />
     <Compile Include="Impl\MuleUploadTask.cs" />
+    <Compile Include="Impl\UpDownClientImpl.cs" />
     <Compile Include="MuleBaseObject.cs" />
     <Compile Include="MuleCollection.cs" />
     <Compile Include="MuleEngine.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="SharedFileList.cs" />
     <Compile Include="UpDownClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UploadQueue.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\utils\CryptoPP\CryptoPP-VS2008.csproj">

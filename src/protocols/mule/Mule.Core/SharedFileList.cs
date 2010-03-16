@@ -26,6 +26,7 @@ using System.Text;
 using Mule.File;
 using Mule.ED2K;
 using Mpd.Generic.IO;
+using Mpd.Generic;
 
 namespace Mule.Core
 {
@@ -77,5 +78,7 @@ namespace Mule.Core
         bool IsUnsharedFile(byte[] auFileHash);
 
         void CopySharedFileMap(SharedFileMap filesMap);
+
+        Dictionary<MapCKey, KnownFile> FilesMap { get; }
     }
 }

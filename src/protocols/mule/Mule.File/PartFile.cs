@@ -198,7 +198,7 @@ namespace Mule.File
 
         bool PreviewPriority { get; set; }
         bool Paused { get; set; }
-        byte DownPriority { get; set; }
+        PriorityEnum DownPriority { get; set; }
 
         /* Protected 
         void Init();

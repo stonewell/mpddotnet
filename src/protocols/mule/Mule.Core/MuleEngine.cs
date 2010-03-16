@@ -23,10 +23,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mule.Preference;
+using Mule.Network;
+using Mule.ED2K;
 
 namespace Mule.Core
 {
-    public sealed class MuleEngine
+    public sealed class MuleEngine : MuleApplication
     {
         #region Fields
         private SharedFileList sharedFiles_ = null;
@@ -53,6 +56,8 @@ namespace Mule.Core
         #endregion
 
         #region Properties
+        public UploadQueue UploadQueue { get; private set; }
+        public ED2KServerList ServerList { get; private set; }
         public DownloadQueue DownloadQueue
         {
             get { return downloadQueue_; }
@@ -201,5 +206,85 @@ namespace Mule.Core
         {
             get { return hashLocker_; }
         }
+
+        public ListenSocket ListenSocket { get; set; }
+
+        #region MuleApplication Members
+
+        public bool AwaitingTestFromIP(uint ip)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsKadFirewallCheckIP(uint ip)
+        {
+            throw new NotImplementedException();
+        }
+
+        public MulePreference Preference
+        {
+            get { return coreObjectManager_.Preference; }
+        }
+
+        public void QueueForSendingControlPacket(object socket)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void QueueForSendingControlPacket(object socket, bool hasSent)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveFromAllQueues(object socket)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ListenSocketRemoveSocket(object socket)
+        {
+            ListenSocket.RemoveSocket(socket as ClientReqSocket);
+        }
+
+        public void ListenSocketAddSocket(object socket)
+        {
+            ListenSocket.AddSocket(socket as ClientReqSocket);
+        }
+
+        public bool ListenSocketIsValidSocket(object socket)
+        {
+            return ListenSocket.IsValidSocket(socket as ClientReqSocket);
+        }
+
+        public uint ListenSocketTotalHalfCon
+        {
+            get
+            {
+                return ListenSocket.TotalHalfCon;
+            }
+            set
+            {
+                ListenSocket.TotalHalfCon = value;
+            }
+        }
+
+        public uint ListenSocketTotalComp
+        {
+            get
+            {
+                return ListenSocket.TotalComp;
+            }
+            set
+            {
+                ListenSocket.TotalComp = value;
+            }
+        }
+
+        public void ListSocketAddConnection()
+        {
+            ListenSocket.AddConnection();
+        }
+
+        #endregion
     }
 }

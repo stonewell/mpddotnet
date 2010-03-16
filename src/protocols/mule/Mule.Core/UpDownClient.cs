@@ -21,14 +21,13 @@
 #endregion
 
 using System;
-
-using Mule.Network;
-using Mule.File;
-using Mule.AICH;
 using System.Collections.Generic;
-using Mule.Definitions;
-using Mpd.Generic.IO;
 using Mpd.Generic;
+using Mpd.Generic.IO;
+using Mule.AICH;
+using Mule.Definitions;
+using Mule.File;
+using Mule.Network;
 
 namespace Mule.Core
 {
@@ -48,7 +47,7 @@ namespace Mule.Core
         void ConnectionEstablished();
         void OnSocketConnected(int nErrorCode);
         bool CheckHandshakeFinished();
-        void CheckFailedFileIdReqs(char[] aucFileHash);
+        void CheckFailedFileIdReqs(byte[] aucFileHash);
         uint UserIDHybrid { get; set; }
         string UserName { get; set; }
         uint IP { get; set; }
@@ -64,7 +63,7 @@ namespace Mule.Core
         bool HasValidHash { get; }
 
         int HashType { get; }
-        char[] BuddyID { get; set; }
+        byte[] BuddyID { get; set; }
         bool HasValidBuddyID { get; }
         uint BuddyIP { get; set; }
         ushort BuddyPort { get; set; }
@@ -91,19 +90,19 @@ namespace Mule.Core
         ushort KadPort { get; set;}
         byte ExtendedRequestsVersion { get; }
         void RequestSharedFileList();
-        void ProcessSharedFileList(char[] pachPacket, uint nSize, string pszDirectory);
+        void ProcessSharedFileList(byte[] pachPacket, uint nSize, string pszDirectory);
         ConnectingStateEnum ConnectingState { get; }
 
         void ClearHelloProperties();
-        bool ProcessHelloAnswer(char[] pachPacket, uint nSize);
-        bool ProcessHelloPacket(char[] pachPacket, uint nSize);
+        bool ProcessHelloAnswer(byte[] pachPacket, uint nSize);
+        bool ProcessHelloPacket(byte[] pachPacket, uint nSize);
         void SendHelloAnswer();
         void SendHelloPacket();
         void SendMuleInfoPacket(bool bAnswer);
-        void ProcessMuleInfoPacket(char[] pachPacket, uint nSize);
-        void ProcessMuleCommentPacket(char[] pachPacket, uint nSize);
-        void ProcessEmuleQueueRank(char[] packet, uint size);
-        void ProcessEdonkeyQueueRank(char[] packet, uint size);
+        void ProcessMuleInfoPacket(byte[] pachPacket, uint nSize);
+        void ProcessMuleCommentPacket(byte[] pachPacket, uint nSize);
+        void ProcessEmuleQueueRank(byte[] packet, uint size);
+        void ProcessEdonkeyQueueRank(byte[] packet, uint size);
         void CheckQueueRankFlood();
         bool Compare(UpDownClient tocomp, bool bIgnoreUserhash);
         void ResetFileStatusInfo();
@@ -113,6 +112,7 @@ namespace Mule.Core
         bool FriendSlot { get; set;}
         bool IsFriend { get; }
         Friend GetFriend();
+        void SetCommentDirty();
         void SetCommentDirty(bool bDirty);
         bool SentCancelTransfer { get; set;}
         void ProcessPublicIPAnswer(byte[] pbyData);
@@ -125,18 +125,19 @@ namespace Mule.Core
         // secure ident
         void SendPublicKeyPacket();
         void SendSignaturePacket();
-        void ProcessPublicKeyPacket(char[] pachPacket, uint nSize);
-        void ProcessSignaturePacket(char[] pachPacket, uint nSize);
+        void ProcessPublicKeyPacket(byte[] pachPacket, uint nSize);
+        void ProcessSignaturePacket(byte[] pachPacket, uint nSize);
         byte SecureIdentState { get; }
         void SendSecIdentStatePacket();
-        void ProcessSecIdentStatePacket(char[] pachPacket, uint nSize);
-        byte InfoPacketsReceived { get; set; }
+        void ProcessSecIdentStatePacket(byte[] pachPacket, uint nSize);
+        InfoPacketStateEnum GetInfoPacketsReceived();
+        void InfoPacketsReceived();
         bool HasPassedSecureIdent(bool bPassIfUnavailable);
         // preview
         void SendPreviewRequest(AbstractFile pForFile);
         void SendPreviewAnswer(KnownFile pForFile, CxImage.CxImage imgFrames, byte nCount);
-        void ProcessPreviewReq(char[] pachPacket, uint nSize);
-        void ProcessPreviewAnswer(char[] pachPacket, uint nSize);
+        void ProcessPreviewReq(byte[] pachPacket, uint nSize);
+        void ProcessPreviewAnswer(byte[] pachPacket, uint nSize);
         bool PreviewSupport { get;}
         bool ViewSharedFilesSupport { get;}
         bool SafeSendPacket(Packet packet);
@@ -156,7 +157,8 @@ namespace Mule.Core
         // Upload
         UploadStateEnum UploadState { get; set;}
         void SetUploadState(UploadStateEnum news);
-        uint WaitStartTime { get; set;}
+        uint GetWaitStartTime();
+        void SetWaitStartTime();
         void ClearWaitStartTime();
         uint WaitTime { get; }
         bool IsDownloading { get; }
@@ -168,14 +170,14 @@ namespace Mule.Core
         void CreateNextBlockPackage();
         uint UpStartTimeDelay { get; }
         void SetUpStartTime();
-        void SendHashsetPacket(char[] fileid);
+        void SendHashsetPacket(byte[] fileid);
         byte[] UploadFileID { get;}
         void SetUploadFileID(KnownFile newreqfile);
         uint SendBlockData();
         void ClearUploadBlockRequests();
         void SendRankingInfo();
         void SendCommentInfo(KnownFile file);
-        void AddRequestCount(char[] fileid);
+        void AddRequestCount(byte[] fileid);
         void UnBan();
         void Ban(string pszReason);
         uint AskedCount { get;set; }
@@ -220,13 +222,13 @@ namespace Mule.Core
         void SendStartupLoadReq();
         void ProcessFileInfo(SafeMemFile data, PartFile file);
         void ProcessFileStatus(bool bUdpPacket, SafeMemFile data, PartFile file);
-        void ProcessHashSet(char[] data, uint size);
+        void ProcessHashSet(byte[] data, uint size);
         void ProcessAcceptUpload();
         bool AddRequestForAnotherFile(PartFile file);
         void CreateBlockRequests(int iMaxBlocks);
         void SendBlockRequests();
         bool SendHttpBlockRequests();
-        void ProcessBlockPacket(char[] packet, uint size, bool packed, bool bI64Offsets);
+        void ProcessBlockPacket(byte[] packet, uint size, bool packed, bool bI64Offsets);
         void ProcessHttpBlockPacket(byte[] pucData);
         void ClearDownloadBlockRequests();
         void SendOutOfPartReqsAndAddToWaitingQueue();
@@ -313,8 +315,8 @@ namespace Mule.Core
         bool IsSupportingAICH { get;}
         void SendAICHRequest(PartFile pForFile, ushort nPart);
         bool IsAICHReqPending { get;}
-        void ProcessAICHAnswer(char[] packet, uint size);
-        void ProcessAICHRequest(char[] packet, uint size);
+        void ProcessAICHAnswer(byte[] packet, uint size);
+        void ProcessAICHRequest(byte[] packet, uint size);
         void ProcessAICHFileHash(SafeMemFile data, PartFile file);
 
         Utf8StrEnum UnicodeSupport { get;}
@@ -341,7 +343,7 @@ namespace Mule.Core
         uint LastTriedToConnectTime { get; }
         // <-- ZZ:DownloadManager
 
-        ClientReqSocket ClientSocket { get;}
+        ClientReqSocket ClientSocket { get; set; }
         Friend Friend { get;}
         PartFileList OtherRequestsList { get;}
         PartFileList OtherNoNeededList { get;}
@@ -363,9 +365,9 @@ namespace Mule.Core
         int HttpSendState { get; set;}
 
         bool SendPeerCacheFileRequest();
-        bool ProcessPeerCacheQuery(char[] packet, uint size);
-        bool ProcessPeerCacheAnswer(char[] packet, uint size);
-        bool ProcessPeerCacheAcknowledge(char[] packet, uint size);
+        bool ProcessPeerCacheQuery(byte[] packet, uint size);
+        bool ProcessPeerCacheAnswer(byte[] packet, uint size);
+        bool ProcessPeerCacheAcknowledge(byte[] packet, uint size);
         void OnPeerCacheDownSocketClosed(int nErrorCode);
         bool OnPeerCacheDownSocketTimeout();
 
@@ -379,5 +381,15 @@ namespace Mule.Core
 
         PeerCacheDownloadSocket PeerCacheDownloadSocket { get;}
         PeerCacheUploadSocket PeerCacheUploadSocket { get;}
+
+        object DbgGetClientInfo();
+
+        void SendHashsetPacket(byte[] packet, int p, bool p_3);
+
+        void ProcessHashSet(byte[] packet, uint size, bool p);
+
+        void SendCancelTransfer();
+
+        void SetDownloadState(DownloadStateEnum downloadStateEnum, string p);
     }
 }

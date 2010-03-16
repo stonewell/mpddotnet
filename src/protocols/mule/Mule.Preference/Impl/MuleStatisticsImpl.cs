@@ -28,5 +28,23 @@ namespace Mule.Preference.Impl
 {
     public class MuleStatisticsImpl : MuleStatistics
     {
+        #region MuleStatistics Members
+
+        public void AddDownDataOverheadOther(uint size)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddDownDataOverheadFileRequest(uint size)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddUpDataOverheadFileRequest(uint p)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

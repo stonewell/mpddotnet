@@ -46,14 +46,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncSocket.cs" />
-    <Compile Include="ClientSocket.cs" />
+    <Compile Include="ClientReqSocket.cs" />
     <Compile Include="EMSocket.cs" />
     <Compile Include="EncryptedStreamSocket.cs" />
-    <Compile Include="HttpClientSocket.cs" />
     <Compile Include="HttpClientDownloadSocket.cs" />
+    <Compile Include="HttpClientReqSocket.cs" />
     <Compile Include="Impl\AsyncSocketImpl.cs" />
+    <Compile Include="Impl\ClientReqSocketImpl.cs" />
     <Compile Include="Impl\EMSocketImpl.cs" />
     <Compile Include="Impl\EncryptedStreamSocketImpl.cs" />
+    <Compile Include="ListenSocket.cs" />
     <Compile Include="NetworkObjectManager.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="PeerCacheDownloadSocket.cs" />

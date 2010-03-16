@@ -26,6 +26,14 @@ using System.Text;
 
 namespace Mule.ED2K
 {
+    public class ED2KServerList : List<ED2KServer>
+    {
+        public ED2KServer GetServerByIP(uint nNewServerIP)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public interface ED2KServer
     {
         string ListName { get; set;}

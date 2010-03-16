@@ -6,5 +6,10 @@ namespace Mule.Preference
 {
     public interface MuleStatistics
     {
+        void AddDownDataOverheadOther(uint size);
+
+        void AddDownDataOverheadFileRequest(uint size);
+
+        void AddUpDataOverheadFileRequest(uint p);
     }
 }

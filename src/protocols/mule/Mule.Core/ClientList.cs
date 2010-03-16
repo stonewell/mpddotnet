@@ -24,8 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Kademlia;
-using Mule.Network;
 using Mpd.Generic;
+using Mule.Network;
 
 namespace Mule.Core
 {

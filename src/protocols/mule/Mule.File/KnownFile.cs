@@ -26,6 +26,7 @@ using System.Text;
 using Mule.AICH;
 using Mpd.Generic.IO;
 using CxImage;
+using Mule.Definitions;
 
 namespace Mule.File
 {
@@ -71,7 +72,7 @@ namespace Mule.File
         ushort ED2KPartCount { get; }
 
         // file upload priority
-        byte UpPriority { get; set;}
+        PriorityEnum UpPriority { get; set; }
         bool IsAutoUpPriority { get; set; }
 
         bool LoadHashsetFromFile(FileDataIO file, bool checkhash);
@@ -129,7 +130,7 @@ namespace Mule.File
             byte[] pucHash,
             AICHHashTree pShaHashOut);
 
-        void SetUpPriority(byte iUpPriority, bool save);
+        void SetUpPriority(PriorityEnum iUpPriority, bool save);
         StatisticFile Statistic { get; }
     }
 }

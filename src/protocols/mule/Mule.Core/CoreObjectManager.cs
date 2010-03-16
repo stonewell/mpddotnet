@@ -102,11 +102,7 @@ namespace Mule.Core
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public UpDownClient CreateUpDownClient(ushort nPort, 
-            uint dwID, 
-            uint dwServerIP, 
-            ushort nServerPort, 
-            PartFile parfile, bool encrypt, bool p)
+        public UpDownClient CreateUpDownClient(params object[] args)
         {
             throw new NotImplementedException();
         }

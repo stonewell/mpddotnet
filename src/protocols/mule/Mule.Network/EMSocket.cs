@@ -23,29 +23,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mule.Definitions;
 
 namespace Mule.Network
 {
-    //public class StandardPacketQueueEntry
-    //{
-    //    public StandardPacketQueueEntry(Packet packet,uint size)
-    //    {
-    //        Packet = packet;
-    //        ActualPayloadSize = size;
-    //    }
-
-    //    public uint ActualPayloadSize
-    //    {
-    //        get;
-    //        set;
-    //    }
-
-    //    public Packet Packet
-    //    {
-    //        get;
-    //        set;
-    //    }
-    //};
     public struct StandardPacketQueueEntry
     {
         public StandardPacketQueueEntry(Packet packet, uint size)
@@ -59,11 +40,40 @@ namespace Mule.Network
         public Packet Packet;
     };
 
+    public struct DataReceivedArgument
+    {
+        public DataReceivedArgument(byte[] buf, uint size)
+        {
+            Buffer = buf;
+            Size = size;
+        }
+
+        public byte[] Buffer;
+        public uint Size;
+    }
+
+    public struct PacketReceivedArgument
+    {
+        public PacketReceivedArgument(Packet packet)
+        {
+            Packet = packet;
+        }
+
+        public Packet Packet;
+    }
+
+    public delegate void DataReceivedHandler(DataReceivedArgument arg);
+    public delegate bool PacketReceivedHandler(PacketReceivedArgument arg);
+
     public interface EMSocket : EncryptedStreamSocket, ThrottledFileSocket
     {
+        event DataReceivedHandler DataReceived;
+        event PacketReceivedHandler PacketReceived;
+
         void SendPacket(Packet packet, bool delpacket, bool controlpacket, uint actualPayloadSize, bool bForceImmediateSend);
+
         bool IsConnected { get; }
-        byte ConnectionState { get; }
+        EMSocketStateEnum ConnectionState { get; }
         bool IsRawDataMode { get; }
         uint DownloadLimit { get; set; }
         bool EnableDownloadLimit { get; set; }
@@ -84,8 +94,5 @@ namespace Mule.Network
         ulong GetSentBytesControlPacketSinceLastCallAndReset();
         ulong GetSentPayloadSinceLastCallAndReset();
         void TruncateQueues();
-
-        void CleanUp();
-
     }
 }

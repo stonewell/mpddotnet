@@ -37,7 +37,7 @@ using Mule.Preference;
 
 namespace Mule.Network.Impl
 {
-    abstract class EncryptedStreamSocketImpl : AsyncSocketImpl, EncryptedStreamSocket
+    public abstract class EncryptedStreamSocketImpl : AsyncSocketImpl, EncryptedStreamSocket
     {
         #region Static Fields
         private static readonly AutoSeededRandomPool cryptRandomGen_ =

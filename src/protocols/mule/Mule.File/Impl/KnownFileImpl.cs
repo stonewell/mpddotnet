@@ -48,7 +48,7 @@ namespace Mule.File.Impl
         private ushort iPartCount_;
         private ushort iED2KPartCount_;
         private ushort iED2KPartHashCount_;
-        private byte iUpPriority_;
+        private PriorityEnum iUpPriority_;
         private bool bAutoUpPriority_;
         private bool bPublishedED2K_;
         private uint lastPublishTimeKadSrc_;
@@ -175,7 +175,7 @@ namespace Mule.File.Impl
 
             // priority N permission
             Tag priotag = MpdObjectManager.CreateTag(MuleConstants.FT_ULPRIORITY,
-                IsAutoUpPriority ? Convert.ToByte(PriorityEnum.PR_AUTO) : iUpPriority_);
+                IsAutoUpPriority ? PriorityEnum.PR_AUTO : iUpPriority_);
             priotag.WriteTagToFile(file);
             uTagCount++;
 
@@ -420,7 +420,7 @@ namespace Mule.File.Impl
             get { return iED2KPartCount_; }
         }
 
-        public byte UpPriority
+        public PriorityEnum UpPriority
         {
             get
             {
@@ -432,7 +432,7 @@ namespace Mule.File.Impl
             }
         }
 
-        public void SetUpPriority(byte iUpPriority, bool save)
+        public void SetUpPriority(PriorityEnum iUpPriority, bool save)
         {
             iUpPriority_ = iUpPriority;
 
@@ -702,16 +702,20 @@ namespace Mule.File.Impl
                         {
                             if (newtag.IsInt)
                             {
-                                iUpPriority_ = Convert.ToByte(newtag.Int);
-                                if (iUpPriority_ == Convert.ToByte(PriorityEnum.PR_AUTO))
+                                if (!Enum.IsDefined(typeof(PriorityEnum), iUpPriority_))
+                                    iUpPriority_ = PriorityEnum.PR_NORMAL;
+                                else
                                 {
-                                    iUpPriority_ = Convert.ToByte(PriorityEnum.PR_HIGH);
+                                    iUpPriority_ = (PriorityEnum)newtag.Int;
+                                }
+
+                                if (iUpPriority_ == PriorityEnum.PR_AUTO)
+                                {
+                                    iUpPriority_ = PriorityEnum.PR_HIGH;
                                     bAutoUpPriority_ = true;
                                 }
                                 else
                                 {
-                                    if (!Enum.IsDefined(typeof(PriorityEnum), iUpPriority_))
-                                        iUpPriority_ = Convert.ToByte(PriorityEnum.PR_NORMAL);
                                     bAutoUpPriority_ = false;
                                 }
                             }
@@ -916,6 +920,5 @@ namespace Mule.File.Impl
             return CreateHash(ms, usize, pucHash, pShaHashOut);
         }
         #endregion
-
     }
 }

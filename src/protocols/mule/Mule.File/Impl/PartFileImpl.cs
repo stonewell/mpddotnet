@@ -54,7 +54,7 @@ namespace Mule.File.Impl
         public ulong TotalBufferData { get; set; }
         public uint[] AnStates { get { return anStates_; } set { anStates_ = value; } }
         public bool Paused { get; set; }
-        public byte DownPriority { get; set; }
+        public PriorityEnum DownPriority { get; set; }
         public uint LastPurgeTime { get; set; }
         public System.IO.FileAttributes FileAttributes { get; set; }
         public uint DownloadActiveTime { get; set; }
@@ -804,18 +804,22 @@ namespace Mule.File.Impl
                                     {
                                         if (!isnewstyle)
                                         {
-                                            DownPriority = Convert.ToByte(newtag.Int);
-                                            if (DownPriority == Convert.ToByte(PriorityEnum.PR_AUTO))
+                                            if (Enum.IsDefined(typeof(PriorityEnum), newtag.Int))
+                                                DownPriority = (PriorityEnum)newtag.Int;
+                                            else
+                                                DownPriority = PriorityEnum.PR_NORMAL;
+
+                                            if (DownPriority == PriorityEnum.PR_AUTO)
                                             {
-                                                DownPriority = Convert.ToByte(PriorityEnum.PR_HIGH);
+                                                DownPriority =PriorityEnum.PR_HIGH;
                                                 IsAutoDownPriority = true;
                                             }
                                             else
                                             {
-                                                if (DownPriority != Convert.ToByte(PriorityEnum.PR_LOW) &&
-                                                    DownPriority != Convert.ToByte(PriorityEnum.PR_NORMAL) &&
-                                                    DownPriority != Convert.ToByte(PriorityEnum.PR_HIGH))
-                                                    DownPriority = Convert.ToByte(PriorityEnum.PR_NORMAL);
+                                                if (DownPriority != PriorityEnum.PR_LOW &&
+                                                    DownPriority != PriorityEnum.PR_NORMAL &&
+                                                    DownPriority != PriorityEnum.PR_HIGH)
+                                                    DownPriority = PriorityEnum.PR_NORMAL;
                                                 IsAutoDownPriority = false;
                                             }
                                         }
@@ -844,7 +848,7 @@ namespace Mule.File.Impl
                                             int iUpPriority = Convert.ToInt32(newtag.Int);
                                             if (iUpPriority == Convert.ToInt32(PriorityEnum.PR_AUTO))
                                             {
-                                                SetUpPriority(Convert.ToByte(PriorityEnum.PR_HIGH), false);
+                                                SetUpPriority(PriorityEnum.PR_HIGH, false);
                                                 IsAutoUpPriority = true;
                                             }
                                             else
@@ -855,7 +859,7 @@ namespace Mule.File.Impl
                                                     iUpPriority != Convert.ToInt32(PriorityEnum.PR_HIGH) &&
                                                     iUpPriority != Convert.ToInt32(PriorityEnum.PR_VERYHIGH))
                                                     iUpPriority = Convert.ToInt32(PriorityEnum.PR_NORMAL);
-                                                SetUpPriority(Convert.ToByte(iUpPriority), false);
+                                                SetUpPriority((PriorityEnum)iUpPriority, false);
                                                 IsAutoUpPriority = false;
                                             }
                                         }
@@ -1370,13 +1374,13 @@ namespace Mule.File.Impl
 
                 Tag prioritytag =
                     MpdObjectManager.CreateTag(MuleConstants.FT_DLPRIORITY,
-                    IsAutoDownPriority ? Convert.ToByte(PriorityEnum.PR_AUTO) : DownPriority);
+                    IsAutoDownPriority ? PriorityEnum.PR_AUTO : DownPriority);
                 prioritytag.WriteTagToFile(file);
                 uTagCount++;
 
                 Tag ulprioritytag =
                     MpdObjectManager.CreateTag(MuleConstants.FT_ULPRIORITY,
-                    IsAutoUpPriority ? Convert.ToByte(PriorityEnum.PR_AUTO) : UpPriority);
+                    IsAutoUpPriority ? PriorityEnum.PR_AUTO : UpPriority);
                 ulprioritytag.WriteTagToFile(file);
                 uTagCount++;
 

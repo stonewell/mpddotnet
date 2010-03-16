@@ -9,7 +9,7 @@ using Mule.Preference;
 
 namespace Mule.Network.Impl
 {
-    class AsyncSocketImpl : AsyncSocket
+    public class AsyncSocketImpl : AsyncSocket
     {
         #region Fields
         private Socket socket_ = null;
@@ -40,11 +40,16 @@ namespace Mule.Network.Impl
             {
                 if (disposing)
                 {
-                    socket_.Close();
+                    CleanUp();
                 }
 
                 disposed_ = true;
             }
+        }
+
+        public virtual void CleanUp()
+        {
+            socket_.Close();
         }
 
         public void Dispose()
@@ -159,6 +164,14 @@ namespace Mule.Network.Impl
         {
         }
 
+        protected virtual void OnConnect(int nErrorCode)
+        {
+        }
+
+        protected virtual void OnAccept(int nErrorCode)
+        {
+        }
+
         public object GetSocketOption(SocketOptionLevel level, SocketOptionName name)
         {
             return socket_.GetSocketOption(level, name);
@@ -194,6 +207,12 @@ namespace Mule.Network.Impl
         {
             socket_.SetSocketOption(optionLevel, optionName, optionValue);
         }
+
+        public void Shutdown(SocketShutdown how)
+        {
+            socket_.Shutdown(how);
+        }
+
         #endregion
     }
 }

@@ -40,5 +40,8 @@ namespace Mule.Network
         void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, int optionValue);
 
         void SetSocketOption(SocketOptionLevel optionLevel, SocketOptionName optionName, object optionValue);
+
+        void CleanUp();
+        void Shutdown(SocketShutdown how);
     }
 }

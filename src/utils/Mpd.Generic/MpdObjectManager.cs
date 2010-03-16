@@ -18,9 +18,9 @@ namespace Mpd.Generic
             return CreateObject(typeof(SafeFileImpl), fullpath, fileMode, fileAccess, fileShare) as SafeFile;
         }
 
-        public static SafeMemFile CreateSafeMemFile(int size)
+        public static SafeMemFile CreateSafeMemFile(params object[] args)
         {
-            return CreateObject(typeof(SafeMemFileImpl), size) as SafeMemFile;
+            return CreateObject(typeof(SafeMemFileImpl), args) as SafeMemFile;
         }
         
         public static SafeBufferedFile CreateSafeBufferedFile(string fullname, 
@@ -45,11 +45,6 @@ namespace Mpd.Generic
                 null);
 
             return obj;
-        }
-
-        public static SafeMemFile CreateSafeMemFile(byte[] pReceiveBuffer)
-        {
-            throw new NotImplementedException();
         }
     }
 }

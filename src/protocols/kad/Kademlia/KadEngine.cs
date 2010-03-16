@@ -191,12 +191,13 @@ namespace Kademlia
                 throw new NotImplementedException();
             }
         }
-        public void Bootstrap(uint uIP, ushort uPort, bool bKad2)
+
+        public void Bootstrap(uint uIP, ushort uPort)
         {
             throw new NotImplementedException();
         }
 
-        public void Bootstrap(string szHost, ushort uPort, bool bKad2)
+        public void Bootstrap(string szHost, ushort uPort)
         {
             throw new NotImplementedException();
         }

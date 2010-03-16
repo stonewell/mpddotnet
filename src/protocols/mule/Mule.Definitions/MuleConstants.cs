@@ -306,5 +306,10 @@ namespace Mule.Definitions
         public const uint MAXPRIORITYCOLL_SIZE = 50 * 1024;		// max file size for collection file which are allowed to bypass the queue
         public const uint SEARCH_SPAM_THRESHOLD = 60;
         public const uint OLDFILES_PARTIALLYPURGE = ONE_DAY_SEC * 31;	// time after which some data about a know file in the known.met and known2.met is deleted
+
+        public const uint PeerCacheSocketUploadTimeout = DOWNLOADTIMEOUT + ONE_SEC_MS * (20 + 30);
+        public const uint PeerCacheSocketDownloadTimeout = DOWNLOADTIMEOUT + ONE_SEC_MS * (20);
+        public const uint MAX_CLIENT_MSG_LEN = 450;	// using 200 is just too short
+        public const uint MAX_IRC_MSG_LEN = 450;	// 450 = same as in mIRC
     }
 }

@@ -30,14 +30,14 @@ using CryptoPP;
 using Mpd.Generic;
 using Mpd.Generic.IO;
 using Mpd.Utilities;
-using Mule.Definitions;
+
 using Mule.File;
 using System.Net;
 using Mule.Preference;
 
 namespace Mule.Network.Impl
 {
-    public abstract class EncryptedStreamSocketImpl : AsyncSocketImpl, EncryptedStreamSocket
+    abstract class EncryptedStreamSocketImpl : AsyncSocketImpl, EncryptedStreamSocket
     {
         #region Static Fields
         private static readonly AutoSeededRandomPool cryptRandomGen_ =

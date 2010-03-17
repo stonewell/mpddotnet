@@ -29,7 +29,7 @@ using Mule.ED2K;
 
 namespace Mule.Core
 {
-    public sealed class MuleEngine : MuleApplication
+    public sealed class MuleEngine
     {
         #region Fields
         private SharedFileList sharedFiles_ = null;
@@ -239,50 +239,6 @@ namespace Mule.Core
         public void RemoveFromAllQueues(object socket)
         {
             throw new NotImplementedException();
-        }
-
-        public void ListenSocketRemoveSocket(object socket)
-        {
-            ListenSocket.RemoveSocket(socket as ClientReqSocket);
-        }
-
-        public void ListenSocketAddSocket(object socket)
-        {
-            ListenSocket.AddSocket(socket as ClientReqSocket);
-        }
-
-        public bool ListenSocketIsValidSocket(object socket)
-        {
-            return ListenSocket.IsValidSocket(socket as ClientReqSocket);
-        }
-
-        public uint ListenSocketTotalHalfCon
-        {
-            get
-            {
-                return ListenSocket.TotalHalfCon;
-            }
-            set
-            {
-                ListenSocket.TotalHalfCon = value;
-            }
-        }
-
-        public uint ListenSocketTotalComp
-        {
-            get
-            {
-                return ListenSocket.TotalComp;
-            }
-            set
-            {
-                ListenSocket.TotalComp = value;
-            }
-        }
-
-        public void ListSocketAddConnection()
-        {
-            ListenSocket.AddConnection();
         }
 
         #endregion

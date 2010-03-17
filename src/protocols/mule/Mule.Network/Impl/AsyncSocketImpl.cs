@@ -5,62 +5,138 @@ using System.Text;
 using System.Net.Sockets;
 using System.Net;
 using Mpd.Utilities;
-using Mule.Preference;
 
 namespace Mule.Network.Impl
 {
-    public class AsyncSocketImpl : AsyncSocket
+    partial class AsyncSocketImpl : AsyncSocket
     {
+        #region Sockets Manager
+        private static readonly AsyncSocketManager socketManager_ =
+            new AsyncSocketManager();
+
+        #endregion
+
+        #region Events
+        public event SocketEventHandler SocketCreated;
+        public event SocketEventHandler SocketDisconnected;
+        public event SocketEventHandler SocketClosed;
+        public event SocketEventHandler SocketConnected;
+        public event SocketEventHandler SocketAccepted;
+        public event SocketEventHandler SocketReceiveable;
+        public event SocketEventHandler SocketSendable;
+        public event SocketErrorEventHandler SocketErrorOccured;
+        #endregion
+
         #region Fields
         private Socket socket_ = null;
+        private bool connect_event_fired = false;
+        private bool listen_called = false;
         #endregion
 
         #region Constructors
         public AsyncSocketImpl(MuleApplication muleApp, AddressFamily family,
-          SocketType sType, ProtocolType pType)
+          SocketType sType, ProtocolType pType) : this(muleApp, new Socket(family, sType, pType))
+        {
+        }
+
+        protected AsyncSocketImpl(MuleApplication muleApp, Socket s)
         {
             MuleApp = muleApp;
+            socket_ = s;
 
-            socket_ = new Socket(family, sType, pType);
+            Init();
         }
 
-        ~AsyncSocketImpl()
+        protected AsyncSocketImpl(AsyncSocketImpl sockImpl)
         {
-            Dispose(true);
+            MuleApp = sockImpl.MuleApp;
+
+            sockImpl.DisableEvents();
+            socketManager_.RemoveAsyncSocket(sockImpl);
+            
+            socket_ = sockImpl.socket_;
+
+            Init();
         }
-        #endregion
 
-        #region IDisposable Members
-        private bool disposed_ = false;
-
-        public virtual void Dispose(bool disposing)
+        private void Init()
         {
-            // Check to see if Dispose has already been called.
-            if (!this.disposed_)
-            {
-                if (disposing)
-                {
-                    CleanUp();
-                }
+            SocketErrorCode = SocketError.Success;
 
-                disposed_ = true;
-            }
+            InitEvents();
+            socket_.Blocking = false;
+
+            socketManager_.AddAsyncSocket(this);
+            SocketCreated(this, new SocketEventArgs());
         }
 
-        public virtual void CleanUp()
+        private void InitEvents()
         {
-            socket_.Close();
+            SocketCreated += (AsyncSocketImpl_SocketCreated);
+            SocketClosed += (AsyncSocketImpl_SocketClosed);
+            SocketConnected += (AsyncSocketImpl_SocketConnected);
+            SocketDisconnected += (AsyncSocketImpl_SocketDisconnected);
+            SocketErrorOccured += (AsyncSocketImpl_SocketError);
+            SocketAccepted += (AsyncSocketImpl_SocketAccepted);
+            SocketReceiveable += (AsyncSocketImpl_SocketReceiveable);
+            SocketSendable += (AsyncSocketImpl_SocketSendable);
         }
 
-        public void Dispose()
+        private void DisableEvents()
         {
-            Dispose(false);
+            SocketCreated -= (AsyncSocketImpl_SocketCreated);
+            SocketClosed -= (AsyncSocketImpl_SocketClosed);
+            SocketConnected -= (AsyncSocketImpl_SocketConnected);
+            SocketDisconnected -= (AsyncSocketImpl_SocketDisconnected);
+            SocketErrorOccured -= (AsyncSocketImpl_SocketError);
+            SocketAccepted -= (AsyncSocketImpl_SocketAccepted);
+            SocketReceiveable -= (AsyncSocketImpl_SocketReceiveable);
+            SocketSendable -= (AsyncSocketImpl_SocketSendable);
         }
-
         #endregion
 
         #region Members
         public MuleApplication MuleApp { get; set; }
+
+        public void Bind(EndPoint endpoint)
+        {
+            socket_.Bind(endpoint);
+        }
+
+        public void Listen()
+        {
+            Listen(5);
+        }
+
+        public void Listen(int backlog)
+        {
+            listen_called = true;
+            socket_.Listen(backlog);
+        }
+
+        public AsyncSocket Accept()
+        {
+            SocketErrorCode = SocketError.Success;
+
+            try
+            {
+                return CreateAsyncSocket(socket_.Accept());
+            }
+            catch (SocketException ex)
+            {
+                SocketErrorCode = ex.SocketErrorCode;
+
+                MpdUtilities.DebugLogError(string.Format("Socket Exception:{0},{1}",
+                    ex.ErrorCode, ex.SocketErrorCode), ex);
+
+                return null;
+            }
+        }
+
+        private AsyncSocket CreateAsyncSocket(Socket socket)
+        {
+            return new AsyncSocketImpl(MuleApp, socket);
+        }
 
         public virtual bool Connected
         {
@@ -77,14 +153,18 @@ namespace Mule.Network.Impl
             get { return socket_.RemoteEndPoint; }
         }
 
+        public SocketError SocketErrorCode { get; set; }
+
         public virtual void Close()
         {
             socket_.Close();
+            SocketClosed(this, new SocketEventArgs());
         }
 
         public virtual void Close(int timeout)
         {
             socket_.Close(timeout);
+            SocketClosed(this, new SocketEventArgs());
         }
 
         public virtual int Send(byte[] pBuffer, int offset, int nBufLen)
@@ -104,14 +184,19 @@ namespace Mule.Network.Impl
 
         public virtual int Send(byte[] pBuffer, int offset, int nBufLen, SocketFlags nFlags)
         {
+            SocketErrorCode = SocketError.Success;
             try
             {
                 return socket_.Send(pBuffer, offset, nBufLen, (SocketFlags)nFlags);
             }
             catch (SocketException ex)
             {
-                MpdUtilities.DebugLogError("Send Fail", ex);
-                return -1;
+                MpdUtilities.DebugLogError(string.Format("Socket Exception:{0},{1}",
+                    ex.ErrorCode, ex.SocketErrorCode), ex);
+
+                SocketErrorCode = ex.SocketErrorCode;
+
+                return SOCKET_ERROR;
             }
         }
 
@@ -132,21 +217,21 @@ namespace Mule.Network.Impl
 
         public virtual int Receive(byte[] pBuffer, int offset, int nBufLen, SocketFlags nFlags)
         {
+            SocketErrorCode = SocketError.Success;
             try
             {
                 return socket_.Receive(pBuffer, offset, nBufLen, nFlags);
             }
             catch (SocketException ex)
             {
-                MpdUtilities.DebugLogError("Receive Fail", ex);
-                return -1;
+                SocketErrorCode = ex.SocketErrorCode;
+                MpdUtilities.DebugLogError(string.Format("Socket Exception:{0},{1}",
+                    ex.ErrorCode, ex.SocketErrorCode), ex);
+                return SOCKET_ERROR;
             }
         }
 
         public const int SOCKET_ERROR = -1;
-
-        public bool IsSendBlocked { get; set; }
-        public bool IsReceiveBlocked { get; set; }
 
         protected virtual void OnError(int nErrorCode)
         {
@@ -169,6 +254,14 @@ namespace Mule.Network.Impl
         }
 
         protected virtual void OnAccept(int nErrorCode)
+        {
+        }
+
+        protected virtual void OnDisconnect(int errCode)
+        {
+        }
+
+        protected virtual void OnCreate(int errCode)
         {
         }
 
@@ -211,6 +304,68 @@ namespace Mule.Network.Impl
         public void Shutdown(SocketShutdown how)
         {
             socket_.Shutdown(how);
+
+            SocketDisconnected(this, new SocketEventArgs());
+        }
+
+        #endregion
+
+        #region Event Handlers
+        private void AsyncSocketImpl_SocketError(object sender, SocketErrorEventArgs arg)
+        {
+            OnError(arg.ErrorCode);
+        }
+
+        private void AsyncSocketImpl_SocketDisconnected(object sender, SocketEventArgs arg)
+        {
+            OnDisconnect(0);
+        }
+
+        private void AsyncSocketImpl_SocketConnected(object sender, SocketEventArgs arg)
+        {
+            OnConnect(0);
+        }
+
+        private void AsyncSocketImpl_SocketClosed(object sender, SocketEventArgs arg)
+        {
+            OnClose(0);
+
+            socketManager_.RemoveAsyncSocket(this);
+        }
+
+        private void AsyncSocketImpl_SocketCreated(object sender, SocketEventArgs arg)
+        {
+            OnCreate(0);
+        }
+
+        private void AsyncSocketImpl_SocketAccepted(object sender, SocketEventArgs arg)
+        {
+            OnAccept(0);
+        }
+
+        private void AsyncSocketImpl_SocketSendable(object sender, SocketEventArgs arg)
+        {
+            OnSend(0);
+        }
+
+        private void AsyncSocketImpl_SocketReceiveable(object sender, SocketEventArgs arg)
+        {
+            OnReceive(0);
+        }
+
+        public bool AttachHandle(AsyncSocketImpl sockImpl)
+        {
+            if (sockImpl == null) return false;
+
+            sockImpl.DisableEvents();
+            socketManager_.RemoveAsyncSocket(sockImpl);
+
+            DisableEvents();
+            socket_ = sockImpl.socket_;
+
+            Init();
+
+            return true;
         }
 
         #endregion

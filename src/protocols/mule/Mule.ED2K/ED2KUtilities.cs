@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Mpd.Generic;
 using Mpd.Generic.IO;
-using Mule.Definitions;
+
 using Mpd.Utilities;
 
 namespace Mule.ED2K

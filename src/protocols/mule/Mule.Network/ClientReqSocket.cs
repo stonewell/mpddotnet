@@ -13,56 +13,20 @@ namespace Mule.Network
         SS_Complete	//These are sockets that have responded with either a connection or error.
     };
 
-    public struct QueryClientTimeOutArguments
-    {
-    }
-
-    public delegate uint QueryClientTimeOutHandler(QueryClientTimeOutArguments arg);
-
-    public struct CheckClientTimeOutArguments
-    {
-    }
-
-    public delegate uint CheckClientTimeOutHandler(CheckClientTimeOutArguments arg);
-
-    public struct SafeDeleteArguments
-    {
-        public SafeDeleteArguments(ClientReqSocket client)
-        {
-            ClientSocket = client;
-        }
-
-        public ClientReqSocket ClientSocket;
-    }
-
-    public delegate uint SafeDeleteHandler(SafeDeleteArguments arg);
-
-    public struct ClientDisconnectArguments
-    {
-        public ClientDisconnectArguments(string reason, bool fromSocket)
-        {
-            Reason = reason;
-            FromSocket = fromSocket;
-        }
-
-        public string Reason;
-        public bool FromSocket;
-    }
-
-    public delegate bool ClientDisconnectHandler(ClientDisconnectArguments arg);
+    public delegate uint ClientTimeoutEventHandler(object sender, SocketEventArgs arg);
 
     public interface ClientReqSocket : EMSocket
     {
-        event QueryClientTimeOutHandler QueryClientTimeOut;
-        event CheckClientTimeOutHandler CheckClientTimeOut;
-        event SafeDeleteHandler ClientSafeDelete;
-        event ClientDisconnectHandler ClientDisconnect;
+        event ClientTimeoutEventHandler QueryClientTimeOut;
+        event ClientTimeoutEventHandler CheckClientTimeOut;
 
-        void Disconnect(string reason);
-        void WaitForOnConnect();
-        void ResetTimeOutTimer();
+        event SocketEventHandler SocketStateChanging;
+        event SocketEventHandler SocketStateChanged;
+
+        string DisonnectReason { get; }
+
+        SocketStateEnum SocketState { get; }
+
         bool CheckTimeOut();
-        void SafeDelete();
-        bool Create();
     }
 }

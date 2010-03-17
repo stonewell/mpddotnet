@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Definitions;
+
 
 namespace Mule.Network
 {
@@ -73,7 +73,7 @@ namespace Mule.Network
         void SendPacket(Packet packet, bool delpacket, bool controlpacket, uint actualPayloadSize, bool bForceImmediateSend);
 
         bool IsConnected { get; }
-        EMSocketStateEnum ConnectionState { get; }
+        ConnectionStateEnum ConnectionState { get; }
         bool IsRawDataMode { get; }
         uint DownloadLimit { get; set; }
         bool EnableDownloadLimit { get; set; }

@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Mule.Definitions;
+
 using Mule.Preference;
 using Mpd.Utilities;
 using System.Diagnostics;
@@ -32,10 +32,10 @@ using Mpd.Generic;
 
 namespace Mule.Network.Impl
 {
-    public abstract class EMSocketImpl : EncryptedStreamSocketImpl, EMSocket
+    abstract class EMSocketImpl : EncryptedStreamSocketImpl, EMSocket
     {
         #region Fields
-        protected EMSocketStateEnum byConnected_;
+        private ConnectionStateEnum connState_;
 
         // Download (pseudo) rate control
         private bool pendingOnReceive_;
@@ -82,7 +82,7 @@ namespace Mule.Network.Impl
             DataReceived += OnDataReceived;
             PacketReceived += OnPacketReceived;
 
-            byConnected_ = EMSocketStateEnum.ES_NOTCONNECTED;
+            connState_ = ConnectionStateEnum.ES_NOTCONNECTED;
             TimeOut = MuleConstants.CONNECTION_TIMEOUT; // default timeout for ed2k sockets
 
             // Download (pseudo) rate control	
@@ -125,25 +125,6 @@ namespace Mule.Network.Impl
         #endregion
 
         #region EMSocket Members
-        public override void CleanUp()
-        {
-            // need to be locked here to know that the other methods
-            // won't be in the middle of things
-            lock (sendLocker_)
-            {
-                byConnected_ = EMSocketStateEnum.ES_DISCONNECTED;
-            }
-
-            // now that we know no other method will keep adding to the queue
-            // we can remove ourself from the queue
-            MuleApp.RemoveFromAllQueues(this);
-
-            ClearQueues();
-            RemoveAllLayers(); // deadlake PROXYSUPPORT
-
-            base.CleanUp();
-        }
-
         public void SendPacket(Packet packet)
         {
             SendPacket(packet, true, true, 0, false);
@@ -170,7 +151,7 @@ namespace Mule.Network.Impl
             {
                 do
                 {
-                    if (byConnected_ == EMSocketStateEnum.ES_DISCONNECTED)
+                    if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
                     {
                         break;
                     }
@@ -220,12 +201,19 @@ namespace Mule.Network.Impl
 
         public bool IsConnected
         {
-            get { return byConnected_ == EMSocketStateEnum.ES_CONNECTED; }
+            get { return connState_ == ConnectionStateEnum.ES_CONNECTED; }
         }
 
-        public EMSocketStateEnum ConnectionState
+        public ConnectionStateEnum ConnectionState
         {
-            get { return byConnected_; }
+            get { return connState_; }
+            set
+            {
+                lock (sendLocker_)
+                {
+                    connState_ = value;
+                }
+            }
         }
 
         public virtual bool IsRawDataMode
@@ -415,7 +403,7 @@ namespace Mule.Network.Impl
 
                 lock (sendLocker_)
                 {
-                    if (byConnected_ == EMSocketStateEnum.ES_DISCONNECTED)
+                    if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
                     {
                         return 0;
                     }
@@ -487,16 +475,17 @@ namespace Mule.Network.Impl
             // won't be in the middle of things
             lock (sendLocker_)
             {
-                byConnected_ = EMSocketStateEnum.ES_DISCONNECTED;
+                connState_ = ConnectionStateEnum.ES_DISCONNECTED;
             }
 
             // now that we know no other method will keep adding to the queue
             // we can remove ourself from the queue
-            MuleApp.RemoveFromAllQueues(this);
+            //TODO:MuleApp.RemoveFromAllQueues(this);
 
-            base.OnClose(nErrorCode); // deadlake changed socket to PROXYSUPPORT ( AsyncSocketEx )
             RemoveAllLayers(); // deadlake PROXYSUPPORT
             ClearQueues();
+
+            base.OnClose(nErrorCode); // deadlake changed socket to PROXYSUPPORT ( AsyncSocketEx )
         }
 
         protected override void OnSend(int nErrorCode)
@@ -516,12 +505,12 @@ namespace Mule.Network.Impl
 
                     IsBusy = false;
 
-                    if (byConnected_ == EMSocketStateEnum.ES_DISCONNECTED)
+                    if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
                     {
                         break;
                     }
                     else
-                        byConnected_ = EMSocketStateEnum.ES_CONNECTED;
+                        connState_ = ConnectionStateEnum.ES_CONNECTED;
 
                     if (currentPacket_is_controlpacket_)
                     {
@@ -546,13 +535,13 @@ namespace Mule.Network.Impl
             }
 
             // Check current connection state
-            if (byConnected_ == EMSocketStateEnum.ES_DISCONNECTED)
+            if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
             {
                 return;
             }
             else
             {
-                byConnected_ = EMSocketStateEnum.ES_CONNECTED; // ES_DISCONNECTED, ES_NOTCONNECTED, ES_CONNECTED
+                connState_ = ConnectionStateEnum.ES_CONNECTED; // ES_DISCONNECTED, ES_NOTCONNECTED, ES_CONNECTED
             }
 
             // CPU load improvement
@@ -574,7 +563,7 @@ namespace Mule.Network.Impl
             // We attempt to read up to 2 megs at a time (minus whatever is in our internal read buffer)
             int ret = Receive(GlobalReadBuffer, Convert.ToInt32(pendingHeaderSize_), Convert.ToInt32(readMax));
             if (ret == SOCKET_ERROR ||
-                byConnected_ == EMSocketStateEnum.ES_DISCONNECTED)
+                connState_ == ConnectionStateEnum.ES_DISCONNECTED)
             {
                 return;
             }
@@ -706,7 +695,7 @@ namespace Mule.Network.Impl
         {
             lock (sendLocker_)
             {
-                if (byConnected_ == EMSocketStateEnum.ES_DISCONNECTED)
+                if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
                 {
                     return new SocketSentBytes(false, 0, 0);
                 }
@@ -715,7 +704,7 @@ namespace Mule.Network.Impl
                 uint sentStandardPacketBytesThisCall = 0;
                 uint sentControlPacketBytesThisCall = 0;
 
-                if (byConnected_ == EMSocketStateEnum.ES_CONNECTED
+                if (connState_ == ConnectionStateEnum.ES_CONNECTED
                     && IsEncryptionLayerReady &&
                     !(IsBusy && onlyAllowedToSendControlPacket))
                 {
@@ -837,7 +826,7 @@ namespace Mule.Network.Impl
                             int result = base.Send(sendbuffer_, Convert.ToInt32(sent_), Convert.ToInt32(tosend)); // deadlake PROXYSUPPORT - changed to AsyncSocketEx
                             if (result == SOCKET_ERROR)
                             {
-                                if (IsSendBlocked)
+                                if (SocketErrorCode == SocketError.WouldBlock)
                                 {
                                     IsBusy = true;
 

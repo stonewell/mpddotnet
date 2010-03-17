@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mule.File;
-using Mule.Definitions;
+
 using Mpd.Generic.IO;
 using Mpd.Generic;
 using System.IO;
@@ -776,10 +776,10 @@ namespace Mule.Core.Impl
                                 else if (limit < 1)
                                     limit = 1;
                                 cur_src.ClientSocket.DownloadLimit = limit;
-                                if (cur_src.IsDownloadingFromPeerCache &&
-                                    cur_src.PeerCacheDownloadSocket != null &&
-                                    cur_src.PeerCacheDownloadSocket.IsConnected)
-                                    cur_src.PeerCacheDownloadSocket.DownloadLimit = limit;
+                                //if (cur_src.IsDownloadingFromPeerCache &&
+                                //    cur_src.PeerCacheDownloadSocket != null &&
+                                //    cur_src.PeerCacheDownloadSocket.IsConnected)
+                                //    cur_src.PeerCacheDownloadSocket.DownloadLimit = limit;
                             }
                         }
                     }
@@ -850,19 +850,19 @@ namespace Mule.Core.Impl
                                         else if (limit < 1)
                                             limit = 1;
                                         cur_src.ClientSocket.DownloadLimit = limit;
-                                        if (cur_src.IsDownloadingFromPeerCache &&
-                                            cur_src.PeerCacheDownloadSocket != null &&
-                                            cur_src.PeerCacheDownloadSocket.IsConnected)
-                                            cur_src.PeerCacheDownloadSocket.DownloadLimit = limit;
+                                        //if (cur_src.IsDownloadingFromPeerCache &&
+                                        //    cur_src.PeerCacheDownloadSocket != null &&
+                                        //    cur_src.PeerCacheDownloadSocket.IsConnected)
+                                        //    cur_src.PeerCacheDownloadSocket.DownloadLimit = limit;
 
                                     }
                                     else
                                     {
                                         cur_src.ClientSocket.EnableDownloadLimit = false;
-                                        if (cur_src.IsDownloadingFromPeerCache &&
-                                            cur_src.PeerCacheDownloadSocket != null &&
-                                            cur_src.PeerCacheDownloadSocket.IsConnected)
-                                            cur_src.PeerCacheDownloadSocket.EnableDownloadLimit = false;
+                                        //if (cur_src.IsDownloadingFromPeerCache &&
+                                        //    cur_src.PeerCacheDownloadSocket != null &&
+                                        //    cur_src.PeerCacheDownloadSocket.IsConnected)
+                                        //    cur_src.PeerCacheDownloadSocket.EnableDownloadLimit = false;
                                     }
                                 }
                                 break;

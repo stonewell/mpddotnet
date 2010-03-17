@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using Mpd.Generic;
 using Mpd.Generic.IO;
 using Mule.AICH;
-using Mule.Definitions;
+
 using Mule.File;
 using Mule.Network;
 
@@ -353,36 +353,6 @@ namespace Mule.Core
 
         uint SlotNumber { get; set;}
         EMSocket GetFileUploadSocket(bool log);
-
-        ///////////////////////////////////////////////////////////////////////////
-        // PeerCache client
-        //
-        bool IsDownloadingFromPeerCache { get;}
-        bool IsUploadingToPeerCache {get;}
-        void SetPeerCacheDownState(PeerCacheDownStateEnum eState);
-        void SetPeerCacheUpState(PeerCacheUpStateEnum eState);
-
-        int HttpSendState { get; set;}
-
-        bool SendPeerCacheFileRequest();
-        bool ProcessPeerCacheQuery(byte[] packet, uint size);
-        bool ProcessPeerCacheAnswer(byte[] packet, uint size);
-        bool ProcessPeerCacheAcknowledge(byte[] packet, uint size);
-        void OnPeerCacheDownSocketClosed(int nErrorCode);
-        bool OnPeerCacheDownSocketTimeout();
-
-        bool ProcessPeerCacheDownHttpResponse(string[] astrHeaders);
-        bool ProcessPeerCacheDownHttpResponseBody(byte[] pucData);
-        void ProcessPeerCacheUpHttpResponse(string[] astrHeaders);
-        uint ProcessPeerCacheUpHttpRequest(string[] astrHeaders);
-
-        bool ProcessHttpDownResponse(string[] astrHeaders);
-        bool ProcessHttpDownResponseBody(byte[] pucDatae);
-
-        PeerCacheDownloadSocket PeerCacheDownloadSocket { get;}
-        PeerCacheUploadSocket PeerCacheUploadSocket { get;}
-
-        object DbgGetClientInfo();
 
         void SendHashsetPacket(byte[] packet, int p, bool p_3);
 

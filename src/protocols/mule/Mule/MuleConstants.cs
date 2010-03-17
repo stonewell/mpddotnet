@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mule.Definitions
+namespace Mule
 {
     public sealed class MuleConstants
     {
@@ -64,8 +64,6 @@ namespace Mule.Definitions
 
         public const uint SHA1_BLOCK_SIZE = 64;
         public const uint SHA1_DIGEST_SIZE = 20;
-
-        public const string HOME_URL = "http://code.google.com/p/monomule";
 
         public const uint SHORT_ED2K_STR = 256;
         public const uint SHORT_RAW_ED2K_MB_STR = (SHORT_ED2K_STR * 2);

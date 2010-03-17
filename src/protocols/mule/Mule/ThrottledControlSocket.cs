@@ -24,9 +24,24 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mule.Network
+namespace Mule
 {
-    public interface HttpClientReqSocket : ClientReqSocket
+    public struct SocketSentBytes
     {
+        public SocketSentBytes(bool s, uint sp, uint cp)
+        {
+            Success = s;
+            SentBytesControlPackets = cp;
+            SentBytesStandardPackets = sp;
+        }
+
+        public bool Success;
+        public uint SentBytesStandardPackets;
+        public uint SentBytesControlPackets;
+    };
+
+    public interface ThrottledControlSocket
+    {
+        SocketSentBytes SendControlData(uint maxNumberOfBytesToSend, uint minFragSize);
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 using Mpd.Utilities;
 using System.Diagnostics;
 
-namespace Mule.Definitions
+namespace Mule
 {
     public class MuleUtilities
     {

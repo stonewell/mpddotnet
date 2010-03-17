@@ -24,9 +24,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mule.Network
+namespace Mule
 {
-    public interface PeerCacheDownloadSocket : PeerCacheSocket
+    public interface ThrottledFileSocket : ThrottledControlSocket
     {
+        SocketSentBytes SendFileAndControlData(uint maxNumberOfBytesToSend, uint minFragSize);
+        uint LastCalledSend { get; }
+        uint NeededBytes { get; }
+        bool IsBusy { get; }
+        bool HasQueues { get; }
     }
 }

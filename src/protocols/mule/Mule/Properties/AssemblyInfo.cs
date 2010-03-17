@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Mule.Definitions")]
+[assembly: AssemblyTitle("Mule")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("SYSMANTEC")]
-[assembly: AssemblyProduct("Mule.Definitions")]
+[assembly: AssemblyProduct("Mule")]
 [assembly: AssemblyCopyright("Copyright © SYSMANTEC 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2864dd2c-b5dc-4e76-9d7f-483cfa603f61")]
+[assembly: Guid("4b7afb4b-d2c7-4f63-b6e8-f0b5f5e6fe1e")]
 
 // Version information for an assembly consists of the following four values:
 //

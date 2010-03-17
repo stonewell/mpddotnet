@@ -20,7 +20,7 @@
 //
 #endregion
 
-namespace Mule.Definitions
+namespace Mule
 {
     public enum ClientSoftwareEnum
     {
@@ -188,7 +188,7 @@ namespace Mule.Definitions
         PFOP_UNCOMPRESSING
     };
 
-    public enum EMSocketStateEnum : byte
+    public enum ConnectionStateEnum : byte
     {
         ES_DISCONNECTED = 0xFF,
         ES_NOTCONNECTED = 0x00,
@@ -197,6 +197,8 @@ namespace Mule.Definitions
 
     public enum EMSocketErrorCodeEnum : int
     {
+        ERR_UNKONWN = 0xFFFF,
+
         ERR_WRONGHEADER = 0x01,
         ERR_TOOBIG = 0x02,
         ERR_ENCRYPTION = 0x03,
@@ -238,31 +240,6 @@ namespace Mule.Definitions
     public enum EncryptionMethodsEnum
     {
         ENM_OBFUSCATION = 0x00
-    };
-
-    public enum ViewSharedFilesAccessEnum
-    {
-        vsfaEverybody = 0,
-        vsfaFriends = 1,
-        vsfaNobody = 2
-    };
-
-    public enum NotifierSoundTypeEnum
-    {
-        ntfstNoSound = 0,
-        ntfstSoundFile = 1,
-        ntfstSpeech = 2
-    };
-
-    public enum DefaultDirectoryEnum
-    {
-        EMULE_CONFIGDIR,
-        EMULE_TEMPDIR,
-        EMULE_INCOMINGDIR,
-        EMULE_LOGDIR,
-        EMULE_DATABASEDIR, // the parent directory of the incoming/temp folder
-        EMULE_CONFIGBASEDIR, // the parent directory of the config folder 
-        EMULE_EXPANSIONDIR // this is a base directory accessable for all users for things eMule installs
     };
 
     public enum LogFileFormatEnum

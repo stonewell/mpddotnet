@@ -24,24 +24,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mule.Network
+namespace Mule
 {
-    public struct SocketSentBytes
+    public class RC4Key
     {
-        public SocketSentBytes(bool s, uint sp, uint cp)
-        {
-            Success = s;
-            SentBytesControlPackets = cp;
-            SentBytesStandardPackets = sp;
-        }
-
-        public bool Success;
-        public uint SentBytesStandardPackets;
-        public uint SentBytesControlPackets;
+        public byte[] abyState = new byte[256];
+        public byte byX;
+        public byte byY;
     };
-
-    public interface ThrottledControlSocket
-    {
-        SocketSentBytes SendControlData(uint maxNumberOfBytesToSend, uint minFragSize);
-    }
 }

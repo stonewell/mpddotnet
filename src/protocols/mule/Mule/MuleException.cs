@@ -24,7 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Mule.Definitions
+namespace Mule
 {
     public class MuleException : ApplicationException
     {

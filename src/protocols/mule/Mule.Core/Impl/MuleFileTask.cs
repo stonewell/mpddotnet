@@ -30,10 +30,10 @@ namespace Mule.Core.Impl
         public void LoadComment()
         {
             abstractFile_.FileComment = 
-                MuleEngine.CoreObjectManager.Preference.GetFileComment(abstractFile_.FileHash);
+                MuleApplication.Instance.Preference.GetFileComment(abstractFile_.FileHash);
 
             abstractFile_.FileRating = 
-                MuleEngine.CoreObjectManager.Preference.GetFileRating(abstractFile_.FileHash);
+                MuleApplication.Instance.Preference.GetFileRating(abstractFile_.FileHash);
         }
 
         public bool AddNote(Kademlia.KadEntry pEntry)
@@ -66,7 +66,7 @@ namespace Mule.Core.Impl
         public virtual void RefilterKadNotes(bool bUpdate)
         {
             // check all availabe comments against our filter again
-            if (string.IsNullOrEmpty(MuleEngine.CoreObjectManager.Preference.CommentFilter))
+            if (string.IsNullOrEmpty(MuleApplication.Instance.Preference.CommentFilter))
             {
                 return;
             }
@@ -74,7 +74,7 @@ namespace Mule.Core.Impl
             KadEntryList removed = new KadEntryList();
 
             string[] filters =
-                MuleEngine.CoreObjectManager.Preference.CommentFilter.Split('|');
+                MuleApplication.Instance.Preference.CommentFilter.Split('|');
 
             if (filters == null || filters.Length == 0)
                 return;

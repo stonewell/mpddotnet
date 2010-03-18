@@ -3,26 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mule.AICH
+namespace Mule.AICH.Impl
 {
-    public class AICHObjectManager
+    public class AICHObjectManagerImpl : AICHObjectManager
     {
-        public static AICHHashAlgorithm CreateAICHHashAlgorithm()
+        public AICHHashAlgorithm CreateAICHHashAlgorithm()
         {
             return new SHA.Impl.SHAImpl();
         }
 
-        public static AICHHashTree CreateAICHHashTree(ulong nLeft, bool bLeftBranch, ulong nBaseSize)
+        public AICHHashTree CreateAICHHashTree(ulong nLeft, bool bLeftBranch, ulong nBaseSize)
         {
-            return new Impl.AICHHashTreeImpl( nLeft, bLeftBranch, nBaseSize);
+            return new Impl.AICHHashTreeImpl(nLeft, bLeftBranch, nBaseSize);
         }
 
-        public static AICHHashSet CreateAICHHashSet()
+        public AICHHashSet CreateAICHHashSet()
         {
             return new Impl.AICHHashSetImpl();
         }
 
-        public static AICHHash CreateAICHHash(Mpd.Generic.IO.FileDataIO fileInput)
+        public AICHHash CreateAICHHash(Mpd.Generic.IO.FileDataIO fileInput)
         {
             AICHHash hash = CreateAICHHash();
             hash.Read(fileInput);
@@ -30,7 +30,7 @@ namespace Mule.AICH
             return hash;
         }
 
-        public static AICHHash CreateAICHHash()
+        public AICHHash CreateAICHHash()
         {
             AICHHash hash = new Impl.AICHHashImpl();
 

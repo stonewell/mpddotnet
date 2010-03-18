@@ -41,7 +41,7 @@ namespace Mule.File.Impl
             ED2KFileLink pFileLink = null;
             try
             {
-                pLink = ED2KObjectManager.CreateLinkFromUrl(sLink);
+                pLink = MuleApplication.Instance.ED2KObjectManager.CreateLinkFromUrl(sLink);
                 if (pLink == null)
                     throw new Exception("Not a Valid file link:" + sLink);
 

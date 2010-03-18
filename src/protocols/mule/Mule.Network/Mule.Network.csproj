@@ -45,10 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncSocket.cs" />
-    <Compile Include="ClientReqSocket.cs" />
-    <Compile Include="EMSocket.cs" />
-    <Compile Include="EncryptedStreamSocket.cs" />
     <Compile Include="Impl\AsyncSocketImpl.cs" />
     <Compile Include="Impl\AsyncSocketManager.cs" />
     <Compile Include="Impl\ClientReqSocketImpl.cs" />
@@ -57,16 +53,13 @@
     <Compile Include="Impl\ListenSocketImpl.cs" />
     <Compile Include="Impl\PacketImpl.cs" />
     <Compile Include="Impl\RawPacketImpl.cs" />
-    <Compile Include="ListenSocket.cs" />
-    <Compile Include="NetworkObjectManager.cs" />
-    <Compile Include="Packet.cs" />
+    <Compile Include="Impl\NetworkObjectManagerImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServerSocket.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\utils\CryptoPP\CryptoPP-VS2008.csproj">
+    <ProjectReference Include="..\..\..\utils\CryptoPP\CryptoPP.csproj">
       <Project>{7D22200A-DE72-47FB-873D-289F067664EB}</Project>
-      <Name>CryptoPP-VS2008</Name>
+      <Name>CryptoPP</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\utils\Mpd.Generic\Mpd.Generic.csproj">
       <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
@@ -75,14 +68,6 @@
     <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
       <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
       <Name>Mpd.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Mule.File\Mule.File.csproj">
-      <Project>{92AF81B4-BBB9-4D27-A683-B40D6C2191DF}</Project>
-      <Name>Mule.File</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Mule.Preference\Mule.Preference.csproj">
-      <Project>{7C8BA2B1-6367-4365-8631-6E388614EC10}</Project>
-      <Name>Mule.Preference</Name>
     </ProjectReference>
     <ProjectReference Include="..\Mule\Mule.csproj">
       <Project>{0D8AB11F-6731-4EE2-B4F8-338DE37E44B1}</Project>

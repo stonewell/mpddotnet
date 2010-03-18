@@ -95,8 +95,6 @@ namespace Mule.File
         List<SearchServer> SearchServers { get;}
         SearchServer GetServerAt(int iServer);
 
-        void AddPreviewImage(CxImage.CxImage img);
-        List<CxImage.CxImage> PreviewImagess { get;}
         bool IsPreviewPossible { get;set;}
 
         KnownTypeEnum KnownType { get;set;}

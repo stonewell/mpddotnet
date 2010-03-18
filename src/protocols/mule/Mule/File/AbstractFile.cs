@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Mpd.Generic;
+using Kademlia;
 
 namespace Mule.File
 {
@@ -77,6 +78,6 @@ namespace Mule.File
         string FileComment { get; set; }
         uint FileRating { get; set;}
 
-        object KadNotes { get; set; }
+        KadEntryList KadNotes { get; set; }
     }
 }

@@ -24,13 +24,24 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CxImage
+namespace Mule.Network
 {
-    public class CxImageList : List<CxImage>
+    public struct SocketSentBytes
     {
-    }
+        public SocketSentBytes(bool s, uint sp, uint cp)
+        {
+            Success = s;
+            SentBytesControlPackets = cp;
+            SentBytesStandardPackets = sp;
+        }
 
-    public interface CxImage
+        public bool Success;
+        public uint SentBytesStandardPackets;
+        public uint SentBytesControlPackets;
+    };
+
+    public interface ThrottledControlSocket
     {
+        SocketSentBytes SendControlData(uint maxNumberOfBytesToSend, uint minFragSize);
     }
 }

@@ -8,21 +8,21 @@ using Mule.ED2K.Impl;
 using Mpd.Utilities;
 using Mpd.Generic;
 
-namespace Mule.ED2K
+namespace Mule.ED2K.Impl
 {
-    public class ED2KObjectManager
+    public class ED2KObjectManagerImpl : ED2KObjectManager
     {
-        public static ED2KServerLink CreateED2KServerLink(string ip, string port)
+        public  ED2KServerLink CreateED2KServerLink(string ip, string port)
         {
             return MpdObjectManager.CreateObject(typeof(ED2KServerLinkImpl), ip, port) as ED2KServerLink;
         }
 
-        public static ED2KNodesListLink CreateED2KNodesListLink(string address)
+        public  ED2KNodesListLink CreateED2KNodesListLink(string address)
         {
             return MpdObjectManager.CreateObject(typeof(ED2KNodesListLinkImpl), address) as ED2KNodesListLink;
         }
 
-        public static ED2KFileLink CreateED2KFileLink(string pszName,
+        public  ED2KFileLink CreateED2KFileLink(string pszName,
             string pszSize,
             string pszHash,
             string[] allParams,
@@ -31,21 +31,21 @@ namespace Mule.ED2K
             return MpdObjectManager.CreateObject(typeof(ED2KFileLinkImpl), pszName, pszSize, pszHash, allParams, pszSources) as ED2KFileLink;
         }
 
-        public static UnresolvedHostname CreateUnresolvedHostname()
+        public  UnresolvedHostname CreateUnresolvedHostname()
         {
             return MpdObjectManager.CreateObject(typeof(UnresolvedHostnameImpl)) as UnresolvedHostname;
         }
 
-        public static ED2KServerListLink CreateED2KServerListLink(string address)
+        public  ED2KServerListLink CreateED2KServerListLink(string address)
         {
             return MpdObjectManager.CreateObject(typeof(ED2KServerListLinkImpl), address) as ED2KServerListLink;
         }
-        public static ED2KFileTypes CreateED2KFileTypes()
+        public  ED2KFileTypes CreateED2KFileTypes()
         {
             return MpdObjectManager.CreateObject(typeof(ED2KFileTypesImpl)) as ED2KFileTypes;
         }
 
-        public static ED2KLink CreateLinkFromUrl(string strURI)
+        public  ED2KLink CreateLinkFromUrl(string strURI)
         {
             strURI.Trim(); // This function is used for various sources, trim the string again.
             int iPos = 0;
@@ -142,7 +142,7 @@ namespace Mule.ED2K
             throw new Exception("Not a ed2k link:" + strURI);
         }
 
-        private static string GetNextToken(ref int iPos, string[] tokens)
+        private  string GetNextToken(ref int iPos, string[] tokens)
         {
             if (tokens.Length > iPos)
                 return tokens[iPos++];

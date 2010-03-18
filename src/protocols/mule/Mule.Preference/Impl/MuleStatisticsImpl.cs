@@ -46,5 +46,15 @@ namespace Mule.Preference.Impl
         }
 
         #endregion
+
+        #region MuleStatistics Members
+
+
+        public void AddUpDataOverheadServer(int nPacketLen)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

@@ -22,11 +22,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Mule.AICH;
 using Mpd.Generic.IO;
-using CxImage;
-
+using Mule.AICH;
 
 namespace Mule.File
 {
@@ -95,13 +92,12 @@ namespace Mule.File
 
         // preview
         bool IsMovie { get; }
+
         bool GrabImage(byte nFramesToGrab,
             double dStartTime,
             bool bReduceColor,
             ushort nMaxWidth,
             object pSender);
-        void GrabbingFinished(CxImageList imgResults,
-            byte nFramesGrabbed, object pSender);
 
         // aich
         AICHHashSet AICHHashSet { get; set; }

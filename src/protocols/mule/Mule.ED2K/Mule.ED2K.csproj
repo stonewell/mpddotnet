@@ -45,24 +45,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ED2KFileLink.cs" />
-    <Compile Include="ED2KFileTypes.cs" />
-    <Compile Include="ED2KLink.cs" />
-    <Compile Include="ED2KNodesListLink.cs" />
-    <Compile Include="ED2KObjectManager.cs" />
-    <Compile Include="ED2KServer.cs" />
-    <Compile Include="ED2KServerLink.cs" />
-    <Compile Include="ED2KServerListLink.cs" />
-    <Compile Include="ED2KUtilities.cs" />
+    <Compile Include="Impl\ED2KObjectManager.cs" />
     <Compile Include="Impl\ED2KFileLinkImpl.cs" />
     <Compile Include="Impl\ED2KFileTypesImpl.cs" />
     <Compile Include="Impl\ED2KLinkImpl.cs" />
     <Compile Include="Impl\ED2KNodesListLinkImpl.cs" />
     <Compile Include="Impl\ED2KServerLinkImpl.cs" />
+    <Compile Include="Impl\ED2KServerListImpl.cs" />
     <Compile Include="Impl\ED2KServerListLinkImpl.cs" />
     <Compile Include="Impl\UnresolvedHostnameImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnresolvedHostname.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\utils\Mpd.Generic\Mpd.Generic.csproj">
@@ -76,10 +68,6 @@
     <ProjectReference Include="..\Mule\Mule.csproj">
       <Project>{0D8AB11F-6731-4EE2-B4F8-338DE37E44B1}</Project>
       <Name>Mule %28protocols\mule\Mule%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Mult.AICH\Mule.AICH.csproj">
-      <Project>{0791661F-B28A-4E8A-B62D-650E7891AA4A}</Project>
-      <Name>Mule.AICH</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

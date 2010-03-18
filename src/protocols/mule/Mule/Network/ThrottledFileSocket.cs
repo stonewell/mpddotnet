@@ -8,7 +8,7 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 //
-// This program is distributed val the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
@@ -23,36 +23,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml.Serialization;
 
-
-namespace Mule.Core.Impl
+namespace Mule.Network
 {
-    public class MuleBaseObjectImpl : MuleBaseObject
+    public interface ThrottledFileSocket : ThrottledControlSocket
     {
-        #region Fields
-        private MuleEngine muleEngine_ = null;
-        #endregion
-
-        #region MuleBaseObject Members
-        [XmlIgnore]
-        public virtual MuleEngine MuleEngine
-        {
-            get
-            {
-                return muleEngine_;
-            }
-
-            set
-            {
-                if (muleEngine_ != null)
-                {
-                    throw new MuleException("Unable to change MuleEngine When the object already attached to a MuleEngine.");
-                }
-
-                muleEngine_ = value;
-            }
-        }
-        #endregion
+        SocketSentBytes SendFileAndControlData(uint maxNumberOfBytesToSend, uint minFragSize);
+        uint LastCalledSend { get; }
+        uint NeededBytes { get; }
+        bool IsBusy { get; }
+        bool HasQueues { get; }
     }
 }

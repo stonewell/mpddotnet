@@ -990,7 +990,7 @@ namespace Mule.File.Impl
                             case MuleConstants.FT_AICH_HASH:
                                 {
                                     //ASSERT( newtag.IsStr );
-                                    AICHHash hash = AICHObjectManager.CreateAICHHash();
+                                    AICHHash hash = MuleApplication.Instance.AICHObjectManager.CreateAICHHash();
                                     if (MpdUtilities.DecodeBase32(newtag.Str.ToCharArray(), hash.RawHash) ==
                                         Convert.ToUInt32(MuleConstants.HASHSIZE))
                                     {

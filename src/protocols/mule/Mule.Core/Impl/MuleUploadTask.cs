@@ -193,7 +193,7 @@ namespace Mule.Core.Impl
             data.Seek(bIsSX2Packet ? 17 : 16, SeekOrigin.Begin);
             data.WriteUInt16(nCount);
 
-            Packet result = NetworkObjectManager.CreatePacket(data.ToStream, MuleConstants.OP_EMULEPROT);
+            Packet result = MuleApplication.Instance.NetworkObjectManager.CreatePacket(data.ToStream, MuleConstants.OP_EMULEPROT);
             result.OperationCode = bIsSX2Packet ? OperationCodeEnum.OP_ANSWERSOURCES2 : OperationCodeEnum.OP_ANSWERSOURCES;
             // (1+)16+2+501*(4+2+4+2+16+1) = 14547 (14548) bytes max.
             if (result.Size > 354)
@@ -230,11 +230,11 @@ namespace Mule.Core.Impl
             // If this is called within the sharedfiles object during startup,
             // we cannot reference it yet..
 
-            if (MuleEngine.SharedFiles != null)
-                pFile = MuleEngine.SharedFiles.GetFileByID(KnownFile.FileHash);
+            if (MuleApplication.Instance.SharedFiles != null)
+                pFile = MuleApplication.Instance.SharedFiles.GetFileByID(KnownFile.FileHash);
 
             if (pFile != null && pFile == KnownFile)
-                MuleEngine.SharedFiles.RemoveKeywords(KnownFile);
+                MuleApplication.Instance.SharedFiles.RemoveKeywords(KnownFile);
 
             KnownFile.SetFileName(pszFileName,
                 bReplaceInvalidFileSystemChars,
@@ -247,20 +247,20 @@ namespace Mule.Core.Impl
             {
                 string sKeyWords = string.Format("{0} {1}",
                     MuleCollection.GetCollectionAuthorKeyString(), KnownFile.FileName);
-                MuleEngine.KadEngine.SearchManager.GetWords(sKeyWords, KadWordList);
+                MuleApplication.Instance.KadEngine.SearchManager.GetWords(sKeyWords, KadWordList);
             }
             else
-                MuleEngine.KadEngine.SearchManager.GetWords(KnownFile.FileName, KadWordList);
+                MuleApplication.Instance.KadEngine.SearchManager.GetWords(KnownFile.FileName, KadWordList);
 
             if (pFile != null && pFile == this)
-                MuleEngine.SharedFiles.AddKeywords(KnownFile);
+                MuleApplication.Instance.SharedFiles.AddKeywords(KnownFile);
         }
 
         public MuleUploadTask()
         {
-            MuleCollection = MuleEngine.CoreObjectManager.CreateMuleCollection();
+            MuleCollection = MuleApplication.Instance.CoreObjectManager.CreateMuleCollection();
 
-            KadWordList = MuleEngine.KadObjectManager.CreateWordList();
+            KadWordList = MuleApplication.Instance.KadObjectManager.CreateWordList();
         }
 
         public virtual void UpdatePartsInfo()
@@ -415,14 +415,14 @@ namespace Mule.Core.Impl
         public bool PublishSrc()
         {
             uint lastBuddyIP = 0;
-            if (MuleEngine.IsFirewalled &&
-                (MuleEngine.KadEngine.UDPFirewallTester.IsFirewalledUDP(true) ||
-                !MuleEngine.KadEngine.UDPFirewallTester.IsVerified))
+            if (MuleApplication.Instance.IsFirewalled &&
+                (MuleApplication.Instance.KadEngine.UDPFirewallTester.IsFirewalledUDP(true) ||
+                !MuleApplication.Instance.KadEngine.UDPFirewallTester.IsVerified))
             {
-                UpDownClient buddy = MuleEngine.ClientList.Buddy;
+                UpDownClient buddy = MuleApplication.Instance.ClientList.Buddy;
                 if (buddy != null)
                 {
-                    lastBuddyIP = MuleEngine.ClientList.Buddy.IP;
+                    lastBuddyIP = MuleApplication.Instance.ClientList.Buddy.IP;
 
                     if (lastBuddyIP != KnownFile.LastPublishBuddy)
                     {
@@ -668,7 +668,7 @@ namespace Mule.Core.Impl
             //    return false;
 
             string fullpath =
-                MuleEngine.CoreObjectManager.Preference.GetMuleDirectory(DefaultDirectoryEnum.EMULE_CONFIGDIR);
+                MuleApplication.Instance.Preference.GetMuleDirectory(DefaultDirectoryEnum.EMULE_CONFIGDIR);
             fullpath += MuleConstants.KNOWN2_MET_FILENAME;
 
             SafeFile file =
@@ -689,7 +689,7 @@ namespace Mule.Core.Impl
                     throw new ApplicationException("end of file:" + fullpath);
                 }
                 // first we check if the hashset we want to write is already stored
-                AICHHash CurrentHash = AICHObjectManager.CreateAICHHash();
+                AICHHash CurrentHash = MuleApplication.Instance.AICHObjectManager.CreateAICHHash();
                 uint nExistingSize = (uint)file.Length;
                 uint nHashCount;
                 while (file.Position < nExistingSize)

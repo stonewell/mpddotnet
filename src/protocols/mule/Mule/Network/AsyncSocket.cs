@@ -43,7 +43,7 @@ namespace Mule.Network
         event SocketEventHandler SocketSendable;
         event SocketErrorEventHandler SocketErrorOccured;
 
-        MuleApplication MuleApp { get; set; }
+        
         
         bool Connected { get; }
         void Connect(string host, int port);

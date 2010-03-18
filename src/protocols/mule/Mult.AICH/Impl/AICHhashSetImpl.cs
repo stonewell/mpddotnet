@@ -32,7 +32,8 @@ namespace Mule.AICH.Impl
     class AICHHashSetImpl : AICHHashSet
     {
         #region Fields
-        private AICHHashTree hashTree_ = AICHObjectManager.CreateAICHHashTree(0, true, MuleConstants.PARTSIZE);
+        private AICHHashTree hashTree_ =
+            MuleApplication.Instance.AICHObjectManager.CreateAICHHashTree(0, true, MuleConstants.PARTSIZE);
 
         private AICHStatusEnum status_ = AICHStatusEnum.AICH_EMPTY;
         private List<AICHUntrustedHash> untrustedHashs_ =

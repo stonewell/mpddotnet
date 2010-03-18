@@ -502,7 +502,7 @@ namespace Mpd.Utilities
                 MemoryStream outMs = new MemoryStream();
 
                 DeflateStream ds =
-                    new DeflateStream(new MemoryStream(inBuf, 0, (int)size), 
+                    new DeflateStream(new MemoryStream(inBuf, 0, (int)size),
                         CompressionMode.Decompress);
 
                 int count = 0;
@@ -527,5 +527,54 @@ namespace Mpd.Utilities
             }
         }
 
+        public static bool IsGoodIP(uint nIP, bool forceCheck)
+        {
+            // always filter following IP's
+            // -------------------------------------------
+            // 0.0.0.0							invalid
+            // 127.0.0.0 - 127.255.255.255		Loopback
+            // 224.0.0.0 - 239.255.255.255		Multicast
+            // 240.0.0.0 - 255.255.255.255		Reserved for Future Use
+            // 255.255.255.255					invalid
+
+            if (nIP == 0 || (byte)nIP == 127 || (byte)nIP >= 224)
+            {
+                return false;
+            }
+
+            if (!forceCheck/*ZZ:UploadSpeedSense*/)
+                return true;
+            else
+                return !IsLANIP(nIP);
+        }
+
+        public static bool IsLANIP(uint nIP)
+        {
+            // LAN IP's
+            // -------------------------------------------
+            //	0.*								"This" Network
+            //	10.0.0.0 - 10.255.255.255		Class A
+            //	172.16.0.0 - 172.31.255.255		Class B
+            //	192.168.0.0 - 192.168.255.255	Class C
+
+            byte nFirst = (byte)nIP;
+            byte nSecond = (byte)(nIP >> 8);
+
+            if (nFirst == 192 && nSecond == 168) // check this 1st, because those LANs IPs are mostly spreaded
+                return true;
+
+            if (nFirst == 172 && nSecond >= 16 && nSecond <= 31)
+                return true;
+
+            if (nFirst == 0 || nFirst == 10)
+                return true;
+
+            return false;
+        }
+
+        public static bool IsGoodIPPort(uint nIP, ushort nPort)
+        {
+            return IsGoodIP(nIP, true) && nPort != 0;
+        }
     }
 }

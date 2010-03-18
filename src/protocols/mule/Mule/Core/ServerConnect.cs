@@ -42,7 +42,13 @@ namespace Mule.Core
         void DestroySocket(ServerSocket pSck);	// safe socket closure and destruction
         bool SendPacket(Packet packet, bool delpacket/* = true*/, ServerSocket to/* = 0*/);
         bool IsUDPSocketAvailable { get;}
+
+        bool SendUDPPacket(Packet packet, ED2KServer host);
+        bool SendUDPPacket(Packet packet, ED2KServer host, bool delpacket/* = false*/);
+        bool SendUDPPacket(Packet packet, ED2KServer host, bool delpacket/* = false*/, ushort nSpecialPort/* = 0*/);
+        bool SendUDPPacket(Packet packet, ED2KServer host, bool delpacket/* = false*/, ushort nSpecialPort/* = 0*/, byte[] pRawPacket/* = NULL*/);
         bool SendUDPPacket(Packet packet, ED2KServer host, bool delpacket/* = false*/, ushort nSpecialPort/* = 0*/, byte[] pRawPacket/* = NULL*/, uint nLen/* = 0*/);
+
         void KeepConnectionAlive();
         bool Disconnect();
         bool IsConnecting { get;}

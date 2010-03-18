@@ -271,7 +271,7 @@ namespace Mule.ED2K.Impl
                         }
 
                         UnresolvedHostname hostname =
-                            ED2KObjectManager.CreateUnresolvedHostname();
+                            MuleApplication.Instance.ED2KObjectManager.CreateUnresolvedHostname();
 
                         hostname.Port = nPort;
                         hostname.HostName = strIP;
@@ -334,7 +334,7 @@ namespace Mule.ED2K.Impl
                             Uri uri = new Uri(strURL, UriKind.RelativeOrAbsolute);
 
                             UnresolvedHostname hostname =
-                                ED2KObjectManager.CreateUnresolvedHostname();
+                                MuleApplication.Instance.ED2KObjectManager.CreateUnresolvedHostname();
 
                             hostname.Url = strURL;
                             hostname.HostName = uri.Host;

@@ -8,7 +8,7 @@ using Mule.File;
 
 namespace Mule.Core
 {
-    public class CoreUtilities : MuleBaseObjectImpl
+    public class CoreUtilities
     {
     }
 }

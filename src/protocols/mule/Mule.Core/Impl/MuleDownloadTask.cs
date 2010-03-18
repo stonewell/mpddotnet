@@ -150,7 +150,7 @@ namespace Mule.Core.Impl
 
                         // Cache Preview state (Criterion 2)
                         ED2KFileTypeEnum type =
-                            ED2KObjectManager.CreateED2KFileTypes().GetED2KFileTypeID(PartFile.FileName);
+                            MuleApplication.Instance.ED2KObjectManager.CreateED2KFileTypes().GetED2KFileTypeID(PartFile.FileName);
                         bool isPreviewEnable =
                             PartFile.PreviewPriority &&
                             (type == ED2KFileTypeEnum.ED2KFT_ARCHIVE || type == ED2KFileTypeEnum.ED2KFT_VIDEO);
@@ -355,37 +355,37 @@ namespace Mule.Core.Impl
             }
 
             // MOD Note: Do not change this part - Merkur
-            if (MuleEngine.ServerConnect.IsConnected)
+            if (MuleApplication.Instance.ServerConnect.IsConnected)
             {
-                if (MuleUtilities.IsLowID(MuleEngine.ServerConnect.ClientID))
+                if (MuleUtilities.IsLowID(MuleApplication.Instance.ServerConnect.ClientID))
                 {
-                    if (MuleEngine.ServerConnect.ClientID == userid &&
-                        MuleEngine.ServerConnect.CurrentServer.IP == serverip &&
-                        MuleEngine.ServerConnect.CurrentServer.Port == serverport)
+                    if (MuleApplication.Instance.ServerConnect.ClientID == userid &&
+                        MuleApplication.Instance.ServerConnect.CurrentServer.IP == serverip &&
+                        MuleApplication.Instance.ServerConnect.CurrentServer.Port == serverport)
                     {
                         return false;
                     }
-                    if (MuleEngine.PublicIP == userid)
+                    if (MuleApplication.Instance.PublicIP == userid)
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if (MuleEngine.ServerConnect.ClientID == userid &&
-                        MuleEngine.CoreObjectManager.Preference.Port == port)
+                    if (MuleApplication.Instance.ServerConnect.ClientID == userid &&
+                        MuleApplication.Instance.Preference.Port == port)
                     {
                         return false;
                     }
                 }
             }
 
-            if (MuleEngine.KadEngine.IsConnected)
+            if (MuleApplication.Instance.KadEngine.IsConnected)
             {
-                if (!MuleEngine.KadEngine.IsFirewalled)
+                if (!MuleApplication.Instance.KadEngine.IsFirewalled)
                 {
-                    if (MuleEngine.KadEngine.IPAddress == hybridID &&
-                        MuleEngine.CoreObjectManager.Preference.Port == port)
+                    if (MuleApplication.Instance.KadEngine.IPAddress == hybridID &&
+                        MuleApplication.Instance.Preference.Port == port)
                     {
                         return false;
                     }
@@ -393,7 +393,7 @@ namespace Mule.Core.Impl
             }
 
             //This allows *.*.*.0 clients to not be removed if Ed2kID == false
-            if (MuleUtilities.IsLowID(hybridID) && MuleEngine.IsFirewalled)
+            if (MuleUtilities.IsLowID(hybridID) && MuleApplication.Instance.IsFirewalled)
             {
                 pdebug_lowiddropped++;
                 return false;
@@ -549,7 +549,7 @@ namespace Mule.Core.Impl
                     //    //AddDebugLogLineM(false, logIPFilter, CFormat(wxT("Ignored source (IP=%s) received via %s - IPFilter")) % Uint32toStringIP(dwIDED2K) % OriginToText(nSourceFrom));
                     //    continue;
                     //}
-                    if (MuleEngine.ClientList.IsBannedClient(dwIDED2K))
+                    if (MuleApplication.Instance.ClientList.IsBannedClient(dwIDED2K))
                     {
                         continue;
                     }
@@ -564,10 +564,10 @@ namespace Mule.Core.Impl
                     continue;
                 }
 
-                if (MuleEngine.CoreObjectManager.Preference.MaxSourcePerFileDefault > PartFile.SourceCount)
+                if (MuleApplication.Instance.Preference.MaxSourcePerFileDefault > PartFile.SourceCount)
                 {
                     UpDownClient newsource =
-                        MuleEngine.CoreObjectManager.CreateUpDownClient(nPort, dwID, 
+                        MuleApplication.Instance.CoreObjectManager.CreateUpDownClient(nPort, dwID, 
                         dwServerIP, nServerPort, PartFile, 
                         (uPacketSXVersion < 3), true);
 
@@ -582,7 +582,7 @@ namespace Mule.Core.Impl
                     }
 
                     newsource.SourceFrom = nSourceFrom;
-                    MuleEngine.DownloadQueue.CheckAndAddSource(PartFile, newsource);
+                    MuleApplication.Instance.DownloadQueue.CheckAndAddSource(PartFile, newsource);
 
                 }
                 else
@@ -611,7 +611,7 @@ namespace Mule.Core.Impl
 
         public void InitFromSearchFile(SearchFile searchresult, uint cat)
         {
-            PartFile = FileObjectManager.CreatePartFile();
+            PartFile = MuleApplication.Instance.FileObjectManager.CreatePartFile();
 
             if (searchresult.KadNotes is KadEntryList)
             {
@@ -686,14 +686,14 @@ namespace Mule.Core.Impl
 
         public void InitializeFromLink(Mule.ED2K.ED2KFileLink fileLink, uint cat)
         {
-            PartFile = FileObjectManager.CreatePartFile();
+            PartFile = MuleApplication.Instance.FileObjectManager.CreatePartFile();
 
             try
             {
                 PartFile.SetFileName(fileLink.Name, true, true, false);
                 PartFile.FileSize = fileLink.Size;
                 MpdUtilities.Md4Cpy(PartFile.FileHash, fileLink.HashKey);
-                if (!MuleEngine.DownloadQueue.IsFileExisting(PartFile.FileHash))
+                if (!MuleApplication.Instance.DownloadQueue.IsFileExisting(PartFile.FileHash))
                 {
                     if (fileLink.HashSet != null && fileLink.HashSet.Length > 0)
                     {
@@ -739,7 +739,7 @@ namespace Mule.Core.Impl
             uint dwCurTick = MpdUtilities.GetTickCount();
 
             // If buffer size exceeds limit, or if not written within time limit, flush data
-            if ((PartFile.TotalBufferData > MuleEngine.CoreObjectManager.Preference.FileBufferSize) ||
+            if ((PartFile.TotalBufferData > MuleApplication.Instance.Preference.FileBufferSize) ||
                 (dwCurTick > (PartFile.LastBufferFlushTime + MuleConstants.BUFFER_TIME_LIMIT)))
             {
                 // Avoid flushing while copying preview file
@@ -879,13 +879,13 @@ namespace Mule.Core.Impl
                                 if (cur_src.HasLowID)
                                 {
                                     //Make sure we still cannot callback to this Client..
-                                    if (!MuleEngine.CanDoCallback(cur_src))
+                                    if (!MuleApplication.Instance.CanDoCallback(cur_src))
                                     {
                                         //If we are almost maxed on sources, slowly remove these client to see if we can find a better source.
                                         if (((dwCurTick - PartFile.LastPurgeTime) > 30 * 1000) &&
                                             (PartFile.SourceCount >= (PartFile.MaxSources * .8)))
                                         {
-                                            MuleEngine.DownloadQueue.RemoveSource(cur_src);
+                                            MuleApplication.Instance.DownloadQueue.RemoveSource(cur_src);
                                             PartFile.LastPurgeTime = dwCurTick;
                                         }
                                         break;
@@ -905,7 +905,7 @@ namespace Mule.Core.Impl
                                     // we only delete them if reaching the limit
                                     if (PartFile.SourceCount >= (PartFile.MaxSources * .8))
                                     {
-                                        MuleEngine.DownloadQueue.RemoveSource(cur_src);
+                                        MuleApplication.Instance.DownloadQueue.RemoveSource(cur_src);
                                         break;
                                     }
                                 }
@@ -928,13 +928,13 @@ namespace Mule.Core.Impl
                                     if (((dwCurTick - PartFile.LastPurgeTime) > 1 * 60 * 1000) &&
                                         (PartFile.SourceCount >= (PartFile.MaxSources * .8)))
                                     {
-                                        MuleEngine.DownloadQueue.RemoveSource(cur_src);
+                                        MuleApplication.Instance.DownloadQueue.RemoveSource(cur_src);
                                         PartFile.LastPurgeTime = dwCurTick;
                                         break;
                                     }
                                 }
                                 //Give up to 1 min for UDP to respond.. If we are within one min of TCP reask, do not try..
-                                if (MuleEngine.IsConnected &&
+                                if (MuleApplication.Instance.IsConnected &&
                                     cur_src.GetTimeUntilReask() < 2 * 60 * 1000 &&
                                     cur_src.GetTimeUntilReask() > 1 * 1000 &&
                                     MpdUtilities.GetTickCount() - cur_src.LastTriedToConnectTime > 20 * 60 * 1000) // ZZ:DownloadManager (one resk timestamp for each file)
@@ -942,7 +942,7 @@ namespace Mule.Core.Impl
                                     cur_src.UDPReaskForDownload();
                                 }
 
-                                if (MuleEngine.IsConnected &&
+                                if (MuleApplication.Instance.IsConnected &&
                                     cur_src.GetTimeUntilReask() == 0 &&
                                     MpdUtilities.GetTickCount() - cur_src.LastTriedToConnectTime > 20 * 60 * 1000) // ZZ:DownloadManager (one resk timestamp for each file)
                                 {
@@ -958,7 +958,7 @@ namespace Mule.Core.Impl
                         case DownloadStateEnum.DS_WAITCALLBACK:
                         case DownloadStateEnum.DS_WAITCALLBACKKAD:
                             {
-                                if (MuleEngine.IsConnected &&
+                                if (MuleApplication.Instance.IsConnected &&
                                     cur_src.GetTimeUntilReask() == 0 &&
                                     MpdUtilities.GetTickCount() - cur_src.LastTriedToConnectTime > 20 * 60 * 1000) // ZZ:DownloadManager (one resk timestamp for each file)
                                 {
@@ -975,22 +975,22 @@ namespace Mule.Core.Impl
 
                 if (PartFile.MaxSourcePerFileUDP > PartFile.SourceCount)
                 {
-                    if (MuleEngine.DownloadQueue.DoKademliaFileRequest() &&
-                        (MuleEngine.KadEngine.TotalFile < MuleConstants.KADEMLIATOTALFILE) &&
+                    if (MuleApplication.Instance.DownloadQueue.DoKademliaFileRequest() &&
+                        (MuleApplication.Instance.KadEngine.TotalFile < MuleConstants.KADEMLIATOTALFILE) &&
                         (dwCurTick > LastSearchTimeKad) &&
-                        MuleEngine.KadEngine.IsConnected &&
-                        MuleEngine.IsConnected &&
+                        MuleApplication.Instance.KadEngine.IsConnected &&
+                        MuleApplication.Instance.IsConnected &&
                         !PartFile.IsStopped)
                     {
                         //Once we can handle lowID users in Kad, we remove the second IsConnected
                         //Kademlia
-                        MuleEngine.DownloadQueue.SetLastKademliaFileRequest();
+                        MuleApplication.Instance.DownloadQueue.SetLastKademliaFileRequest();
                         if (KadFileSearchID == 0)
                         {
                             KadSearch pSearch =
-                                MuleEngine.KadEngine.SearchManager.PrepareLookup(Convert.ToUInt32(KadSearchTypeEnum.FILE),
+                                MuleApplication.Instance.KadEngine.SearchManager.PrepareLookup(Convert.ToUInt32(KadSearchTypeEnum.FILE),
                                     true,
-                                    MuleEngine.KadEngine.ObjectManager.CreateUInt128(PartFile.FileHash));
+                                    MuleApplication.Instance.KadEngine.ObjectManager.CreateUInt128(PartFile.FileHash));
                             if (pSearch != null)
                             {
                                 if (TotalSearchesKad < 7)
@@ -1008,7 +1008,7 @@ namespace Mule.Core.Impl
                 {
                     if (KadFileSearchID != 0)
                     {
-                        MuleEngine.KadEngine.SearchManager.StopSearch(KadFileSearchID, true);
+                        MuleApplication.Instance.KadEngine.SearchManager.StopSearch(KadFileSearchID, true);
                     }
                 }
 
@@ -1016,15 +1016,15 @@ namespace Mule.Core.Impl
                 if (!PartFile.IsLocalSrcReqQueued &&
                     ((LastSearchTime == 0) ||
                     (dwCurTick - LastSearchTime) > MuleConstants.SERVERREASKTIME) &&
-                    MuleEngine.ServerConnect.IsConnected &&
+                    MuleApplication.Instance.ServerConnect.IsConnected &&
                     PartFile.MaxSourcePerFileSoft > PartFile.SourceCount &&
                     !PartFile.IsStopped &&
                     (!PartFile.IsLargeFile ||
-                    (MuleEngine.ServerConnect.CurrentServer != null &&
-                    MuleEngine.ServerConnect.CurrentServer.DoesSupportsLargeFilesTCP)))
+                    (MuleApplication.Instance.ServerConnect.CurrentServer != null &&
+                    MuleApplication.Instance.ServerConnect.CurrentServer.DoesSupportsLargeFilesTCP)))
                 {
                     PartFile.IsLocalSrcReqQueued = true;
-                    MuleEngine.DownloadQueue.SendLocalSrcRequest(PartFile);
+                    MuleApplication.Instance.DownloadQueue.SendLocalSrcRequest(PartFile);
                 }
 
                 ProcessCount++;
@@ -1104,8 +1104,8 @@ namespace Mule.Core.Impl
                     //TODO:Log
                     //if (thePrefs.GetVerbose())
                     //    AddDebugLogLine(true, _T("Completed file-hashing for \"%s\""), GetFileName());
-                    if (MuleEngine.SharedFiles.GetFileByID(PartFile.FileHash) == null)
-                        MuleEngine.SharedFiles.SafeAddKFile(PartFile);
+                    if (MuleApplication.Instance.SharedFiles.GetFileByID(PartFile.FileHash) == null)
+                        MuleApplication.Instance.SharedFiles.SafeAddKFile(PartFile);
                     PartFile.CompleteFile(true);
                     return;
                 }
@@ -1128,7 +1128,7 @@ namespace Mule.Core.Impl
             //    AddDebugLogLine(true, _T("Completed file-hashing for \"%s\""), GetFileName());
             PartFile.Status = PartFileStatusEnum.PS_READY;
             PartFile.SavePartFile();
-            MuleEngine.SharedFiles.SafeAddKFile(PartFile);
+            MuleApplication.Instance.SharedFiles.SafeAddKFile(PartFile);
         }
     }
 }

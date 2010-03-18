@@ -753,7 +753,7 @@ namespace Mule.Core.Impl
             throw new NotImplementedException();
         }
 
-        public void SendCancelTransfer(Mule.Network.Packet packet)
+        public void SendCancelTransfer(Packet packet)
         {
             throw new NotImplementedException();
         }
@@ -1334,11 +1334,6 @@ namespace Mule.Core.Impl
             throw new NotImplementedException();
         }
 
-        public void SendPreviewAnswer(Mule.File.KnownFile pForFile, CxImage.CxImage imgFrames, byte nCount)
-        {
-            throw new NotImplementedException();
-        }
-
         public void ProcessPreviewReq(byte[] pachPacket, uint nSize)
         {
             throw new NotImplementedException();
@@ -1359,7 +1354,7 @@ namespace Mule.Core.Impl
             get { throw new NotImplementedException(); }
         }
 
-        public bool SafeSendPacket(Mule.Network.Packet packet)
+        public bool SafeSendPacket(Packet packet)
         {
             throw new NotImplementedException();
         }

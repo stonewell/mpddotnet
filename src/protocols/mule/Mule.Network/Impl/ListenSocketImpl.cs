@@ -27,8 +27,8 @@ namespace Mule.Network.Impl
         #endregion
 
         #region Constructors
-        public ListenSocketImpl(MuleApplication muleApp) :
-            base(muleApp, new IPEndPoint(0, 0).AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+        public ListenSocketImpl() :
+            base(new IPEndPoint(0, 0).AddressFamily, SocketType.Stream, ProtocolType.Tcp)
         {
         }
         #endregion
@@ -43,21 +43,21 @@ namespace Mule.Network.Impl
             {
                 IPAddress address = IPAddress.Any;
 
-                if (MuleApp.Preference.BindAddr != null &&
-                    MuleApp.Preference.BindAddr.Length > 0)
+                if (MuleApplication.Instance.Preference.BindAddr != null &&
+                    MuleApplication.Instance.Preference.BindAddr.Length > 0)
                 {
-                    IPAddress.TryParse(MuleApp.Preference.BindAddr, out address);
+                    IPAddress.TryParse(MuleApplication.Instance.Preference.BindAddr, out address);
                 }
 
                 IPEndPoint endpoint =
                     new IPEndPoint(address,
-                        MuleApp.Preference.Port);
+                        MuleApplication.Instance.Preference.Port);
 
                 Bind(endpoint);
 
                 Listen();
 
-                port_ = MuleApp.Preference.Port;
+                port_ = MuleApplication.Instance.Preference.Port;
                 return true;
             }
             catch (Exception ex)
@@ -91,8 +91,8 @@ namespace Mule.Network.Impl
                         s.CheckTimeOut();
                 });
 
-            if ((OpenSocketsCount + 5 < MuleApp.Preference.MaxConnections || 
-                MuleApp.IsServerConnecting) && 
+            if ((OpenSocketsCount + 5 < MuleApplication.Instance.Preference.MaxConnections || 
+                MuleApplication.Instance.ServerConnect.IsConnecting) && 
                 !bListening_)
                 ReStartListening();
         }
@@ -148,10 +148,10 @@ namespace Mule.Network.Impl
 
         public bool TooManySockets(bool bIgnoreInterval)
         {
-            if (OpenSocketsCount > MuleApp.Preference.MaxConnections
-                || (openSocketsInterval_ > (MuleApp.Preference.MaxConnectionsPerFile * MaxConnectionsPerFileModifier) && 
+            if (OpenSocketsCount > MuleApplication.Instance.Preference.MaxConnections
+                || (openSocketsInterval_ > (MuleApplication.Instance.Preference.MaxConnectionsPerFile * MaxConnectionsPerFileModifier) && 
                 !bIgnoreInterval)
-                || (TotalHalfConnectSocket >= MuleApp.Preference.MaxHalfConnections && 
+                || (TotalHalfConnectSocket >= MuleApplication.Instance.Preference.MaxHalfConnections && 
                 !bIgnoreInterval))
                 return true;
             return false;
@@ -213,7 +213,7 @@ namespace Mule.Network.Impl
 
         public bool Rebind()
         {
-            if (MuleApp.Preference.Port == port_)
+            if (MuleApplication.Instance.Preference.Port == port_)
                 return false;
 
             Close();
@@ -240,10 +240,10 @@ namespace Mule.Network.Impl
             // Update statistics for 'peak connections'
             if (PeakConnections < ActiveConnections)
                 PeakConnections = ActiveConnections;
-            if (PeakConnections > MuleApp.Preference.ConnectionPeakConnections)
-                MuleApp.Preference.ConnectionPeakConnections = PeakConnections;
+            if (PeakConnections > MuleApplication.Instance.Preference.ConnectionPeakConnections)
+                MuleApplication.Instance.Preference.ConnectionPeakConnections = PeakConnections;
 
-            if (MuleApp.IsConnected)
+            if (MuleApplication.Instance.IsConnected)
             {
                 TotalConnectionChecks++;
                 if (TotalConnectionChecks == 0)
@@ -276,7 +276,7 @@ namespace Mule.Network.Impl
                 if (SpikeSize < 1.0F)
                     return 1.0F;
 
-                float SpikeTolerance = 25.0F * (float)MuleApp.Preference.MaxConnectionsPerFile / 10.0F;
+                float SpikeTolerance = 25.0F * (float)MuleApplication.Instance.Preference.MaxConnectionsPerFile / 10.0F;
                 if (SpikeSize > SpikeTolerance)
                     return 0;
 
@@ -344,7 +344,7 @@ namespace Mule.Network.Impl
                     pendingConnections_ = 1;
                 }
 
-                if (TooManySockets(true) && !MuleApp.IsServerConnecting)
+                if (TooManySockets(true) && !MuleApplication.Instance.ServerConnect.IsConnecting)
                 {
                     StopListening();
                     return;
@@ -390,7 +390,7 @@ namespace Mule.Network.Impl
                     if (FilterClient(socket.RemoteEndPoint))
                         continue;
 
-                    ClientReqSocketImpl newclient = new ClientReqSocketImpl(MuleApp);
+                    ClientReqSocketImpl newclient = new ClientReqSocketImpl();
                     if (newclient.AttachHandle(socket as AsyncSocketImpl))
                     {
                         AddSocket(newclient);

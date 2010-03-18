@@ -57,11 +57,11 @@ namespace Mule.Network.Impl
         #endregion
 
         #region Constructor
-        public EncryptedStreamSocketImpl(MuleApplication muleApp) : 
-            base(muleApp, new IPEndPoint(0, 0).AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+        public EncryptedStreamSocketImpl() : 
+            base(new IPEndPoint(0, 0).AddressFamily, SocketType.Stream, ProtocolType.Tcp)
         {
             streamCryptState_ =
-                MuleApp.Preference.IsClientCryptLayerSupported ? StreamCryptStateEnum.ECS_UNKNOWN : StreamCryptStateEnum.ECS_NONE;
+                MuleApplication.Instance.Preference.IsClientCryptLayerSupported ? StreamCryptStateEnum.ECS_UNKNOWN : StreamCryptStateEnum.ECS_NONE;
             negotiatingState_ = NegotiatingStateEnum.ONS_NONE;
             rc4ReceiveKey_ = null;
             rc4SendKey_ = null;
@@ -250,7 +250,7 @@ namespace Mule.Network.Impl
 
                             // if we require an encrypted connection, cut the connection here. This shouldn't happen that often
                             // at least with other up-to-date eMule clients because they check for incompability before connecting if possible
-                            if (MuleApp.Preference.IsClientCryptLayerRequired)
+                            if (MuleApplication.Instance.Preference.IsClientCryptLayerRequired)
                             {
                                 // TODO: Remove me when i have been solved
                                 // Even if the Require option is enabled, we currently have to accept unencrypted connection which are made
@@ -263,9 +263,9 @@ namespace Mule.Network.Impl
                                 IPEndPoint remote = RemoteEndPoint as IPEndPoint;
                                 uint address = BitConverter.ToUInt32(remote.Address.GetAddressBytes(), 0);
 
-                                if (MuleApp.Preference.IsClientCryptLayerRequiredStrict ||
-                                    (!MuleApp.AwaitingTestFromIP(address)
-                                    && !MuleApp.IsKadFirewallCheckIP(address)))
+                                if (MuleApplication.Instance.Preference.IsClientCryptLayerRequiredStrict ||
+                                    (!MuleApplication.Instance.ServerConnect.AwaitingTestFromIP(address)
+                                    && !MuleApplication.Instance.ClientList.IsKadFirewallCheckIP(address)))
                                 {
                                     MpdUtilities.AddDebugLogLine(EDebugLogPriority.DLP_DEFAULT, false, ("Rejected incoming connection because Obfuscation was required but not used %s"), DbgGetIPString());
                                     OnError(Convert.ToInt32(EMSocketErrorCodeEnum.ERR_ENCRYPTION_NOTALLOWED));
@@ -452,7 +452,7 @@ namespace Mule.Network.Impl
                                 Debug.Assert(rc4ReceiveKey_ == null);
 
                                 byte[] achKeyData = new byte[21];
-                                MpdUtilities.Md4Cpy(achKeyData, MuleApp.Preference.UserHash);
+                                MpdUtilities.Md4Cpy(achKeyData, MuleApplication.Instance.Preference.UserHash);
                                 achKeyData[16] = Convert.ToByte(MuleConstants.MAGICVALUE_REQUESTER);
                                 fiReceiveBuffer_.Read(achKeyData, 17, 4); // random key part sent from remote client
 
@@ -506,9 +506,9 @@ namespace Mule.Network.Impl
                                 IPEndPoint remoteEp = RemoteEndPoint as IPEndPoint;
 
                                 byte byPaddingLen = 
-                                    MuleApp.AwaitingTestFromIP(BitConverter.ToUInt32(remoteEp.Address.GetAddressBytes(), 0)) 
+                                    MuleApplication.Instance.ServerConnect.AwaitingTestFromIP(BitConverter.ToUInt32(remoteEp.Address.GetAddressBytes(), 0)) 
                                         ? Convert.ToByte(16) : 
-                                        Convert.ToByte(MuleApp.Preference.CryptTCPPaddingLength + 1);
+                                        Convert.ToByte(MuleApplication.Instance.Preference.CryptTCPPaddingLength + 1);
                                 byte byPadding = Convert.ToByte(cryptRandomGen_.GenerateByte() % byPaddingLen);
 
                                 fileResponse.WriteUInt8(byPadding);
@@ -673,7 +673,7 @@ namespace Mule.Network.Impl
                 fileRequest.WriteUInt8(bySupportedEncryptionMethod);
                 fileRequest.WriteUInt8(bySupportedEncryptionMethod); // so we also prefer this one
                 byte byPadding = Convert.ToByte(cryptRandomGen_.GenerateByte() %
-                    (MuleApp.Preference.CryptTCPPaddingLength + 1));
+                    (MuleApplication.Instance.Preference.CryptTCPPaddingLength + 1));
                 fileRequest.WriteUInt8(byPadding);
                 for (int i = 0; i < byPadding; i++)
                     fileRequest.WriteUInt8(cryptRandomGen_.GenerateByte());

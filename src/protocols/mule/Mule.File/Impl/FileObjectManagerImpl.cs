@@ -5,21 +5,21 @@ using System.Text;
 using Mule.File.Impl;
 using Mpd.Generic;
 
-namespace Mule.File
+namespace Mule.File.Impl
 {
-    public class FileObjectManager
+    public class FileObjectManagerImpl : FileObjectManager
     {
-        public static StatisticFile CreateStatisticFile()
+        public StatisticFile CreateStatisticFile()
         {
             throw new NotImplementedException();
         }
 
-        public static PartFile CreatePartFile(params object[] parameters)
+        public PartFile CreatePartFile(params object[] parameters)
         {
             return MpdObjectManager.CreateObject(typeof(PartFileImpl), parameters) as PartFile;
         }
 
-        public static KnownFile CreateKnownFile()
+        public KnownFile CreateKnownFile()
         {
             return MpdObjectManager.CreateObject(typeof(KnownFileImpl)) as KnownFile;
         }

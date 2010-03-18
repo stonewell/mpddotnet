@@ -45,24 +45,91 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AICH\AICHHash.cs" />
+    <Compile Include="AICH\AICHHashAlgorithm.cs" />
+    <Compile Include="AICH\AICHHashSet.cs" />
+    <Compile Include="AICH\AICHHashTree.cs" />
+    <Compile Include="AICH\AICHObjectManager.cs" />
+    <Compile Include="AICH\AICHRequestedData.cs" />
+    <Compile Include="AICH\AICHUntrustedHash.cs" />
+    <Compile Include="AICH\SHA\SHA.cs" />
+    <Compile Include="Core\CBBRecord.cs" />
+    <Compile Include="Core\Chunk.cs" />
+    <Compile Include="Core\ClientCredits.cs" />
+    <Compile Include="Core\ClientList.cs" />
+    <Compile Include="Core\CoreObjectManager.cs" />
+    <Compile Include="Core\CorruptionBlackBox.cs" />
+    <Compile Include="Core\DownloadQueue.cs" />
+    <Compile Include="Core\Friend.cs" />
+    <Compile Include="Core\IPFilter.cs" />
+    <Compile Include="Core\LastCommonRouteFinder.cs" />
+    <Compile Include="Core\MuleCollection.cs" />
+    <Compile Include="Core\ServerConnect.cs" />
+    <Compile Include="Core\SharedFileList.cs" />
+    <Compile Include="Core\UpDownClient.cs" />
+    <Compile Include="Core\UploadBandwidthThrottler.cs" />
+    <Compile Include="Core\UploadQueue.cs" />
+    <Compile Include="ED2K\ED2KFileLink.cs" />
+    <Compile Include="ED2K\ED2KFileTypes.cs" />
+    <Compile Include="ED2K\ED2KLink.cs" />
+    <Compile Include="ED2K\ED2KNodesListLink.cs" />
+    <Compile Include="ED2K\ED2KObjectManager.cs" />
+    <Compile Include="ED2K\ED2KServer.cs" />
+    <Compile Include="ED2K\ED2KServerLink.cs" />
+    <Compile Include="ED2K\ED2KServerList.cs" />
+    <Compile Include="ED2K\ED2KServerListLink.cs" />
+    <Compile Include="ED2K\ED2KUtilities.cs" />
+    <Compile Include="ED2K\UnresolvedHostname.cs" />
+    <Compile Include="File\AbstractFile.cs" />
+    <Compile Include="File\CollectionFile.cs" />
+    <Compile Include="File\FileObjectManager.cs" />
+    <Compile Include="File\KnownFile.cs" />
+    <Compile Include="File\PartFile.cs" />
+    <Compile Include="File\PendingBlock.cs" />
+    <Compile Include="File\RequestedBlock.cs" />
+    <Compile Include="File\SearchFile.cs" />
+    <Compile Include="File\StatisticFile.cs" />
     <Compile Include="MuleApplication.cs" />
     <Compile Include="MuleConstants.cs" />
     <Compile Include="MuleEnums.cs" />
     <Compile Include="MuleException.cs" />
     <Compile Include="MuleUtilities.cs" />
+    <Compile Include="Network\AsyncSocket.cs" />
+    <Compile Include="Network\ClientReqSocket.cs" />
+    <Compile Include="Network\EMSocket.cs" />
+    <Compile Include="Network\EncryptedStreamSocket.cs" />
+    <Compile Include="Network\ListenSocket.cs" />
+    <Compile Include="Network\NetworkObjectManager.cs" />
+    <Compile Include="Network\ServerSocket.cs" />
+    <Compile Include="Network\Packet.cs" />
+    <Compile Include="Preference\FileComments.cs" />
+    <Compile Include="Preference\MulePreference.cs" />
+    <Compile Include="Preference\MuleStatistics.cs" />
+    <Compile Include="Preference\ProxySettings.cs" />
+    <Compile Include="Preference\ServerAddress.cs" />
+    <Compile Include="Preference\SharedDirectory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RC4Key.cs" />
-    <Compile Include="ThrottledControlSocket.cs" />
-    <Compile Include="ThrottledFileSocket.cs" />
+    <Compile Include="Network\ServerListDownloader.cs" />
+    <Compile Include="Network\ThrottledControlSocket.cs" />
+    <Compile Include="Network\ThrottledFileSocket.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\utils\CryptoPP\CryptoPP.csproj">
+      <Project>{7D22200A-DE72-47FB-873D-289F067664EB}</Project>
+      <Name>CryptoPP</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\utils\Mpd.Generic\Mpd.Generic.csproj">
+      <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
+      <Name>Mpd.Generic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
       <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
       <Name>Mpd.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mule.Preference\Mule.Preference.csproj">
-      <Project>{7C8BA2B1-6367-4365-8631-6E388614EC10}</Project>
-      <Name>Mule.Preference</Name>
+    <ProjectReference Include="..\..\kad\Kademlia\Kademlia.csproj">
+      <Project>{8B4779AF-0803-4F5A-85FD-4D3CD32E6B91}</Project>
+      <Name>Kademlia</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

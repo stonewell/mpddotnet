@@ -66,7 +66,7 @@ namespace Mule.File.Impl
         #region Constructors
         public KnownFileImpl()
         {
-            statistic_ = FileObjectManager.CreateStatisticFile();
+            statistic_ = MuleApplication.Instance.FileObjectManager.CreateStatisticFile();
         }
         #endregion
 
@@ -589,7 +589,7 @@ namespace Mule.File.Impl
         {
             get
             {
-                ED2KFileTypes ed2kFileTypes = ED2KObjectManager.CreateED2KFileTypes();
+                ED2KFileTypes ed2kFileTypes = MuleApplication.Instance.ED2KObjectManager.CreateED2KFileTypes();
                 return ed2kFileTypes.GetED2KFileTypeID(FileName) == ED2KFileTypeEnum.ED2KFT_VIDEO;
             }
         }
@@ -609,12 +609,6 @@ namespace Mule.File.Impl
                 return false;
 
             //TODO: Grab Image
-            throw new Exception("The method or operation is not implemented.");
-        }
-
-        public void GrabbingFinished(CxImage.CxImageList imgResults, byte nFramesGrabbed, object pSender)
-        {
-            //TODO:
             throw new Exception("The method or operation is not implemented.");
         }
 
@@ -772,7 +766,7 @@ namespace Mule.File.Impl
                                 break;
                             }
 
-                            AICHHash hash = AICHObjectManager.CreateAICHHash();
+                            AICHHash hash = MuleApplication.Instance.AICHObjectManager.CreateAICHHash();
                             if (MpdUtilities.DecodeBase32(newtag.Str.ToCharArray(), hash.RawHash) ==
                                 MuleConstants.HASHSIZE)
                                 pAICHHashSet_.SetMasterHash(hash, AICHStatusEnum.AICH_HASHSETCOMPLETE);
@@ -824,7 +818,7 @@ namespace Mule.File.Impl
             byte[] X = new byte[64 * 128];
             ulong posCurrentEMBlock = 0;
             ulong nIACHPos = 0;
-            AICHHashAlgorithm pHashAlg = AICHObjectManager.CreateAICHHashAlgorithm();
+            AICHHashAlgorithm pHashAlg = MuleApplication.Instance.AICHObjectManager.CreateAICHHashAlgorithm();
             MD4 md4 = new MD4();
 
             while (required >= 64)

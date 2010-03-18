@@ -135,7 +135,6 @@ namespace Mule.Core
         bool HasPassedSecureIdent(bool bPassIfUnavailable);
         // preview
         void SendPreviewRequest(AbstractFile pForFile);
-        void SendPreviewAnswer(KnownFile pForFile, CxImage.CxImage imgFrames, byte nCount);
         void ProcessPreviewReq(byte[] pachPacket, uint nSize);
         void ProcessPreviewAnswer(byte[] pachPacket, uint nSize);
         bool PreviewSupport { get;}

@@ -26,32 +26,31 @@ using System.Text;
 
 namespace Mule.ED2K
 {
-    public class ED2KServerList : List<ED2KServer>
+    public enum ED2KServerPreferenceEnum
     {
-        public ED2KServer GetServerByIP(uint nNewServerIP)
-        {
-            throw new NotImplementedException();
-        }
+        SRV_PR_LOW = 2,
+        SRV_PR_NORMAL = 0,
+        SRV_PR_HIGH = 1,
     }
 
     public interface ED2KServer
     {
-        string ListName { get; set;}
-        string Description { get; set;}
-        uint IP { get; set;}
+        string ListName { get; set; }
+        string Description { get; set; }
+        uint IP { get; set; }
         string DynIP { get; set; }
         bool HasDynIP { get; }
 
 
-        string FullIP { get;}
+        string FullIP { get; }
         string Address { get; }
-        ushort Port { get;}
+        ushort Port { get; }
 
         uint FileCount { get; set; }
 
         uint UserCount { get; set; }
 
-        uint Preference { get; set; }
+        ED2KServerPreferenceEnum Preference { get; set; }
         uint Ping { get; set; }
         uint MaxUsers { get; set; }
 
@@ -67,7 +66,7 @@ namespace Mule.ED2K
         uint LastDescPingedCount { get; }
         void SetLastDescPingedCount(bool reset);
 
-        bool StaticMember { get; set;}
+        bool StaticMember { get; set; }
 
         uint Challenge { get; set; }
         uint DescReqChallenge { get; set; }

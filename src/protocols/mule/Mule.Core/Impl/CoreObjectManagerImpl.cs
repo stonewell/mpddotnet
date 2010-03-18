@@ -21,70 +21,34 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Mule.AICH;
-using Mule.AICH.Impl;
-using Mule.File;
-using Mule.AICH.SHA;
-using System.IO;
-using Mule.ED2K;
-using Mule.ED2K.Impl;
-using Mule.File.Impl;
-using System.Reflection;
-using Mpd.Generic.IO;
-using Mule.Network;
-using Mule.Preference.Impl;
-using Mule.Preference;
 using Mpd.Generic;
 
-namespace Mule.Core
+namespace Mule.Core.Impl
 {
-    sealed public class CoreObjectManager
+    class CoreObjectManagerImpl : CoreObjectManager
     {
         #region Fields
-        private MulePreference preference_ = null;
-        private Random radom0_ = new Random(0);
-        private MuleEngine muleEngine_ = null;
         #endregion
 
         #region Constructor
-        public CoreObjectManager(MuleEngine muleEngine)
+        public CoreObjectManagerImpl()
         {
-            muleEngine_ = muleEngine;
-
-            try
-            {
-                preference_ = new MulePreferenceImpl();
-                preference_.Load();
-            }
-            catch
-            {
-                //TODO:Log
-                preference_ = new MulePreferenceImpl();
-                preference_.Init();
-            }
+            //try
+            //{
+            //    preference_ = new MulePreferenceImpl();
+            //    preference_.Load();
+            //}
+            //catch
+            //{
+            //    //TODO:Log
+            //    preference_ = new MulePreferenceImpl();
+            //    preference_.Init();
+            //}
         }
 
-        static CoreObjectManager()
+        static CoreObjectManagerImpl()
         {
         }
-        #endregion
-
-        #region Methods
-        public MulePreference Preference
-        {
-            get
-            {
-                return preference_;
-            }
-        }
-
-        public Random Random0
-        {
-            get { return radom0_; }
-        }
-
         #endregion
 
         public CoreUtilities CreateCoreUtilities()

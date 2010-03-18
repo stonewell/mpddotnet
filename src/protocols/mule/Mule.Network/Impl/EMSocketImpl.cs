@@ -76,8 +76,8 @@ namespace Mule.Network.Impl
         #endregion
 
         #region Constructors
-        public EMSocketImpl(MuleApplication muleApp)
-            : base(muleApp)
+        public EMSocketImpl()
+            : base()
         {
             DataReceived += OnDataReceived;
             PacketReceived += OnPacketReceived;
@@ -160,7 +160,7 @@ namespace Mule.Network.Impl
                         if (!delpacket)
                         {
                             //Debug.Assert ( !packet.IsSplitted() );
-                            Packet copy = NetworkObjectManager.CreatePacket(packet.OperationCode, packet.Size);
+                            Packet copy = MuleApplication.Instance.NetworkObjectManager.CreatePacket(packet.OperationCode, packet.Size);
                             Array.Copy(packet.Buffer, copy.Buffer, packet.Size);
                             packet = copy;
                         }
@@ -170,7 +170,7 @@ namespace Mule.Network.Impl
                             controlpacket_queue_.Enqueue(packet);
 
                             // queue up for controlpacket
-                            MuleApp.QueueForSendingControlPacket(this, HasSent);
+                            MuleApplication.Instance.UploadBandwidthThrottler.QueueForSendingControlPacket(this, HasSent);
                         }
                         else
                         {
@@ -480,7 +480,7 @@ namespace Mule.Network.Impl
 
             // now that we know no other method will keep adding to the queue
             // we can remove ourself from the queue
-            //TODO:MuleApp.RemoveFromAllQueues(this);
+            //TODO:MuleApplication.Instance.RemoveFromAllQueues(this);
 
             RemoveAllLayers(); // deadlake PROXYSUPPORT
             ClearQueues();
@@ -515,7 +515,7 @@ namespace Mule.Network.Impl
                     if (currentPacket_is_controlpacket_)
                     {
                         // queue up for control packet
-                        MuleApp.QueueForSendingControlPacket(this, HasSent);
+                        MuleApplication.Instance.UploadBandwidthThrottler.QueueForSendingControlPacket(this, HasSent);
                     }
                 } while (false);
             }
@@ -626,7 +626,7 @@ namespace Mule.Network.Impl
 
                 if (pendingPacket_ == null)
                 {
-                    pendingPacket_ = NetworkObjectManager.CreatePacket(GlobalReadBuffer, offset); // Create new packet container. 
+                    pendingPacket_ = MuleApplication.Instance.NetworkObjectManager.CreatePacket(GlobalReadBuffer, offset); // Create new packet container. 
                     offset += 6;                        // Only the header is initialized so far
 
                     // Bugfix We still need to check for a valid protocol
@@ -899,7 +899,7 @@ namespace Mule.Network.Impl
                     // we might enter control packet queue several times for the same package,
                     // but that costs very little overhead. Less overhead than trying to make sure
                     // that we only enter the queue once.
-                    MuleApp.QueueForSendingControlPacket(this, HasSent);
+                    MuleApplication.Instance.UploadBandwidthThrottler.QueueForSendingControlPacket(this, HasSent);
                 }
 
                 //CleanSendLatencyList();

@@ -27,6 +27,7 @@ using Mpd.Generic;
 using Mule.ED2K;
 
 using Mpd.Utilities;
+using Kademlia;
 
 namespace Mule.File.Impl
 {
@@ -37,7 +38,7 @@ namespace Mule.File.Impl
         #endregion
 
         #region Properties
-        public object KadNotes { get; set; }
+        public KadEntryList KadNotes { get; set; }
 
         private string FileName_;
         public string FileName
@@ -403,7 +404,7 @@ namespace Mule.File.Impl
                 FileName_ = FileName_.Replace('|', '-');
             }
 
-            ED2KFileTypes ed2kFileTypes = ED2KObjectManager.CreateED2KFileTypes();
+            ED2KFileTypes ed2kFileTypes = MuleApplication.Instance.ED2KObjectManager.CreateED2KFileTypes();
 
             if (bAutoSetFileType)
                 FileType = ed2kFileTypes.GetFileTypeByName(FileName_);

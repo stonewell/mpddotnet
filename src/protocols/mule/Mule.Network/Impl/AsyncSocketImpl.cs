@@ -34,14 +34,13 @@ namespace Mule.Network.Impl
         #endregion
 
         #region Constructors
-        public AsyncSocketImpl(MuleApplication muleApp, AddressFamily family,
-          SocketType sType, ProtocolType pType) : this(muleApp, new Socket(family, sType, pType))
+        public AsyncSocketImpl(AddressFamily family,
+          SocketType sType, ProtocolType pType) : this(new Socket(family, sType, pType))
         {
         }
 
-        protected AsyncSocketImpl(MuleApplication muleApp, Socket s)
+        protected AsyncSocketImpl(Socket s)
         {
-            MuleApp = muleApp;
             socket_ = s;
 
             Init();
@@ -49,8 +48,6 @@ namespace Mule.Network.Impl
 
         protected AsyncSocketImpl(AsyncSocketImpl sockImpl)
         {
-            MuleApp = sockImpl.MuleApp;
-
             sockImpl.DisableEvents();
             socketManager_.RemoveAsyncSocket(sockImpl);
             
@@ -96,8 +93,6 @@ namespace Mule.Network.Impl
         #endregion
 
         #region Members
-        public MuleApplication MuleApp { get; set; }
-
         public void Bind(EndPoint endpoint)
         {
             socket_.Bind(endpoint);
@@ -135,7 +130,7 @@ namespace Mule.Network.Impl
 
         private AsyncSocket CreateAsyncSocket(Socket socket)
         {
-            return new AsyncSocketImpl(MuleApp, socket);
+            return new AsyncSocketImpl(socket);
         }
 
         public virtual bool Connected

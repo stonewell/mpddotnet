@@ -24,8 +24,8 @@ namespace Mule.Network.Impl
         #endregion
 
         #region Constructors
-        public ClientReqSocketImpl(MuleApplication muleApp)
-            : base(muleApp)
+        public ClientReqSocketImpl()
+            : base()
         {
             ResetTimeOutTimer();
             socketState_ = SocketStateEnum.SS_Other;

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mule.Core.Impl
 {
-    class MuleTask : MuleBaseObjectImpl
+    class MuleTask
     {
     }
 }

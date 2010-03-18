@@ -193,9 +193,9 @@ namespace Mule.AICH.Impl
                 ulong nLeft = (((IsLeftBranch) ? nBlocks + 1 : nBlocks) / 2) * BaseSize;
                 ulong nRight = DataSize - nLeft;
                 if (LeftTree == null)
-                    LeftTree = AICHObjectManager.CreateAICHHashTree(nLeft, true, (nLeft <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
+                    LeftTree = MuleApplication.Instance.AICHObjectManager.CreateAICHHashTree(nLeft, true, (nLeft <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
                 if (RightTree == null)
-                    RightTree = AICHObjectManager.CreateAICHHashTree(nRight, false, (nRight <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
+                    RightTree = MuleApplication.Instance.AICHObjectManager.CreateAICHHashTree(nRight, false, (nRight <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
                 return LeftTree.LoadLowestLevelHashs(fileInput)
                         && RightTree.LoadLowestLevelHashs(fileInput);
             }
@@ -239,7 +239,7 @@ namespace Mule.AICH.Impl
                 if (HashValid && !bAllowOverwrite)
                 {
                     // not allowed to overwrite this hash, however move the filepointer by reading a hash
-                    AICHHash hash = AICHObjectManager.CreateAICHHash(fileInput);
+                    AICHHash hash = MuleApplication.Instance.AICHObjectManager.CreateAICHHash(fileInput);
 
                     return true;
                 }
@@ -265,13 +265,13 @@ namespace Mule.AICH.Impl
                 if ((wHashIdent & 0x80000000) > 0)
                 {
                     if (LeftTree == null)
-                        LeftTree = AICHObjectManager.CreateAICHHashTree(nLeft, true, (nLeft <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
+                        LeftTree = MuleApplication.Instance.AICHObjectManager.CreateAICHHashTree(nLeft, true, (nLeft <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
                     return LeftTree.SetHash(fileInput, wHashIdent, nLevel);
                 }
                 else
                 {
                     if (RightTree == null)
-                        RightTree = AICHObjectManager.CreateAICHHashTree(nRight, false, (nRight <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
+                        RightTree = MuleApplication.Instance.AICHObjectManager.CreateAICHHashTree(nRight, false, (nRight <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
                     return RightTree.SetHash(fileInput, wHashIdent, nLevel);
                 }
             }
@@ -391,7 +391,7 @@ namespace Mule.AICH.Impl
             {
                 // check verify the hashs of both child nodes against my hash 
 
-                AICHHash CmpHash = AICHObjectManager.CreateAICHHash();
+                AICHHash CmpHash = MuleApplication.Instance.AICHObjectManager.CreateAICHHash();
                 hashalg.Reset();
                 hashalg.Add(leftTree_.Hash.RawHash);
                 hashalg.Add(rightTree_.Hash.RawHash);
@@ -462,7 +462,7 @@ namespace Mule.AICH.Impl
                         return null;
                     }
                     if (leftTree_ == null)
-                        leftTree_ = AICHObjectManager.CreateAICHHashTree(nLeft, true, (nLeft <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
+                        leftTree_ = MuleApplication.Instance.AICHObjectManager.CreateAICHHashTree(nLeft, true, (nLeft <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
 
                     return leftTree_.FindHash(nStartPos, nSize, ref nLevel);
                 }
@@ -475,7 +475,7 @@ namespace Mule.AICH.Impl
                         return null;
                     }
                     if (rightTree_ == null)
-                        rightTree_ = AICHObjectManager.CreateAICHHashTree(nRight, false, (nRight <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
+                        rightTree_ = MuleApplication.Instance.AICHObjectManager.CreateAICHHashTree(nRight, false, (nRight <= MuleConstants.PARTSIZE) ? MuleConstants.EMBLOCKSIZE : MuleConstants.PARTSIZE);
 
                     return leftTree_.FindHash(nStartPos, nSize, ref nLevel);
                 }

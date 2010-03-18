@@ -11,5 +11,7 @@ namespace Mule.Preference
         void AddDownDataOverheadFileRequest(uint size);
 
         void AddUpDataOverheadFileRequest(uint p);
+
+        void AddUpDataOverheadServer(int nPacketLen);
     }
 }

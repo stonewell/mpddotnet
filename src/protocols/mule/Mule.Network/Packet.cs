@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Collections.ObjectModel;
 
 
 namespace Mule.Network
@@ -34,7 +35,7 @@ namespace Mule.Network
         byte[] Packet { get; }
         byte[] DetachPacket();
         uint RealPacketSize { get; }
-        bool IsFromPF { get; }
+        bool IsFromPartFile { get; }
         void PackPacket();
         bool UnPackPacket(/*UINT uMaxDecompressedSize = 50000*/);
         bool UnPackPacket(uint uMaxDecompressedSize);
@@ -47,6 +48,11 @@ namespace Mule.Network
 
     public interface RawPacket : Packet
     {
-	     void AttachPacket(byte[] pcData, bool bFromPartFile);
+        //void AttachPacket(byte[] pcData);
+        //void AttachPacket(byte[] pcData, bool bFromPartFile);
+        //void AttachPacket(byte[] pcData, int size);
+        //void AttachPacket(byte[] pcData, int size, bool bFromPartFile);
+        //void AttachPacket(byte[] pcData, int offset, int size);
+        //void AttachPacket(byte[] pcData, int offset, int size, bool bFromPartFile);
     };
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.IO.Compression;
 
 namespace Mpd.Utilities
 {
@@ -466,9 +467,65 @@ namespace Mpd.Utilities
         {
         }
 
-        public static void QueueDebugLogLine(bool p, string p_2)
+        public static void QueueDebugLogLine(params object[] args)
         {
-            throw new NotImplementedException();
         }
+
+        public static bool Compress(byte[] inBuf, uint size, out byte[] output)
+        {
+            output = null;
+            try
+            {
+                MemoryStream outMs = new MemoryStream();
+
+                DeflateStream ds =
+                    new DeflateStream(outMs, CompressionMode.Compress);
+
+                ds.Write(inBuf, 0, (int)size);
+
+                output = outMs.ToArray();
+
+                return true;
+            }
+            catch
+            {
+                output = null;
+                return false;
+            }
+        }
+
+        public static bool Decompress(byte[] inBuf, uint size, out byte[] output)
+        {
+            output = null;
+            try
+            {
+                MemoryStream outMs = new MemoryStream();
+
+                DeflateStream ds =
+                    new DeflateStream(new MemoryStream(inBuf, 0, (int)size), 
+                        CompressionMode.Decompress);
+
+                int count = 0;
+                byte[] tmpBuf = new byte[4096];
+
+                do
+                {
+                    count = ds.Read(tmpBuf, 0, tmpBuf.Length);
+
+                    outMs.Write(tmpBuf, 0, count);
+                }
+                while (count > 0);
+
+                output = outMs.ToArray();
+
+                return true;
+            }
+            catch
+            {
+                output = null;
+                return false;
+            }
+        }
+
     }
 }

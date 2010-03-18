@@ -55,6 +55,10 @@ namespace Mpd.Generic.IO.Impl
             get { return (BaseStream as MemoryStream).ToArray(); }
         }
 
+        public MemoryStream ToStream
+        {
+            get { return BaseStream as MemoryStream; }
+        }
         #endregion
 
         #region SafeMemFile Members

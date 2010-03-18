@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Mpd.Generic.IO;
+using System.IO;
 
 namespace Mpd.Generic.IO
 {
@@ -32,5 +33,7 @@ namespace Mpd.Generic.IO
         byte[] Buffer { get; }
 
         void SeekToBegin();
+
+        MemoryStream ToStream { get; }
     }
 }

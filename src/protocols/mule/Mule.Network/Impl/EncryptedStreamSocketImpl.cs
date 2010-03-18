@@ -108,7 +108,7 @@ namespace Mule.Network.Impl
                 byte[] achKeyData = new byte[21];
                 MpdUtilities.Md4Cpy(achKeyData, pTargetClientHash);
 
-                Array.Copy(achKeyData, 17, BitConverter.GetBytes(randomKeyPart_), 0, 4);
+                Array.Copy(BitConverter.GetBytes(randomKeyPart_), 0, achKeyData, 17, 4);
 
                 achKeyData[16] = Convert.ToByte(MuleConstants.MAGICVALUE_REQUESTER);
 
@@ -299,7 +299,7 @@ namespace Mule.Network.Impl
                         {
                             // we finished the handshake and if we this was an outgoing connection it is allowed (but strange and unlikely) that the client sent payload
                             MpdUtilities.DebugLogWarning(("CEncryptedStreamSocket: Client %s has finished the handshake but also sent payload on a outgoing connection"), DbgGetIPString());
-                            Array.Copy(lpBuf, offset + 0, lpBuf, offset + nRead, obfuscationBytesReceived_ - nRead);
+                            Array.Copy(lpBuf, offset + nRead, lpBuf, offset + 0, obfuscationBytesReceived_ - nRead);
                             return obfuscationBytesReceived_ - nRead;
                         }
                         else
@@ -746,7 +746,7 @@ namespace Mule.Network.Impl
             {
                 pBuffer = new byte[nBufLen];
                 if (nStartCryptFromByte > 0)
-                    Array.Copy(pBuffer, lpBuf, nStartCryptFromByte);
+                    Array.Copy(lpBuf, pBuffer, nStartCryptFromByte);
                 if (nBufLen - nStartCryptFromByte > 0)
                     MuleUtilities.RC4Crypt(lpBuf, Convert.ToInt32(nStartCryptFromByte),
                         pBuffer, Convert.ToInt32(nStartCryptFromByte),

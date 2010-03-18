@@ -55,6 +55,8 @@
     <Compile Include="Impl\EMSocketImpl.cs" />
     <Compile Include="Impl\EncryptedStreamSocketImpl.cs" />
     <Compile Include="Impl\ListenSocketImpl.cs" />
+    <Compile Include="Impl\PacketImpl.cs" />
+    <Compile Include="Impl\RawPacketImpl.cs" />
     <Compile Include="ListenSocket.cs" />
     <Compile Include="NetworkObjectManager.cs" />
     <Compile Include="Packet.cs" />

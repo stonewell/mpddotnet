@@ -193,7 +193,7 @@ namespace Mule.Core.Impl
             data.Seek(bIsSX2Packet ? 17 : 16, SeekOrigin.Begin);
             data.WriteUInt16(nCount);
 
-            Packet result = NetworkObjectManager.CreatePacket(data, MuleConstants.OP_EMULEPROT);
+            Packet result = NetworkObjectManager.CreatePacket(data.ToStream, MuleConstants.OP_EMULEPROT);
             result.OperationCode = bIsSX2Packet ? OperationCodeEnum.OP_ANSWERSOURCES2 : OperationCodeEnum.OP_ANSWERSOURCES;
             // (1+)16+2+501*(4+2+4+2+16+1) = 14547 (14548) bytes max.
             if (result.Size > 354)

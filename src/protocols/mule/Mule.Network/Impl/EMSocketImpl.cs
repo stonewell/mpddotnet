@@ -161,7 +161,7 @@ namespace Mule.Network.Impl
                         {
                             //Debug.Assert ( !packet.IsSplitted() );
                             Packet copy = NetworkObjectManager.CreatePacket(packet.OperationCode, packet.Size);
-                            Array.Copy(copy.Buffer, packet.Buffer, packet.Size);
+                            Array.Copy(packet.Buffer, copy.Buffer, packet.Size);
                             packet = copy;
                         }
 
@@ -585,7 +585,7 @@ namespace Mule.Network.Impl
             // Copy back the partial header into the global read buffer for processing
             if (pendingHeaderSize_ > 0)
             {
-                Array.Copy(GlobalReadBuffer, pendingHeader_, pendingHeaderSize_);
+                Array.Copy(pendingHeader_, GlobalReadBuffer, pendingHeaderSize_);
                 ret += Convert.ToInt32(pendingHeaderSize_);
                 pendingHeaderSize_ = 0;
             }
@@ -662,7 +662,7 @@ namespace Mule.Network.Impl
                                  (pendingPacket_.Size - pendingPacketSize_) : (uint)(buffer_end - offset);
 
                 // Copy Bytes from Global buffer to packet's internal buffer
-                Array.Copy(pendingPacket_.Buffer, pendingPacketSize_, rptr, offset, toCopy);
+                Array.Copy(rptr, offset, pendingPacket_.Buffer, (int)pendingPacketSize_, toCopy);
                 pendingPacketSize_ += toCopy;
                 offset += Convert.ToInt32(toCopy);
 
@@ -687,7 +687,7 @@ namespace Mule.Network.Impl
             {
                 // Keep the partial head
                 pendingHeaderSize_ = Convert.ToUInt32(buffer_end - offset);
-                Array.Copy(pendingHeader_, 0, rptr, offset, pendingHeaderSize_);
+                Array.Copy(rptr, offset, pendingHeader_, 0, pendingHeaderSize_);
             }
         }
 
@@ -753,7 +753,7 @@ namespace Mule.Network.Impl
                                 actualPayloadSize_ = queueEntry.ActualPayloadSize;
 
                                 // remember this for statistics purposes.
-                                currentPackageIsFromPartFile_ = curPacket.IsFromPF;
+                                currentPackageIsFromPartFile_ = curPacket.IsFromPartFile;
                             }
                             else
                             {

@@ -33,6 +33,38 @@ namespace Mule.ED2K
         SRV_PR_HIGH = 1,
     }
 
+    [Flags]
+    public enum ED2KServerTcpFlagsEnum
+    {
+        SRV_TCPFLG_COMPRESSION = 0x00000001,
+        SRV_TCPFLG_NEWTAGS = 0x00000008,
+        SRV_TCPFLG_UNICODE = 0x00000010,
+        SRV_TCPFLG_RELATEDSEARCH = 0x00000040,
+        SRV_TCPFLG_TYPETAGINTEGER = 0x00000080,
+        SRV_TCPFLG_LARGEFILES = 0x00000100,
+        SRV_TCPFLG_TCPOBFUSCATION = 0x00000400,
+    }
+
+    [Flags]
+    public enum ED2KServerUdpFlagsEnum
+    {
+        SRV_UDPFLG_EXT_GETSOURCES = 0x00000001,
+        SRV_UDPFLG_EXT_GETFILES = 0x00000002,
+        SRV_UDPFLG_NEWTAGS = 0x00000008,
+        SRV_UDPFLG_UNICODE = 0x00000010,
+        SRV_UDPFLG_EXT_GETSOURCES2 = 0x00000020,
+        SRV_UDPFLG_LARGEFILES = 0x00000100,
+        SRV_UDPFLG_UDPOBFUSCATION = 0x00000200,
+        SRV_UDPFLG_TCPOBFUSCATION = 0x00000400,
+    }
+
+    public struct ServerMet
+    {
+        public uint ip;
+        public uint port;
+        public uint tagcount;
+    };
+
     public interface ED2KServer
     {
         string ListName { get; set; }
@@ -75,8 +107,8 @@ namespace Mule.ED2K
 
         string Version { get; set; }
 
-        uint TCPFlags { get; set; }
-        uint UDPFlags { get; set; }
+        ED2KServerTcpFlagsEnum TCPFlags { get; set; }
+        ED2KServerUdpFlagsEnum UDPFlags { get; set; }
         uint LowIDUsers { get; set; }
 
         ushort ObfuscationPortTCP { get; set; }

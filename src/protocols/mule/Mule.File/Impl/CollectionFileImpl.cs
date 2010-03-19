@@ -27,6 +27,7 @@ using Mule.ED2K;
 using Mpd.Generic.IO;
 using Mpd.Generic;
 using Mpd.Utilities;
+using Kademlia;
 
 
 namespace Mule.File.Impl
@@ -80,6 +81,30 @@ namespace Mule.File.Impl
         #endregion
 
         #region Overrides
+        public override void UpdateFileRatingCommentAvail(bool bForceUpdate)
+        {
+            HasComment = false;
+            uint uRatings = 0;
+            uint uUserRatings = 0;
+
+            foreach (KadEntry entry in KadNotes)
+            {
+                if (!HasComment &&
+                    entry.GetStrTagValue(MuleConstants.TAG_DESCRIPTION).Length != 0)
+                    HasComment = true;
+                uint rating = (uint)entry.GetIntTagValue(MuleConstants.TAG_FILERATING);
+                if (rating != 0)
+                {
+                    uRatings++;
+                    uUserRatings += rating;
+                }
+            }
+
+            if (uRatings != 0)
+                UserRating = uUserRatings / uRatings;
+            else
+                UserRating = 0;
+        }
         #endregion
     }
 }

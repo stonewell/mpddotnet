@@ -26,7 +26,7 @@ using System.Text;
 
 namespace Mule.Preference.Impl
 {
-    public class MuleStatisticsImpl : MuleStatistics
+    class MuleStatisticsImpl : MuleStatistics
     {
         #region MuleStatistics Members
 

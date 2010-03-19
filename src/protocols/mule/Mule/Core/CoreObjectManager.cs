@@ -9,5 +9,7 @@ namespace Mule.Core
     {
         MuleCollection CreateMuleCollection();
         UpDownClient CreateUpDownClient(params object[] args);
+
+        DownloadQueue CreateDownloadQueue();
     }
 }

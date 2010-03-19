@@ -56,7 +56,7 @@
     <Compile Include="Impl\ProxySettingsImpl.cs" />
     <Compile Include="Impl\ServerAddressImpl.cs" />
     <Compile Include="Impl\SharedDirectoryImpl.cs" />
-    <Compile Include="PreferenceObjectManager.cs" />
+    <Compile Include="Impl\PreferenceObjectManagerImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -149,5 +149,25 @@ namespace Mule.ED2K.Impl
 
             return null;
         }
+
+        public ED2KServer CreateED2KServer(ServerMet serverMet)
+        {
+            return new ED2KServerImpl(serverMet);
+        }
+
+        public ED2KServer CreateED2KServer(ED2KServer server)
+        {
+            return new ED2KServerImpl(server);
+        }
+
+        public ED2KServer CreateED2KServer(ushort port, string ipaddr)
+        {
+            return new ED2KServerImpl(port, ipaddr);
+        }
+
+        public ED2KServerList CreateED2KServerList()
+        {
+            return new ED2KServerListImpl();
+        }
     }
 }

@@ -26,6 +26,10 @@ using System.Text;
 using Mule.File;
 using Mule.ED2K;
 using Mpd.Generic.IO;
+using Mule.Core;
+using Mule.Network;
+using Mule.AICH;
+using System.IO;
 
 
 namespace Mule.File
@@ -58,8 +62,6 @@ namespace Mule.File
 
     public interface PartFile : KnownFile
     {
-        bool SavePartFile();
-
         // part.met filename (without path!)
         string PartMetFileName { get; set; }
         DateTime LastSeenComplete { get; set; }
@@ -77,14 +79,31 @@ namespace Mule.File
 
         // last file modification time (NT's version of UTC), to be used for stats only!
         DateTime LastModifiedDate { get; }
-        uint LastModified { get; set;}
+        uint LastModified { get; set; }
 
         // file creation time (NT's version of UTC), to be used for stats only!
         DateTime CreatedDate { get; }
         uint Created { get; set; }
 
+        void InitializeFromLink(Mule.ED2K.ED2KFileLink fileLink);
+        void InitializeFromLink(Mule.ED2K.ED2KFileLink fileLink, uint cat);
+        uint Process(uint reducedownload, uint icounter);
+
+        PartFileLoadResultEnum LoadPartFile(string in_directory, string in_filename);
+        PartFileLoadResultEnum LoadPartFile(string in_directory, string in_filename, ref PartFileFormatEnum fileFormat);
+        PartFileLoadResultEnum ImportShareazaTempfile(string in_directory,
+            string in_filename);
+        PartFileLoadResultEnum ImportShareazaTempfile(string in_directory,
+            string in_filename, ref PartFileFormatEnum pOutCheckFileFormat);
+
+        bool SavePartFile();
+        bool SavePartFile(bool bDontOverrideBak);
+
+        void PartFileHashFinished(KnownFile result);
+
         // true = ok , false = corrupted
         bool HashSinglePart(uint partnumber);
+        bool HashSinglePart(uint partnumber, ref bool pbAICHReportedOK);
 
         void AddGap(ulong start, ulong end);
         void FillGap(ulong start, ulong end);
@@ -98,12 +117,26 @@ namespace Mule.File
         void UpdateCompletedInfos();
         void UpdateCompletedInfos(ulong uTotalGaps);
 
+        bool GetNextRequestedBlock(UpDownClient sender,
+            ref RequestedBlock newblocks, ref ushort count);
+
         void WritePartStatus(SafeMemFile file);
         void WriteCompleteSourcesCount(SafeMemFile file);
         void AddSources(SafeMemFile sources, uint serverip, ushort serverport, bool bWithObfuscationAndHash);
         void AddSource(string pszURL, uint nIP);
 
+        bool CanAddSource(uint userid, ushort port,
+            uint serverip, ushort serverport);
+        bool CanAddSource(uint userid, ushort port,
+            uint serverip, ushort serverport,
+            ref uint pdebug_lowiddropped);
+        bool CanAddSource(uint userid, ushort port,
+            uint serverip, ushort serverport,
+            ref uint pdebug_lowiddropped, bool Ed2kID);
+
         PartFileStatusEnum Status { get; set; }
+        PartFileStatusEnum GetStatus(bool ignorePause);
+
         void NotifyStatusChange();
         bool IsStopped { get; set; }
         bool CompletionError { get; }
@@ -111,6 +144,9 @@ namespace Mule.File
         string PartfileStatus { get; }
         int PartfileStatusRang { get; }
         void SetActive(bool bActive);
+
+        PriorityEnum DownPriority { get; set; }
+        void SetDownPriority(PriorityEnum priority, bool reort);
 
         bool IsAutoDownPriority { get; set; }
         void UpdateAutoDownPriority();
@@ -125,12 +161,17 @@ namespace Mule.File
         uint NotCurrentSourcesCount { get; }
         int ValidSourcesCount { get; }
         // Barry - Also want to preview archives
+        bool IsArchive();
         bool IsArchive(bool onlyPreviewable);
         bool IsPreviewableFileType { get; }
         ulong TimeRemaining { get; }
         ulong TimeRemainingSimple { get; }
+        uint DLActiveTime { get; }
 
         // Barry - Added as replacement for BlockReceived to buffer data before writing to disk
+        uint WriteToBuffer(ulong transize,
+            byte[] data, ulong start, ulong end,
+            RequestedBlock block, UpDownClient client);
         void FlushBuffer();
         void FlushBuffer(bool forcewai);
         void FlushBuffer(bool forcewait, bool bForceICH);
@@ -150,15 +191,28 @@ namespace Mule.File
         bool CanStopFile { get; }
         bool CanPauseFile { get; }
         bool CanResumeFile { get; }
+        bool IsPausingOnPrevie { get; }
 
         void OpenFile();
         void PreviewFile();
         void DeleteFile();
+        void StopFile();
+        void StopFile(bool bCancel);
         void StopFile(bool bCancel, bool resort);
+        void PauseFile();
+        void PauseFile(bool bInsufficient);
         void PauseFile(bool bInsufficient, bool resort);
         void StopPausedFile();
+        void ResumeFile();
         void ResumeFile(bool resort);
         void ResumeFileInsufficient();
+        void SetPauseOnPreview(bool bVal);
+        Packet CreateSrcInfoPacket(UpDownClient forClient,
+            byte byRequestedVersion, ushort nRequestedOptions);
+        void AddClientSources(SafeMemFile sources, byte sourceexchangeversion,
+            bool bSourceExchange2);
+        void AddClientSources(SafeMemFile sources, byte sourceexchangeversion,
+            bool bSourceExchange2, UpDownClient pClient);
 
         uint AvailablePartCount { get; }
         void UpdateAvailablePartsCount();
@@ -170,12 +224,17 @@ namespace Mule.File
         ulong CompressionGain { get; set; }
         uint RecoveredPartsByICH { get; }
 
+        void AddDownloadingSource(UpDownClient client);
+        void RemoveDownloadingSource(UpDownClient client);
+
         string GetProgressString(ushort size);
         string GetInfoSummary();
 
         void UpdateDisplayedInfo();
         void UpdateDisplayedInfo(bool force);
 
+        uint Category { get; set; }
+        bool HasDefaultCategory { get; }
         bool CheckShowItemInGivenCat(int inCategory);
 
         byte[] MMCreatePartStatus();
@@ -185,8 +244,10 @@ namespace Mule.File
         PartFileOpEnum FileOp { get; set; }
         uint FileOpProgress { get; set; }
 
+        AICHRecoveryHashSet AICHRecoveryHashSet { get; }
         void RequestAICHRecovery(uint nPart);
         void AICHRecoveryDataAvailable(uint nPart);
+        bool IsAICHPartHashSetNeeded { get; set; }
 
         bool AllowSwapForSourceExchange { get; }
         void SetSwapForSourceExchangeTick();
@@ -198,16 +259,7 @@ namespace Mule.File
 
         bool PreviewPriority { get; set; }
         bool Paused { get; set; }
-        PriorityEnum DownPriority { get; set; }
 
-        /* Protected 
-        void Init();
-        */
-
-        /* Private
-        bool PerformFileComplete();
-        void CharFillRange(ref string buffer, uint start, uint end, char color);
-         */
         void CreatePartFile();
         void CreatePartFile(uint cat);
         void CompleteFile(bool hashingdone);
@@ -222,12 +274,28 @@ namespace Mule.File
         uint LastPurgeTime { get; set; }
         ulong TotalBufferData { get; set; }
         uint LastBufferFlushTime { get; set; }
-        uint Category { get; set; }
         bool PartFileUpdated { get; set; }
         bool IsLocalSrcReqQueued { get; set; }
         bool IsPreviewing { get; set; }
         RequestedBlockList RequestedBlocks { get; }
         bool GetNextEmptyBlockInPart(uint partnumber, RequestedBlock result);
-        bool LoadPartFile(string in_directory, string in_filename, bool getsizeonly);
+        uint LastSearchTime { get; set; }
+        uint LastSearchTimeKad { get; set; }
+        ulong AllocInfo { get; set; }
+        UpDownClientList SourceList { get; set; }
+        //<<-- enkeyDEV(Ottavio84) -A4AF-
+        UpDownClientList A4AFSourceList { get; set; }
+        bool Previewing { get; set; }
+        bool RecoveringArchive { get; set; } // Is archive recovery in progress
+        bool LocalSrcReqQueued { get; set; }
+        bool SourceAreVisible { get; set; }				// used for downloadlistctrl
+        bool MD4HashsetNeeded { get; set; }
+        byte TotalSearchesKad { get; set; }
+
+        bool PreviewPrio { get; set; }
+
+        bool RightFileHasHigherPrio(PartFile left, PartFile right);
+
+        DeadSourceList DeadSourceList { get; set; }
     }
 }

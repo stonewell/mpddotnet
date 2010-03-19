@@ -23,8 +23,15 @@ namespace Mule.ED2K
         UnresolvedHostname CreateUnresolvedHostname();
 
         ED2KServerListLink CreateED2KServerListLink(string address);
+        
         ED2KFileTypes CreateED2KFileTypes();
 
         ED2KLink CreateLinkFromUrl(string strURI);
+
+        ED2KServer CreateED2KServer(ServerMet serverMet);
+        ED2KServer CreateED2KServer(ED2KServer server);
+        ED2KServer CreateED2KServer(ushort port, string ipaddr);
+
+        ED2KServerList CreateED2KServerList();
     }
 }

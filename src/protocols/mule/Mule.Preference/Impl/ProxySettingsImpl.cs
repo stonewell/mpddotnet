@@ -26,7 +26,7 @@ using System.Text;
 namespace Mule.Preference.Impl
 {
     [System.Xml.Serialization.XmlRoot("ProxySettings")]
-    public class ProxySettingsImpl : ProxySettings
+    class ProxySettingsImpl : ProxySettings
     {
         private ushort Type_;
         public ushort Type

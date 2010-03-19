@@ -26,7 +26,7 @@ using System.Text;
 
 namespace Mule.Preference.Impl
 {
-    public class FileCommentImpl : FileComment
+    class FileCommentImpl : FileComment
     {
         #region Fields
         private string comment_ = null;
@@ -82,7 +82,7 @@ namespace Mule.Preference.Impl
         #endregion
     }
 
-    public class FileCommentsImpl : FileComments
+    class FileCommentsImpl : FileComments
     {
         #region Fields
         private string name_ = null;

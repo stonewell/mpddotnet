@@ -25,7 +25,7 @@ using System.Text;
 
 namespace Mule.Preference.Impl
 {
-    public class ServerAddressImpl : ServerAddress
+    class ServerAddressImpl : ServerAddress
     {
         #region Fields
         private string address_ = null;

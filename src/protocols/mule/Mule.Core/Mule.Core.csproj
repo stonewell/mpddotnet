@@ -65,14 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoreFunctions.cs" />
-    <Compile Include="Impl\MuleDownloadTask.cs" />
-    <Compile Include="Impl\MuleFileTask.cs" />
-    <Compile Include="Impl\MuleTask.cs" />
-    <Compile Include="Impl\MuleUploadTask.cs" />
+    <Compile Include="Impl\DownloadQueueImpl.cs" />
     <Compile Include="Impl\UpDownClientImpl.cs" />
-    <Compile Include="MuleEngine.cs" />
     <Compile Include="Impl\CoreObjectManagerImpl.cs" />
-    <Compile Include="CoreUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -6,9 +6,9 @@ using Mpd.Utilities;
 using Mpd.Generic;
 using Mule.Preference.Impl;
 
-namespace Mule.Preference
+namespace Mule.Preference.Impl
 {
-    public class PreferenceObjectManager
+    class PreferenceObjectManagerImpl : PreferenceObjectManager
     {
         public static FileComments CreateFileComments(string p)
         {
@@ -29,5 +29,14 @@ namespace Mule.Preference
         {
             return MpdObjectManager.CreateObject(typeof(ProxySettingsImpl)) as ProxySettings;
         }
+
+        #region PreferenceObjectManager Members
+
+        public MulePreference CreatePreference()
+        {
+            throw new Exception();
+        }
+
+        #endregion
     }
 }

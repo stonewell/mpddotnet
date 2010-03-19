@@ -33,28 +33,8 @@ namespace Mule.Core.Impl
         #region Constructor
         public CoreObjectManagerImpl()
         {
-            //try
-            //{
-            //    preference_ = new MulePreferenceImpl();
-            //    preference_.Load();
-            //}
-            //catch
-            //{
-            //    //TODO:Log
-            //    preference_ = new MulePreferenceImpl();
-            //    preference_.Init();
-            //}
-        }
-
-        static CoreObjectManagerImpl()
-        {
         }
         #endregion
-
-        public CoreUtilities CreateCoreUtilities()
-        {
-            return MpdObjectManager.CreateObject(typeof(CoreUtilities)) as CoreUtilities;
-        }
 
         public SharedFileList CreateSharedFileList()
         {
@@ -67,6 +47,11 @@ namespace Mule.Core.Impl
         }
 
         public UpDownClient CreateUpDownClient(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DownloadQueue CreateDownloadQueue()
         {
             throw new NotImplementedException();
         }

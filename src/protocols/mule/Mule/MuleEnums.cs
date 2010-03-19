@@ -173,6 +173,15 @@ namespace Mule
         PMT_BADFORMAT
     };
 
+    public enum PartFileLoadResultEnum
+    {
+        PLR_LOADSUCCESS = 1,
+        PLR_CHECKSUCCESS = 2,
+        PLR_FAILED_METFILE_CORRUPT = -1,
+        PLR_FAILED_METFILE_NOACCESS = -2,
+        PLR_FAILED_OTHER = 0
+    };
+
     public enum FileCompletionThreadErrorCodeEnum
     {
         FILE_COMPLETION_THREAD_FAILED = 0x0000,

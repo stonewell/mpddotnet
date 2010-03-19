@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mule.Core.Impl
+namespace Mule.File
 {
-    class MuleTask
+    public interface FileIdentifier : FileIdentifierBase
     {
     }
 }

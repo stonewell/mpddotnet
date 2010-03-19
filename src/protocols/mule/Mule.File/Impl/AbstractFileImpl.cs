@@ -424,6 +424,92 @@ namespace Mule.File.Impl
                 FileName_ = sb.ToString();
             }
         }
+
+        public void RefilterKadNotes()
+        {
+            RefilterKadNotes(true);
+        }
+
+        public virtual void RefilterKadNotes(bool bUpdate)
+        {
+            // check all availabe comments against our filter again
+            if (string.IsNullOrEmpty(MuleApplication.Instance.Preference.CommentFilter))
+            {
+                return;
+            }
+
+            KadEntryList removed = new KadEntryList();
+
+            string[] filters =
+                MuleApplication.Instance.Preference.CommentFilter.Split('|');
+
+            if (filters == null || filters.Length == 0)
+                return;
+
+            foreach (KadEntry entry in KadNotes)
+            {
+                string desc =
+                    entry.GetStrTagValue(MuleConstants.TAG_DESCRIPTION);
+
+                if (!string.IsNullOrEmpty(desc))
+                {
+                    string strCommentLower = desc.ToLower();
+
+                    foreach (string filter in filters)
+                    {
+                        if (strCommentLower.IndexOf(filter) >= 0)
+                        {
+                            removed.Add(entry);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            foreach (KadEntry entry in removed)
+                KadNotes.Remove(entry);
+
+            // untill updated rating and m_bHasComment might be wrong
+            if (bUpdate)
+            {
+                UpdateFileRatingCommentAvail();
+            }
+        }
+
+        public void LoadComment()
+        {
+            FileComment =
+                MuleApplication.Instance.Preference.GetFileComment(FileHash);
+
+            FileRating =
+                MuleApplication.Instance.Preference.GetFileRating(FileHash);
+        }
+
+        public bool AddNote(Kademlia.KadEntry pEntry)
+        {
+            foreach (Kademlia.KadEntry entry in KadNotes)
+            {
+                if (entry.SourceID.Equals(pEntry.SourceID))
+                {
+                    return false;
+                }
+            }
+
+            KadNotes.Insert(0, pEntry);
+
+            UpdateFileRatingCommentAvail();
+
+            return true;
+        }
+
+        public virtual void UpdateFileRatingCommentAvail()
+        {
+            UpdateFileRatingCommentAvail(true);
+        }
+
+        public abstract void UpdateFileRatingCommentAvail(bool bForceUpdate);
+
+        public bool IsKadCommentSearchRunning { get; set; }
         #endregion
     }
 }

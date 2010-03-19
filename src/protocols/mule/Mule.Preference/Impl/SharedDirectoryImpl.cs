@@ -26,7 +26,7 @@ using System.Text;
 
 namespace Mule.Preference.Impl
 {
-    public class SharedDirectoryImpl : SharedDirectory
+    class SharedDirectoryImpl : SharedDirectory
     {
         #region Fields
         private string fullname_ = null;

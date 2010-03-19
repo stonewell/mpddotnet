@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 
 namespace Mpd.Utilities
 {
@@ -575,6 +576,28 @@ namespace Mpd.Utilities
         public static bool IsGoodIPPort(uint nIP, ushort nPort)
         {
             return IsGoodIP(nIP, true) && nPort != 0;
+        }
+
+        public static string IP2String(uint nIP)
+        {
+            IPEndPoint enpoint = new IPEndPoint(nIP, 0);
+
+            return enpoint.ToString().Split(':')[0];
+        }
+
+        public static string IP2String(uint nIP, ushort nPort)
+        {
+            IPEndPoint enpoint = new IPEndPoint(nIP, nPort);
+
+            return enpoint.ToString();
+        }
+
+        public static string IP2String(string pszAddress, ushort nPort)
+        {
+            IPEndPoint enpoint = 
+                new IPEndPoint(IPAddress.Parse(pszAddress), nPort);
+
+            return enpoint.ToString();
         }
     }
 }

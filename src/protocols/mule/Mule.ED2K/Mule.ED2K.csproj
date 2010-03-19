@@ -45,11 +45,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Impl\ED2KObjectManager.cs" />
+    <Compile Include="Impl\ED2KObjectManagerImpl.cs" />
     <Compile Include="Impl\ED2KFileLinkImpl.cs" />
     <Compile Include="Impl\ED2KFileTypesImpl.cs" />
     <Compile Include="Impl\ED2KLinkImpl.cs" />
     <Compile Include="Impl\ED2KNodesListLinkImpl.cs" />
+    <Compile Include="Impl\ED2KServerImpl.cs" />
     <Compile Include="Impl\ED2KServerLinkImpl.cs" />
     <Compile Include="Impl\ED2KServerListImpl.cs" />
     <Compile Include="Impl\ED2KServerListLinkImpl.cs" />

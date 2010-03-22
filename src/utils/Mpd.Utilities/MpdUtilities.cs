@@ -418,8 +418,7 @@ namespace Mpd.Utilities
             }
             return false;
         }
-
-        public static void HeapSort<T>(ref List<T> count, 
+        public static void HeapSort<T>(ref List<T> count,
             int first, int last, IComparer<T> c)
         {
             int r;
@@ -427,7 +426,7 @@ namespace Mpd.Utilities
             {
                 int r2 = (r << 1) + 1;
                 if (r2 != last)
-                    if (c.Compare(count[r2],count[r2 + 1]) < 0)
+                    if (c.Compare(count[r2], count[r2 + 1]) < 0)
                         r2++;
                 if (c.Compare(count[r], count[r2]) < 0)
                 {
@@ -530,11 +529,6 @@ namespace Mpd.Utilities
             }
         }
 
-        public static bool IsGoodIP(uint nIP)
-        {
-            return IsGoodIP(nIP, false);
-        }
-
         public static bool IsGoodIP(uint nIP, bool forceCheck)
         {
             // always filter following IP's
@@ -601,12 +595,15 @@ namespace Mpd.Utilities
 
         public static string IP2String(string pszAddress, ushort nPort)
         {
-            IPEndPoint enpoint = 
+            IPEndPoint enpoint =
                 new IPEndPoint(IPAddress.Parse(pszAddress), nPort);
 
             return enpoint.ToString();
         }
-
+        public static bool IsGoodIP(uint nIP)
+        {
+            return IsGoodIP(nIP, false);
+        }
         public static ulong GetFreeDiskSpaceX(string tempDir)
         {
             throw new NotImplementedException();

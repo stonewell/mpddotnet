@@ -309,5 +309,7 @@ namespace Mule
         public const uint PeerCacheSocketDownloadTimeout = DOWNLOADTIMEOUT + ONE_SEC_MS * (20);
         public const uint MAX_CLIENT_MSG_LEN = 450;	// using 200 is just too short
         public const uint MAX_IRC_MSG_LEN = 450;	// 450 = same as in mIRC
+
+        public const uint UNLIMITED = 0xFFFF;
     }
 }

@@ -20,7 +20,7 @@ namespace Mule.Preference.Impl
             throw new Exception("The method or operation is not implemented.");
         }
 
-        public static MuleStatistics CreateCoreStatistics()
+        public static MuleStatistics CreateStatistics()
         {
             return MpdObjectManager.CreateObject(typeof(MuleStatisticsImpl)) as MuleStatistics;
         }
@@ -35,6 +35,20 @@ namespace Mule.Preference.Impl
         public MulePreference CreatePreference()
         {
             throw new Exception();
+        }
+
+        #endregion
+
+        #region PreferenceObjectManager Members
+
+        MulePreference PreferenceObjectManager.CreatePreference()
+        {
+            throw new NotImplementedException();
+        }
+
+        MuleStatistics PreferenceObjectManager.CreateStatistics()
+        {
+            return CreateStatistics();
         }
 
         #endregion

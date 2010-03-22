@@ -39,6 +39,8 @@ namespace Mule.File.Impl
 
         #region Properties
         public KadEntryList KadNotes { get; set; }
+        public FileIdentifier FileIdentifier { get; set; }
+        public string FileTypeDisplayStr { get; set; }
 
         private string FileName_;
         public string FileName
@@ -382,6 +384,19 @@ namespace Mule.File.Impl
         public uint GetUserRating(bool bKadSearchIndicator)
         {
             return (bKadSearchIndicator) ? 6 : UserRating;
+        }
+
+        public virtual void SetFileName(string pszFileName,
+            bool bReplaceInvalidFileSystemChars/* = false */)
+        {
+            SetFileName(pszFileName, bReplaceInvalidFileSystemChars, true, false);
+        }
+
+        public virtual void SetFileName(string pszFileName,
+            bool bReplaceInvalidFileSystemChars/* = false */,
+            bool bAutoSetFileType/* = true */)
+        {
+            SetFileName(pszFileName, bReplaceInvalidFileSystemChars, bAutoSetFileType, false);
         }
 
         public virtual void SetFileName(string pszFileName,

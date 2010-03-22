@@ -10,5 +10,6 @@ namespace Mule.File
         StatisticFile CreateStatisticFile();
         PartFile CreatePartFile(params object[] parameters);
         KnownFile CreateKnownFile();
+        FileIdentifier CreateFileIdentifier(params object[] args);
     }
 }

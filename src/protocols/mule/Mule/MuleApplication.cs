@@ -40,6 +40,7 @@ namespace Mule
 
             ServerList = ED2KObjectManager.CreateED2KServerList();
             DownloadQueue = CoreObjectManager.CreateDownloadQueue();
+            Statistics = PreferenceObjectManager.CreateStatistics();
         }
 
         private void InitObjectManagers()
@@ -47,6 +48,7 @@ namespace Mule
         }
 
         public MulePreference Preference { get; private set; }
+        public MuleStatistics Statistics { get; private set; }
 
         public int PublicIP { get; private set; }
 

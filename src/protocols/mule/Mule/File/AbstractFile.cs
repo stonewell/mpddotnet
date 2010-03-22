@@ -32,13 +32,21 @@ namespace Mule.File
     {
         string FileName { get; set; }
 
-        void SetFileName(string pszFileName, 
-            bool bReplaceInvalidFileSystemChars/* = false */, 
-            bool bAutoSetFileType/* = true */, 
-            bool bRemoveControlChars/* = false*/); 
+        void SetFileName(string pszFileName,
+            bool bReplaceInvalidFileSystemChars/* = false */);
+        void SetFileName(string pszFileName,
+            bool bReplaceInvalidFileSystemChars/* = false */,
+            bool bAutoSetFileType/* = true */);
+        void SetFileName(string pszFileName,
+            bool bReplaceInvalidFileSystemChars/* = false */,
+            bool bAutoSetFileType/* = true */,
+            bool bRemoveControlChars/* = false*/);
 
         // returns the ED2K file type (an ASCII string)
         string FileType { get; set; }
+        string FileTypeDisplayStr { get; set; }
+
+        FileIdentifier FileIdentifier { get; }
 
         byte[] FileHash { get; set; }
         bool HasNullHash { get; }
@@ -69,15 +77,23 @@ namespace Mule.File
         void CopyTags(TagList tags);
         bool IsPartFile { get; }
 
-        bool HasComment { get; set;}
+        bool HasComment { get; set; }
         uint UserRating { get; set; }
         uint GetUserRating(bool bKadSearchIndicator);
         bool HasRating { get; }
         bool HasBadRating { get; }
 
         string FileComment { get; set; }
-        uint FileRating { get; set;}
+        uint FileRating { get; set; }
 
+        void LoadComment();
+        void UpdateFileRatingCommentAvail();
+        void UpdateFileRatingCommentAvail(bool bForceUpdate);
+
+        bool AddNote(KadEntry pEntry);
+        void RefilterKadNotes();
+        void RefilterKadNotes(bool bUpdate);
         KadEntryList KadNotes { get; set; }
+        bool IsKadCommentSearchRunning { get; set; }
     }
 }

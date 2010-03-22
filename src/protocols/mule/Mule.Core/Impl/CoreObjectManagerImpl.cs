@@ -55,5 +55,15 @@ namespace Mule.Core.Impl
         {
             throw new NotImplementedException();
         }
+
+        #region CoreObjectManager Members
+
+
+        public SourceHostnameResolver CreateSourceHostnameResolver()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

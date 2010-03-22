@@ -53,17 +53,17 @@ namespace Mule.Network.Impl
             return new PacketImpl(opCode, in_size, protocol, bFromPartFile);
         }
 
-        public Packet CreatePacket(MemoryStream datafile)
+        public Packet CreatePacket(SafeMemFile datafile)
         {
             return new PacketImpl(datafile);
         }
 
-        public Packet CreatePacket(MemoryStream datafile, byte protocol)
+        public Packet CreatePacket(SafeMemFile datafile, byte protocol)
         {
             return new PacketImpl(datafile, protocol);
         }
 
-        public Packet CreatePacket(MemoryStream datafile, byte protocol, OperationCodeEnum ucOpcode)
+        public Packet CreatePacket(SafeMemFile datafile, byte protocol, OperationCodeEnum ucOpcode)
         {
             return new PacketImpl(datafile, protocol, ucOpcode);
         }

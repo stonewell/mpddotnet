@@ -68,6 +68,7 @@
     <Compile Include="Core\MuleCollection.cs" />
     <Compile Include="Core\ServerConnect.cs" />
     <Compile Include="Core\SharedFileList.cs" />
+    <Compile Include="Core\SourceHostnameResolver.cs" />
     <Compile Include="Core\UpDownClient.cs" />
     <Compile Include="Core\UploadBandwidthThrottler.cs" />
     <Compile Include="Core\UploadQueue.cs" />

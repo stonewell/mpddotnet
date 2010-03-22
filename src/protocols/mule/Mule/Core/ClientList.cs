@@ -98,5 +98,7 @@ namespace Mule.Core
         // ZZ:UploadSpeedSense <--
 
         void ProcessA4AFClients(); // ZZ:DownloadManager
+
+        DeadSourceList DeadSourceList { get; set; }
     }
 }

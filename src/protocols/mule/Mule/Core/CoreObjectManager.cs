@@ -11,5 +11,7 @@ namespace Mule.Core
         UpDownClient CreateUpDownClient(params object[] args);
 
         DownloadQueue CreateDownloadQueue();
+
+        SourceHostnameResolver CreateSourceHostnameResolver();
     }
 }

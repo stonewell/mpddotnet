@@ -37,7 +37,7 @@ namespace Mule.File
 
     public interface KnownFile : AbstractFile
     {
-        string FileDirectory { get; set;}
+        string FileDirectory { get; set; }
 
         string FilePath { get; set; }
 
@@ -63,7 +63,7 @@ namespace Mule.File
         ushort ED2KPartHashCount { get; }
 
         // nr. of 9MB parts (file data)
-        ushort PartCount { get;}
+        ushort PartCount { get; }
 
         // nr. of 9MB parts according the file size wrt ED2K protocol (OP_FILESTATUS)
         ushort ED2KPartCount { get; }
@@ -75,6 +75,8 @@ namespace Mule.File
         bool LoadHashsetFromFile(FileDataIO file, bool checkhash);
 
         bool PublishedED2K { get; set; }
+
+        uint KadFileSearchID { get; set; }
 
         uint LastPublishTimeKadSrc { get; set; }
         uint LastPublishBuddy { get; set; }
@@ -103,7 +105,7 @@ namespace Mule.File
         AICHHashSet AICHHashSet { get; set; }
 
         // Display / Info / Strings
-        string InfoSummary { get;}
+        string InfoSummary { get; }
         string UpPriorityDisplayString { get; }
 
         //preview
@@ -128,5 +130,6 @@ namespace Mule.File
 
         void SetUpPriority(PriorityEnum iUpPriority, bool save);
         StatisticFile Statistic { get; }
+        void UpdatePartsInfo();
     }
 }

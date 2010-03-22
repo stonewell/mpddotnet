@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using Mpd.Generic.IO;
 
 namespace Mule.Network
 {
@@ -24,10 +25,10 @@ namespace Mule.Network
 
         Packet CreatePacket(OperationCodeEnum opCode, uint in_size, byte protocol, bool bFromPartFile);
 
-        Packet CreatePacket(MemoryStream datafile);
+        Packet CreatePacket(SafeMemFile datafile);
 
-        Packet CreatePacket(MemoryStream datafile, byte protocol);
-        Packet CreatePacket(MemoryStream datafile, byte protocol, OperationCodeEnum ucOpcode);
+        Packet CreatePacket(SafeMemFile datafile, byte protocol);
+        Packet CreatePacket(SafeMemFile datafile, byte protocol, OperationCodeEnum ucOpcode);
 
         Packet CreatePacket(string str, byte ucProtocol, OperationCodeEnum ucOpcode);
 

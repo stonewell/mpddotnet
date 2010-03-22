@@ -23,5 +23,15 @@ namespace Mule.File.Impl
         {
             return MpdObjectManager.CreateObject(typeof(KnownFileImpl)) as KnownFile;
         }
+
+        #region FileObjectManager Members
+
+
+        public FileIdentifier CreateFileIdentifier(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

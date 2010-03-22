@@ -92,7 +92,6 @@ namespace Mule.File.Impl
         #endregion
 
         #region PartFile Members
-        public uint KadFileSearchID { get; set; }
         public uint LastSearchTimeKad { get; set; }
         public byte TotalSearchesKad { get; set; }
         public uint LastSearchTime { get; set; }

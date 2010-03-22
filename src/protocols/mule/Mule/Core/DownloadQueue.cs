@@ -38,6 +38,11 @@ namespace Mule.Core
             a = new int[23];
         }
 
+        public void Clear()
+        {
+            Array.Clear(a,0,a.Length);
+        }
+
         public int[] a = null;
     };
 

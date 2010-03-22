@@ -8,5 +8,7 @@ namespace Mule.Preference
     public interface PreferenceObjectManager
     {
         MulePreference CreatePreference();
+
+        MuleStatistics CreateStatistics();
     }
 }

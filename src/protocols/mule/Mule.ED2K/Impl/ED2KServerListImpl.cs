@@ -396,7 +396,7 @@ namespace Mule.ED2K.Impl
                     ping_server.LastPingedTime = 
                         ((tNow - (uint)MuleConstants.UDPSERVSTATREASKTIME) + 20); // give it 20 seconds to respond
 
-                    MuleApplication.Instance.Preference.Statistics.AddUpDataOverheadServer(nPacketLen);
+                    MuleApplication.Instance.Statistics.AddUpDataOverheadServer((uint)nPacketLen);
                     MuleApplication.Instance.ServerConnect.SendUDPPacket(null, 
                         ping_server, true, (ushort)(ping_server.Port + 12), pRawPacket, (uint)nPacketLen);
                 }
@@ -414,7 +414,7 @@ namespace Mule.ED2K.Impl
                     ping_server.LastPinged = MpdUtilities.GetTickCount();
                     ping_server.LastPingedTime = (uint)(tNow - (rand.Next() % MuleConstants.ONE_HOUR_SEC));
                     ping_server.AddFailedCount();
-                    MuleApplication.Instance.Preference.Statistics.AddUpDataOverheadServer((int)packet.Size);
+                    MuleApplication.Instance.Statistics.AddUpDataOverheadServer(packet.Size);
                     MuleApplication.Instance.ServerConnect.SendUDPPacket(packet, ping_server, true);
                 }
                 else

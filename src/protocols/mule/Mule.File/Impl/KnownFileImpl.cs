@@ -1126,7 +1126,7 @@ namespace Mule.File.Impl
             data.Seek(bIsSX2Packet ? 17 : 16, SeekOrigin.Begin);
             data.WriteUInt16(nCount);
 
-            Packet result = MuleApplication.Instance.NetworkObjectManager.CreatePacket(data.ToStream, MuleConstants.OP_EMULEPROT);
+            Packet result = MuleApplication.Instance.NetworkObjectManager.CreatePacket(data, MuleConstants.OP_EMULEPROT);
             result.OperationCode = bIsSX2Packet ? OperationCodeEnum.OP_ANSWERSOURCES2 : OperationCodeEnum.OP_ANSWERSOURCES;
             // (1+)16+2+501*(4+2+4+2+16+1) = 14547 (14548) bytes max.
             if (result.Size > 354)
@@ -1250,13 +1250,13 @@ namespace Mule.File.Impl
                     // SLUGFILLER: heapsortCompletesrc
                     int r;
                     for (r = n / 2; r-- > 0; )
-                        MpdUtilities.HeapSort(ref count, r, n - 1);
+                        MpdUtilities.HeapSort(ref count, r, n - 1, Comparer<ushort>.Default);
                     for (r = n; --r > 0; )
                     {
                         ushort t = count[r];
                         count[r] = count[0];
                         count[0] = t;
-                        MpdUtilities.HeapSort(ref count, 0, r - 1);
+                        MpdUtilities.HeapSort(ref count, 0, r - 1, Comparer<ushort>.Default);
                     }
                     // SLUGFILLER: heapsortCompletesrc
 
@@ -1678,6 +1678,16 @@ namespace Mule.File.Impl
             AICHHashSet.FreeHashSet();
             return true;
         }
+        #endregion
+
+        #region KnownFile Members
+
+
+        public uint KadFileSearchID
+        {
+            get;set;
+        }
+
         #endregion
     }
 }

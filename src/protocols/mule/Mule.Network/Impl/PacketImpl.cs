@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using Mpd.Utilities;
 using System.Collections.ObjectModel;
+using Mpd.Generic.IO;
 
 namespace Mule.Network.Impl
 {
@@ -143,17 +144,17 @@ namespace Mule.Network.Impl
             Protocol = protocol;
         }
 
-    	public PacketImpl(MemoryStream datafile) :
+    	public PacketImpl(SafeMemFile datafile) :
             this(datafile, MuleConstants.OP_EDONKEYPROT, (OperationCodeEnum)0x00)
         {
         }
 
-        public PacketImpl(MemoryStream datafile, byte protocol) :
+        public PacketImpl(SafeMemFile datafile, byte protocol) :
             this(datafile, protocol, (OperationCodeEnum)0x00)
         {
         }
 
-        public PacketImpl(MemoryStream datafile, byte protocol, OperationCodeEnum ucOpcode)
+        public PacketImpl(SafeMemFile datafile, byte protocol, OperationCodeEnum ucOpcode)
         {
             m_bSplitted = false;
             m_bPacked = false;
@@ -161,7 +162,7 @@ namespace Mule.Network.Impl
             IsFromPartFile = false;
             Size = (uint)datafile.Length;
             Buffer = new byte[Size];
-            Array.Copy(datafile.ToArray(), Buffer, (uint)Size);
+            Array.Copy(datafile.Buffer, Buffer, (uint)Size);
             OperationCode = ucOpcode;
             Protocol = protocol;
         }

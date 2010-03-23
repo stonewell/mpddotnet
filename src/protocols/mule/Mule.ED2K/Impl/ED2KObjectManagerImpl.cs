@@ -10,7 +10,7 @@ using Mpd.Generic;
 
 namespace Mule.ED2K.Impl
 {
-    public class ED2KObjectManagerImpl : ED2KObjectManager
+    class ED2KObjectManagerImpl : ED2KObjectManager
     {
         public  ED2KServerLink CreateED2KServerLink(string ip, string port)
         {

@@ -17,7 +17,7 @@ namespace Mule.Preference
         public int Filter;
         public bool FilterNeg;
         public bool Care4All;
-        public bool ac_regexpeval;
-        public bool downloadInAlphabeticalOrder; // ZZ:DownloadManager
+        public bool RegExpEval;
+        public bool DownloadInAlphabeticalOrder;
     }
 }

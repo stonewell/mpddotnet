@@ -13,5 +13,19 @@ namespace Mule.Core
         DownloadQueue CreateDownloadQueue();
 
         SourceHostnameResolver CreateSourceHostnameResolver();
+
+        SharedFileList CreateSharedFileList();
+
+        ServerConnect CreateServerConnect();
+
+        ClientList CreateClientList();
+
+        UploadBandwidthThrottler CreateUploadBandwidthThrottler();
+
+        UploadQueue CreateUploadQueue();
+
+        LastCommonRouteFinder CreateLastCommonRouteFinder();
+
+        IPFilter CreateIPFilter();
     }
 }

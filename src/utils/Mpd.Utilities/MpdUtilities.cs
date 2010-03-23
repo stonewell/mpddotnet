@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Reflection;
 
 namespace Mpd.Utilities
 {
@@ -634,6 +635,47 @@ namespace Mpd.Utilities
         public static bool IsFileOnFATVolume(string p)
         {
             throw new NotImplementedException();
+        }
+
+        public static void XmlSerialize(Stream fs, object val)
+        {
+            if (val == null)
+                return;
+
+            Mpd.Xml.Serialization.XmlSerializer xs =
+                new Mpd.Xml.Serialization.XmlSerializer(val.GetType());
+
+            xs.Serialize(fs, val);
+        }
+
+        public static void XmlDeserialize(Stream fs,  object val)
+        {
+            if (val == null)
+                return;
+
+            Mpd.Xml.Serialization.XmlSerializer xs =
+                new Mpd.Xml.Serialization.XmlSerializer(val.GetType());
+
+            object tmp = xs.Deserialize(fs);
+
+            Type t = val.GetType();
+
+            PropertyInfo[] infos = t.GetProperties();
+
+            if (infos != null && infos.Length > 0)
+            {
+                foreach (PropertyInfo pInfo in infos)
+                {
+                    MethodInfo gMethod = pInfo.GetGetMethod(true);
+                    MethodInfo sMethod = pInfo.GetSetMethod(true);
+
+                    if (gMethod != null && sMethod != null)
+                    {
+                        sMethod.Invoke(val, 
+                            new object[] {gMethod.Invoke(tmp, null)});
+                    }
+                }
+            }
         }
     }
 }

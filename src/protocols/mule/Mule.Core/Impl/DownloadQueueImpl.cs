@@ -1137,7 +1137,7 @@ namespace Mule.Core.Impl
                 if (string.IsNullOrEmpty(catExt))
                     continue;
 
-                if (!MuleApplication.Instance.Preference.GetCategory(ix).ac_regexpeval)
+                if (!MuleApplication.Instance.Preference.GetCategory(ix).RegExpEval)
                 {
                     // simple string comparison
 
@@ -1627,7 +1627,7 @@ namespace Mule.Core.Impl
                 {
                     // condition 0
                     // needs to be same drive and enough space
-                    if (MpdUtilities.GetPathDriveNumber(MuleApplication.Instance.Preference.GetCatPath(nCat)) == nDriveNumber &&
+                    if (MpdUtilities.GetPathDriveNumber(MuleApplication.Instance.Preference.GetCategoryPath(nCat)) == nDriveNumber &&
                         llAvailableSpace > (long)nFileSize)
                     {
                         //this one is perfect

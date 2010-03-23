@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mule.AICH.Impl
 {
-    public class AICHObjectManagerImpl : AICHObjectManager
+    class AICHObjectManagerImpl : AICHObjectManager
     {
         public AICHHashAlgorithm CreateAICHHashAlgorithm()
         {

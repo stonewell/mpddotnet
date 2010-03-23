@@ -10,6 +10,7 @@ using Mule.ED2K;
 using Mule.File;
 using Mule.AICH;
 using Mpd.Utilities;
+using Mpd.Generic;
 
 namespace Mule
 {
@@ -24,6 +25,8 @@ namespace Mule
 
         public void InitApplication()
         {
+            KadEngine = new KadEngine();
+
             InitObjectManagers();
 
             try
@@ -38,13 +41,54 @@ namespace Mule
                 Preference.Init();
             }
 
+            Statistics = PreferenceObjectManager.CreateStatistics();
+            Statistics.Load();
+
+            SharedFiles = CoreObjectManager.CreateSharedFileList();
+
+            ServerConnect = CoreObjectManager.CreateServerConnect();
+            ClientList = CoreObjectManager.CreateClientList();
+            UploadBandwidthThrottler = CoreObjectManager.CreateUploadBandwidthThrottler();
+
+            UploadQueue = CoreObjectManager.CreateUploadQueue();
+            LastCommonRouteFinder = CoreObjectManager.CreateLastCommonRouteFinder();
             ServerList = ED2KObjectManager.CreateED2KServerList();
             DownloadQueue = CoreObjectManager.CreateDownloadQueue();
-            Statistics = PreferenceObjectManager.CreateStatistics();
+            IPFilter = CoreObjectManager.CreateIPFilter();
         }
 
         private void InitObjectManagers()
         {
+            NetworkObjectManager =
+                CreateObject(System.Configuration.ConfigurationSettings.AppSettings["NetworkObjectManager"],
+                    "Mule.Network.Impl.NetworkObjectManagerImpl, Mule.Network") as NetworkObjectManager;
+            CoreObjectManager =
+                    CreateObject(System.Configuration.ConfigurationSettings.AppSettings["CoreObjectManager"],
+                        "Mule.Core.Impl.CoreObjectManagerImpl, Mule.Core") as CoreObjectManager;
+
+            KadObjectManager = KadEngine.ObjectManager;
+
+            ED2KObjectManager =
+                    CreateObject(System.Configuration.ConfigurationSettings.AppSettings["ED2KObjectManager"],
+                        "Mule.ED2K.Impl.ED2KObjectManagerImpl, Mule.ED2K") as ED2KObjectManager;
+            FileObjectManager =
+                    CreateObject(System.Configuration.ConfigurationSettings.AppSettings["FileObjectManager"],
+                        "Mule.File.Impl.FileObjectManagerImpl, Mule.File") as FileObjectManager;
+            AICHObjectManager =
+                    CreateObject(System.Configuration.ConfigurationSettings.AppSettings["AICHObjectManager"],
+                        "Mule.AICH.Impl.AICHObjectManagerImpl, Mule.AICH") as AICHObjectManager;
+            PreferenceObjectManager =
+                    CreateObject(System.Configuration.ConfigurationSettings.AppSettings["PreferenceObjectManager"],
+                        "Mule.Preference.Impl.PreferenceObjectManagerImpl, Mule.Preference") as PreferenceObjectManager;
+        }
+
+        private object CreateObject(string configFullTypeName,
+            string defaultFullName)
+        {
+            if (string.IsNullOrEmpty(configFullTypeName))
+                return MpdObjectManager.CreateObject(Type.GetType(defaultFullName));
+            else
+                return MpdObjectManager.CreateObject(Type.GetType(configFullTypeName));
         }
 
         public MulePreference Preference { get; private set; }
@@ -176,6 +220,8 @@ namespace Mule
                 ServerList.Init();
 
                 DownloadQueue.Init();
+
+                IsRunning = true;
             }
             catch (Exception ex)
             {

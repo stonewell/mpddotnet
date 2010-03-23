@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8A82ECE1-38E4-426C-8989-9DA699A42CFC}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TestMuleApplication</RootNamespace>
+    <AssemblyName>TestMuleApplication</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\protocols\mule\Mule.Core\Mule.Core.csproj">
+      <Project>{343924DA-C1E3-448F-A49B-52F058876F48}</Project>
+      <Name>Mule.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\protocols\mule\Mule.ED2K\Mule.ED2K.csproj">
+      <Project>{657EE7A6-8225-4D45-85A9-81CF49AC6821}</Project>
+      <Name>Mule.ED2K</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\protocols\mule\Mule.File\Mule.File.csproj">
+      <Project>{92AF81B4-BBB9-4D27-A683-B40D6C2191DF}</Project>
+      <Name>Mule.File</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\protocols\mule\Mule.Network\Mule.Network.csproj">
+      <Project>{0607E40F-0382-4E55-9F7A-1C2C5DAC386E}</Project>
+      <Name>Mule.Network</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\protocols\mule\Mule.Preference\Mule.Preference.csproj">
+      <Project>{7C8BA2B1-6367-4365-8631-6E388614EC10}</Project>
+      <Name>Mule.Preference</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\protocols\mule\Mule\Mule.csproj">
+      <Project>{0D8AB11F-6731-4EE2-B4F8-338DE37E44B1}</Project>
+      <Name>Mule %28protocols\mule\Mule%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\protocols\mule\Mult.AICH\Mule.AICH.csproj">
+      <Project>{0791661F-B28A-4E8A-B62D-650E7891AA4A}</Project>
+      <Name>Mule.AICH</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

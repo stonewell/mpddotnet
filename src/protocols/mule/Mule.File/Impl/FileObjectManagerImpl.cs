@@ -7,7 +7,7 @@ using Mpd.Generic;
 
 namespace Mule.File.Impl
 {
-    public class FileObjectManagerImpl : FileObjectManager
+    class FileObjectManagerImpl : FileObjectManager
     {
         public StatisticFile CreateStatisticFile()
         {

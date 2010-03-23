@@ -10,5 +10,11 @@ namespace Mule.Preference
         MulePreference CreatePreference();
 
         MuleStatistics CreateStatistics();
+
+        ProxySettings CreateProxySettings();
+
+        FileComment CreateFileComment();
+
+        FileComments CreateFileComments(string name);
     }
 }

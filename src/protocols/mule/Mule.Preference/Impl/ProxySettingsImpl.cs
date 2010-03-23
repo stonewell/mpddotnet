@@ -22,6 +22,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Utilities;
 
 namespace Mule.Preference.Impl
 {
@@ -79,26 +80,14 @@ namespace Mule.Preference.Impl
 
 
         #region ProxySettings Members
-        private static readonly System.Xml.Serialization.XmlSerializer xs_ =
-            new System.Xml.Serialization.XmlSerializer(typeof(ProxySettingsImpl));
-
         public void LoadFrom(System.IO.MemoryStream ms)
         {
-            ProxySettingsImpl tmp =
-                xs_.Deserialize(ms) as ProxySettingsImpl;
-
-            this.IsPasswordEnabled = tmp.IsPasswordEnabled;
-            this.Name = tmp.Name;
-            this.Password = tmp.Password;
-            this.Port = tmp.Port;
-            this.Type = tmp.Type;
-            this.UseProxy = tmp.UseProxy;
-            this.User = tmp.User;
+            MpdUtilities.XmlDeserialize(ms, this);
         }
 
         public void SaveTo(System.IO.MemoryStream ms)
         {
-            xs_.Serialize(ms, this);
+            MpdUtilities.XmlSerialize(ms, this);
         }
 
         #endregion

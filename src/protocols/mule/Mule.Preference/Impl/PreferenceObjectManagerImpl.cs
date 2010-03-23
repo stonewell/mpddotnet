@@ -10,45 +10,33 @@ namespace Mule.Preference.Impl
 {
     class PreferenceObjectManagerImpl : PreferenceObjectManager
     {
-        public static FileComments CreateFileComments(string p)
+        #region PreferenceObjectManager Members
+
+        public FileComments CreateFileComments(string name)
         {
-            throw new Exception("The method or operation is not implemented.");
+            FileCommentsImpl fc = new FileCommentsImpl();
+            fc.Name = name;
+            return fc;
         }
 
-        public static FileComment CreateFileComment()
+        public FileComment CreateFileComment()
         {
-            throw new Exception("The method or operation is not implemented.");
+            return new FileCommentImpl();
         }
 
-        public static MuleStatistics CreateStatistics()
+        public MuleStatistics CreateStatistics()
         {
             return MpdObjectManager.CreateObject(typeof(MuleStatisticsImpl)) as MuleStatistics;
         }
 
-        public static ProxySettings CreateProxySettings()
+        public ProxySettings CreateProxySettings()
         {
             return MpdObjectManager.CreateObject(typeof(ProxySettingsImpl)) as ProxySettings;
         }
 
-        #region PreferenceObjectManager Members
-
         public MulePreference CreatePreference()
         {
-            throw new Exception();
-        }
-
-        #endregion
-
-        #region PreferenceObjectManager Members
-
-        MulePreference PreferenceObjectManager.CreatePreference()
-        {
-            throw new NotImplementedException();
-        }
-
-        MuleStatistics PreferenceObjectManager.CreateStatistics()
-        {
-            return CreateStatistics();
+            return new MulePreferenceImpl();
         }
 
         #endregion

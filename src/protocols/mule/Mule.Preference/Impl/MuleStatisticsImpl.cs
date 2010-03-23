@@ -45,23 +45,13 @@ namespace Mule.Preference.Impl
             throw new NotImplementedException();
         }
 
-        #endregion
-
-        #region MuleStatistics Members
-
-
         public void AddUpDataOverheadServer(int nPacketLen)
         {
             throw new NotImplementedException();
         }
 
-        #endregion
-
-        #region MuleStatistics Members
-
         public void Init()
         {
-            throw new NotImplementedException();
         }
 
         public void RecordRate()
@@ -81,22 +71,22 @@ namespace Mule.Preference.Impl
 
         public uint TransferTime
         {
-            get { throw new NotImplementedException(); }
+            get;set;
         }
 
         public uint UploadTime
         {
-            get { throw new NotImplementedException(); }
+            get;set;
         }
 
         public uint DownloadTime
         {
-            get { throw new NotImplementedException(); }
+            get;set;
         }
 
         public uint ServerDuration
         {
-            get { throw new NotImplementedException(); }
+            get;set;
         }
 
         public void Add2TotalServerDuration()
@@ -141,57 +131,67 @@ namespace Mule.Preference.Impl
 
         public uint DownDatarateOverhead
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong DownDataOverheadSourceExchange
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong DownDataOverheadFileRequest
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong DownDataOverheadServer
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong DownDataOverheadKad
         {
-            get { throw new NotImplementedException(); }
+            get;set;
         }
 
         public ulong DownDataOverheadOther
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong DownDataOverheadSourceExchangePackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong DownDataOverheadFileRequestPackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong DownDataOverheadServerPackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong DownDataOverheadKadPackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong DownDataOverheadOtherPackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public void CompUpDatarateOverhead()
@@ -231,465 +231,276 @@ namespace Mule.Preference.Impl
 
         public uint UpDatarateOverhead
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadSourceExchange
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadFileRequest
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadServer
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadKad
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadOther
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadSourceExchangePackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadFileRequestPackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadServerPackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadKadPackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public ulong UpDataOverheadOtherPackets
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public float MaxDown
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float MaxDownAverage
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float CumulativeDownAverage
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float MaxCumulativeDownAverage
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float MaxCumulativeDown
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float CumulativeUpAverage
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float MaxCumulativeUpAverage
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float MaxCumulativeUp
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float MaxUp
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float MaxUpAverage
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float RateDown
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float RateUp
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint TimeTransfers
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint TimeDownloads
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint TimeUploads
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint StartTimeTransfers
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint StartTimeDownloads
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint StartTimeUploads
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint TimeThisTransfer
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint TimeThisDownload
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint TimeThisUpload
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint TimeServerDuration
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint TimethisServerDuration
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint OverallStatus
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float GlobalDone
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public float GlobalSize
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public ulong SessionReceivedBytes
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public ulong SessionSentBytes
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public ulong SessionSentBytesToFriend
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public ushort Reconnects
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint TransferStartTime
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint ServerConnectTime
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint Filteredclients
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         public uint StartTime
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
+        }
+
+        public void Load()
+        {
         }
 
         #endregion

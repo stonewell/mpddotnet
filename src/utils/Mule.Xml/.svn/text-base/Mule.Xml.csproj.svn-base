@@ -1,0 +1,148 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{367A4CB0-2255-4C2B-9CCF-E1A51A405EED}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Mule.Xml</RootNamespace>
+    <AssemblyName>Mule.Xml</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\Advanced\SchemaImporterExtension.cs" />
+    <Compile Include="Serialization\Advanced\SchemaImporterExtensionCollection.cs" />
+    <Compile Include="Serialization\CodeExporter.cs" />
+    <Compile Include="Serialization\CodeGenerationOptions.cs" />
+    <Compile Include="Serialization\CodeIdentifier.cs" />
+    <Compile Include="Serialization\CodeIdentifiers.cs" />
+    <Compile Include="Serialization\Configuration\DateTimeSerializationSection.cs" />
+    <Compile Include="Serialization\Configuration\SchemaImporterExtensionElement.cs" />
+    <Compile Include="Serialization\Configuration\SchemaImporterExtensionElementCollection.cs" />
+    <Compile Include="Serialization\Configuration\SchemaImporterExtensionsSection.cs" />
+    <Compile Include="Serialization\Configuration\SerializationSectionGroup.cs" />
+    <Compile Include="Serialization\Configuration\XmlSerializerSection.cs" />
+    <Compile Include="Serialization\ImportContext.cs" />
+    <Compile Include="Serialization\IXmlSerializable.cs" />
+    <Compile Include="Serialization\IXmlTextParser.cs" />
+    <Compile Include="Serialization\MapCodeGenerator.cs" />
+    <Compile Include="Serialization\ReflectionHelper.cs" />
+    <Compile Include="Serialization\SchemaImporter.cs" />
+    <Compile Include="Serialization\SchemaTypes.cs" />
+    <Compile Include="Serialization\SerializationCodeGenerator.cs" />
+    <Compile Include="Serialization\SerializationCodeGeneratorConfiguration.cs" />
+    <Compile Include="Serialization\SerializationSource.cs" />
+    <Compile Include="Serialization\SoapAttributeAttribute.cs" />
+    <Compile Include="Serialization\SoapAttributeOverrides.cs" />
+    <Compile Include="Serialization\SoapAttributes.cs" />
+    <Compile Include="Serialization\SoapCodeExporter.cs" />
+    <Compile Include="Serialization\SoapElementAttribute.cs" />
+    <Compile Include="Serialization\SoapEnumAttribute.cs" />
+    <Compile Include="Serialization\SoapIgnoreAttribute.cs" />
+    <Compile Include="Serialization\SoapIncludeAttribute.cs" />
+    <Compile Include="Serialization\SoapReflectionImporter.cs" />
+    <Compile Include="Serialization\SoapSchemaExporter.cs" />
+    <Compile Include="Serialization\SoapSchemaImporter.cs" />
+    <Compile Include="Serialization\SoapSchemaMember.cs" />
+    <Compile Include="Serialization\SoapTypeAttribute.cs" />
+    <Compile Include="Serialization\TypeData.cs" />
+    <Compile Include="Serialization\TypeMember.cs" />
+    <Compile Include="Serialization\TypeTranslator.cs" />
+    <Compile Include="Serialization\UnreferencedObjectEventArgs.cs" />
+    <Compile Include="Serialization\UnreferencedObjectEventHandler.cs" />
+    <Compile Include="Serialization\XmlAnyAttributeAttribute.cs" />
+    <Compile Include="Serialization\XmlAnyElementAttribute.cs" />
+    <Compile Include="Serialization\XmlAnyElementAttributes.cs" />
+    <Compile Include="Serialization\XmlArrayAttribute.cs" />
+    <Compile Include="Serialization\XmlArrayItemAttribute.cs" />
+    <Compile Include="Serialization\XmlArrayItemAttributes.cs" />
+    <Compile Include="Serialization\XmlAttributeAttribute.cs" />
+    <Compile Include="Serialization\XmlAttributeEventArgs.cs" />
+    <Compile Include="Serialization\XmlAttributeEventHandler.cs" />
+    <Compile Include="Serialization\XmlAttributeOverrides.cs" />
+    <Compile Include="Serialization\XmlAttributes.cs" />
+    <Compile Include="Serialization\XmlChoiceIdentifierAttribute.cs" />
+    <Compile Include="Serialization\XmlCodeExporter.cs" />
+    <Compile Include="Serialization\XmlConverterEx.cs" />
+    <Compile Include="Serialization\XmlCustomFormatter.cs" />
+    <Compile Include="Serialization\XmlDeserializationEvents.cs" />
+    <Compile Include="Serialization\XmlElementAttribute.cs" />
+    <Compile Include="Serialization\XmlElementAttributes.cs" />
+    <Compile Include="Serialization\XmlElementEventArgs.cs" />
+    <Compile Include="Serialization\XmlElementEventHandler.cs" />
+    <Compile Include="Serialization\XmlEnumAttribute.cs" />
+    <Compile Include="Serialization\XmlIgnoreAttribute.cs" />
+    <Compile Include="Serialization\XmlIncludeAttribute.cs" />
+    <Compile Include="Serialization\XmlMapping.cs" />
+    <Compile Include="Serialization\XmlMappingAccess.cs" />
+    <Compile Include="Serialization\XmlMemberMapping.cs" />
+    <Compile Include="Serialization\XmlMembersMapping.cs" />
+    <Compile Include="Serialization\XmlNamespaceDeclarationsAttribute.cs" />
+    <Compile Include="Serialization\XmlNodeEventArgs.cs" />
+    <Compile Include="Serialization\XmlNodeEventHandler.cs" />
+    <Compile Include="Serialization\XmlReflectionImporter.cs" />
+    <Compile Include="Serialization\XmlReflectionMember.cs" />
+    <Compile Include="Serialization\XmlRootAttribute.cs" />
+    <Compile Include="Serialization\XmlSchemaEnumerator.cs" />
+    <Compile Include="Serialization\XmlSchemaExporter.cs" />
+    <Compile Include="Serialization\XmlSchemaImporter.cs" />
+    <Compile Include="Serialization\XmlSchemaProviderAttribute.cs" />
+    <Compile Include="Serialization\XmlSchemas.cs" />
+    <Compile Include="Serialization\XmlSerializationCollectionFixupCallback.cs" />
+    <Compile Include="Serialization\XmlSerializationFixupCallback.cs" />
+    <Compile Include="Serialization\XmlSerializationGeneratedCode.cs" />
+    <Compile Include="Serialization\XmlSerializationReadCallback.cs" />
+    <Compile Include="Serialization\XmlSerializationReader.cs" />
+    <Compile Include="Serialization\XmlSerializationReaderInterpreter.cs" />
+    <Compile Include="Serialization\XmlSerializationWriteCallback.cs" />
+    <Compile Include="Serialization\XmlSerializationWriter.cs" />
+    <Compile Include="Serialization\XmlSerializationWriterInterpreter.cs" />
+    <Compile Include="Serialization\XmlSerializer.cs" />
+    <Compile Include="Serialization\XmlSerializerAssemblyAttribute.cs" />
+    <Compile Include="Serialization\XmlSerializerFactory.cs" />
+    <Compile Include="Serialization\XmlSerializerImplementation.cs" />
+    <Compile Include="Serialization\XmlSerializerNamespaces.cs" />
+    <Compile Include="Serialization\XmlSerializerVersionAttribute.cs" />
+    <Compile Include="Serialization\XmlTextAttribute.cs" />
+    <Compile Include="Serialization\XmlTypeAttribute.cs" />
+    <Compile Include="Serialization\XmlTypeMapElementInfo.cs" />
+    <Compile Include="Serialization\XmlTypeMapMember.cs" />
+    <Compile Include="Serialization\XmlTypeMapMemberAttribute.cs" />
+    <Compile Include="Serialization\XmlTypeMapMemberElement.cs" />
+    <Compile Include="Serialization\XmlTypeMapMemberNamespaces.cs" />
+    <Compile Include="Serialization\XmlTypeMapping.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

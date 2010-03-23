@@ -49,6 +49,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scanner.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mule.Xml\Mpd.Xml.csproj">
+      <Project>{367A4CB0-2255-4C2B-9CCF-E1A51A405EED}</Project>
+      <Name>Mpd.Xml</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -65,12 +65,25 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoreFunctions.cs" />
+    <Compile Include="Impl\ClientListImpl.cs" />
     <Compile Include="Impl\DownloadQueueImpl.cs" />
+    <Compile Include="Impl\IPFilterImpl.cs" />
+    <Compile Include="Impl\LastCommonRouteFinderImpl.cs" />
+    <Compile Include="Impl\MuleCollectionImpl.cs" />
+    <Compile Include="Impl\ServerConnectImpl.cs" />
+    <Compile Include="Impl\SharedFileListImpl.cs" />
+    <Compile Include="Impl\SourceHostnameResolverImpl.cs" />
     <Compile Include="Impl\UpDownClientImpl.cs" />
     <Compile Include="Impl\CoreObjectManagerImpl.cs" />
+    <Compile Include="Impl\UploadBandwidthThrottlerImpl.cs" />
+    <Compile Include="Impl\UploadQueueImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\utils\CryptoPP\CryptoPP.csproj">
+      <Project>{7D22200A-DE72-47FB-873D-289F067664EB}</Project>
+      <Name>CryptoPP</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\utils\Mpd.Generic\Mpd.Generic.csproj">
       <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
       <Name>Mpd.Generic</Name>

@@ -1,0 +1,563 @@
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization
+END
+UnreferencedObjectEventArgs.cs
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/UnreferencedObjectEventArgs.cs
+END
+TypeData.cs
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/TypeData.cs
+END
+SoapEnumAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapEnumAttribute.cs
+END
+XmlTypeMapping.cs
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlTypeMapping.cs
+END
+XmlCodeExporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlCodeExporter.cs
+END
+XmlTypeAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlTypeAttribute.cs
+END
+SoapCodeExporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapCodeExporter.cs
+END
+XmlSerializationFixupCallback.cs
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializationFixupCallback.cs
+END
+XmlTypeMapMemberNamespaces.cs
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlTypeMapMemberNamespaces.cs
+END
+XmlIncludeAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlIncludeAttribute.cs
+END
+XmlTextAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlTextAttribute.cs
+END
+SoapIncludeAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapIncludeAttribute.cs
+END
+ReflectionHelper.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/26/trunk/Projects/Mule.Xml/Serialization/ReflectionHelper.cs
+END
+XmlNamespaceDeclarationsAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlNamespaceDeclarationsAttribute.cs
+END
+IXmlTextParser.cs
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/IXmlTextParser.cs
+END
+SerializationSource.cs
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SerializationSource.cs
+END
+IXmlSerializable.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/IXmlSerializable.cs
+END
+CodeGenerationOptions.cs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/CodeGenerationOptions.cs
+END
+XmlSchemas.cs
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSchemas.cs
+END
+XmlSerializationReaderInterpreter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializationReaderInterpreter.cs
+END
+XmlElementEventHandler.cs
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlElementEventHandler.cs
+END
+XmlMapping.cs
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlMapping.cs
+END
+XmlSerializerAssemblyAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializerAssemblyAttribute.cs
+END
+XmlSchemaProviderAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSchemaProviderAttribute.cs
+END
+XmlArrayAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlArrayAttribute.cs
+END
+XmlAttributeEventHandler.cs
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlAttributeEventHandler.cs
+END
+XmlConverterEx.cs
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlConverterEx.cs
+END
+XmlArrayItemAttributes.cs
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlArrayItemAttributes.cs
+END
+XmlSerializationWriteCallback.cs
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializationWriteCallback.cs
+END
+XmlMembersMapping.cs
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlMembersMapping.cs
+END
+XmlRootAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlRootAttribute.cs
+END
+XmlIgnoreAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlIgnoreAttribute.cs
+END
+XmlElementEventArgs.cs
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlElementEventArgs.cs
+END
+XmlSerializer.cs
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializer.cs
+END
+UnreferencedObjectEventHandler.cs
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/UnreferencedObjectEventHandler.cs
+END
+XmlSerializerImplementation.cs
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializerImplementation.cs
+END
+CodeIdentifiers.cs
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/CodeIdentifiers.cs
+END
+XmlArrayItemAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlArrayItemAttribute.cs
+END
+XmlReflectionMember.cs
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlReflectionMember.cs
+END
+XmlSerializationReadCallback.cs
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializationReadCallback.cs
+END
+SerializationCodeGeneratorConfiguration.cs
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SerializationCodeGeneratorConfiguration.cs
+END
+XmlAttributeAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlAttributeAttribute.cs
+END
+XmlEnumAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlEnumAttribute.cs
+END
+XmlSchemaExporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSchemaExporter.cs
+END
+SoapAttributeAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapAttributeAttribute.cs
+END
+SoapSchemaMember.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapSchemaMember.cs
+END
+SoapSchemaExporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapSchemaExporter.cs
+END
+MapCodeGenerator.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/MapCodeGenerator.cs
+END
+SerializationCodeGenerator.cs
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SerializationCodeGenerator.cs
+END
+XmlAnyAttributeAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlAnyAttributeAttribute.cs
+END
+XmlSerializerFactory.cs
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializerFactory.cs
+END
+XmlSchemaEnumerator.cs
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSchemaEnumerator.cs
+END
+XmlTypeMapElementInfo.cs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlTypeMapElementInfo.cs
+END
+XmlTypeMapMember.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlTypeMapMember.cs
+END
+SoapTypeAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapTypeAttribute.cs
+END
+XmlDeserializationEvents.cs
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlDeserializationEvents.cs
+END
+XmlReflectionImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlReflectionImporter.cs
+END
+XmlMappingAccess.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlMappingAccess.cs
+END
+SoapReflectionImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapReflectionImporter.cs
+END
+XmlTypeMapMemberElement.cs
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlTypeMapMemberElement.cs
+END
+XmlSchemaImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSchemaImporter.cs
+END
+CodeExporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/CodeExporter.cs
+END
+XmlMemberMapping.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlMemberMapping.cs
+END
+SoapSchemaImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapSchemaImporter.cs
+END
+XmlNodeEventHandler.cs
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlNodeEventHandler.cs
+END
+XmlAttributes.cs
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlAttributes.cs
+END
+XmlAttributeOverrides.cs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlAttributeOverrides.cs
+END
+SoapAttributeOverrides.cs
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapAttributeOverrides.cs
+END
+SoapAttributes.cs
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapAttributes.cs
+END
+XmlTypeMapMemberAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlTypeMapMemberAttribute.cs
+END
+CodeIdentifier.cs
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/CodeIdentifier.cs
+END
+XmlCustomFormatter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlCustomFormatter.cs
+END
+ImportContext.cs
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/ImportContext.cs
+END
+XmlSerializationWriterInterpreter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializationWriterInterpreter.cs
+END
+XmlElementAttributes.cs
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlElementAttributes.cs
+END
+XmlSerializationReader.cs
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializationReader.cs
+END
+SchemaImporter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SchemaImporter.cs
+END
+XmlSerializerVersionAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializerVersionAttribute.cs
+END
+XmlNodeEventArgs.cs
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlNodeEventArgs.cs
+END
+SchemaTypes.cs
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SchemaTypes.cs
+END
+XmlAnyElementAttributes.cs
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlAnyElementAttributes.cs
+END
+SoapIgnoreAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapIgnoreAttribute.cs
+END
+XmlSerializerNamespaces.cs
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializerNamespaces.cs
+END
+TypeTranslator.cs
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/TypeTranslator.cs
+END
+XmlSerializationWriter.cs
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializationWriter.cs
+END
+XmlElementAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlElementAttribute.cs
+END
+SoapElementAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/SoapElementAttribute.cs
+END
+XmlChoiceIdentifierAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlChoiceIdentifierAttribute.cs
+END
+XmlAttributeEventArgs.cs
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlAttributeEventArgs.cs
+END
+XmlSerializationCollectionFixupCallback.cs
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializationCollectionFixupCallback.cs
+END
+XmlAnyElementAttribute.cs
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlAnyElementAttribute.cs
+END
+XmlSerializationGeneratedCode.cs
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/XmlSerializationGeneratedCode.cs
+END
+TypeMember.cs
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/25/trunk/Projects/Mule.Xml/Serialization/TypeMember.cs
+END

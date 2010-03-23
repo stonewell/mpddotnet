@@ -26,7 +26,7 @@ using System.Text;
 
 namespace Mule.File.Impl
 {
-    public class PendingBlockImpl : PendingBlock
+    class PendingBlockImpl : PendingBlock
     {
         private RequestedBlock block_ = null;
         private uint totalUnzipped_ = 0;

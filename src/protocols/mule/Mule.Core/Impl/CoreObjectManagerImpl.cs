@@ -36,32 +36,60 @@ namespace Mule.Core.Impl
         }
         #endregion
 
+        #region CoreObjectManager Members
         public SharedFileList CreateSharedFileList()
         {
-            throw new Exception("The method or operation is not implemented.");
+            return new SharedFileListImpl();
         }
 
         public MuleCollection CreateMuleCollection()
         {
-            throw new Exception("The method or operation is not implemented.");
+            return new MuleCollectionImpl();
         }
 
         public UpDownClient CreateUpDownClient(params object[] args)
         {
-            throw new NotImplementedException();
+            return MpdObjectManager.CreateObject(typeof(UpDownClientImpl), args) as UpDownClient;
         }
 
         public DownloadQueue CreateDownloadQueue()
         {
-            throw new NotImplementedException();
+            return new DownloadQueueImpl();
         }
-
-        #region CoreObjectManager Members
-
 
         public SourceHostnameResolver CreateSourceHostnameResolver()
         {
-            throw new NotImplementedException();
+            return new SourceHostnameResolverImpl();
+        }
+
+        public ServerConnect CreateServerConnect()
+        {
+            return new ServerConnectImpl();
+        }
+
+        public ClientList CreateClientList()
+        {
+            return new ClientListImpl();
+        }
+
+        public UploadBandwidthThrottler CreateUploadBandwidthThrottler()
+        {
+            return new UploadBandwidthThrottlerImpl();
+        }
+
+        public UploadQueue CreateUploadQueue()
+        {
+            return new UploadQueueImpl();
+        }
+
+        public LastCommonRouteFinder CreateLastCommonRouteFinder()
+        {
+            return new LastCommonRouteFinderImpl();
+        }
+
+        public IPFilter CreateIPFilter()
+        {
+            return new IPFilterImpl();
         }
 
         #endregion

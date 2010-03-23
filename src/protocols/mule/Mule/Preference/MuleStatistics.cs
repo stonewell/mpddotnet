@@ -110,5 +110,7 @@ namespace Mule.Preference
         uint ServerConnectTime { get; set; }
         uint Filteredclients { get; set; }
         uint StartTime { get; set; }
+
+        void Load();
     }
 }

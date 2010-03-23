@@ -22,7 +22,22 @@ namespace Mule.ED2K.Impl
             return MpdObjectManager.CreateObject(typeof(ED2KNodesListLinkImpl), address) as ED2KNodesListLink;
         }
 
-        public  ED2KFileLink CreateED2KFileLink(string pszName,
+        public ED2KFileLink CreateED2KFileLink(string pszName,
+            string pszSize,
+            string pszHash)
+        {
+            return CreateED2KFileLink(pszName, pszSize, pszHash, null, null);
+        }
+
+        public ED2KFileLink CreateED2KFileLink(string pszName,
+            string pszSize,
+            string pszHash,
+            string[] allParams)
+        {
+            return CreateED2KFileLink(pszName, pszSize, pszHash, allParams, null);
+        }
+
+        public ED2KFileLink CreateED2KFileLink(string pszName,
             string pszSize,
             string pszHash,
             string[] allParams,
@@ -169,5 +184,26 @@ namespace Mule.ED2K.Impl
         {
             return new ED2KServerListImpl();
         }
+
+        #region ED2KObjectManager Members
+
+        public string CreateED2KLink(Mule.File.PartFile pPartFile)
+        {
+            return CreateED2KLink(pPartFile, true);
+        }
+
+        public string CreateED2KLink(Mule.File.PartFile pPartFile, bool bEscapeLink)
+        {
+            string link = CreateED2KFileLink(pPartFile.FileName,
+                pPartFile.FileSize.ToString(),
+                MpdUtilities.EncodeHexString(pPartFile.FileHash)).Link;
+
+            if (!bEscapeLink && link.EndsWith("/"))
+                return link.Substring(0, link.Length - 1);
+
+            return link;
+        }
+
+        #endregion
     }
 }

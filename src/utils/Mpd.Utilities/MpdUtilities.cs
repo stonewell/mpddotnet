@@ -600,11 +600,38 @@ namespace Mpd.Utilities
 
             return enpoint.ToString();
         }
+
         public static bool IsGoodIP(uint nIP)
         {
             return IsGoodIP(nIP, false);
         }
-        public static ulong GetFreeDiskSpaceX(string tempDir)
+
+        public static ulong GetFreeDiskSpace(string tempDir)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool PathMatchSpec(string fullname, string cmpExt)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool RegularExpressionMatch(string catExt, string p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static uint GetCompressedFileSize(string filepath, out uint filesizehigh)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static int GetPathDriveNumber(string p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool IsFileOnFATVolume(string p)
         {
             throw new NotImplementedException();
         }

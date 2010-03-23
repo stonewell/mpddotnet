@@ -183,5 +183,7 @@ namespace Mule
                     ex);
             }
         }
+
+        public bool IsRunning { get; set; }
     }
 }

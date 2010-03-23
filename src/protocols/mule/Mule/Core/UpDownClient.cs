@@ -147,6 +147,8 @@ namespace Mule.Core
         bool RequiresCryptLayer { get; set;}
         bool SupportsDirectUDPCallback { get; set;}
         // shortcut, sets crypt, callback etc based from the tagvalue we recieve
+        void SetConnectOptions(byte byOptions);
+        void SetConnectOptions(byte byOptions, bool bEncryption);
         void SetConnectOptions(byte byOptions, bool bEncryption,
             bool bCallback);
         bool IsObfuscatedConnectionEstablished { get; }

@@ -40,6 +40,8 @@ namespace Mule.Core
 
         void CheckForTimeout();
         void DestroySocket(ServerSocket pSck);	// safe socket closure and destruction
+        bool SendPacket(Packet packet);
+        bool SendPacket(Packet packet, bool delpacket/* = true*/);
         bool SendPacket(Packet packet, bool delpacket/* = true*/, ServerSocket to/* = 0*/);
         bool IsUDPSocketAvailable { get;}
 

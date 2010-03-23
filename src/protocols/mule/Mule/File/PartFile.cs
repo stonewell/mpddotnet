@@ -297,5 +297,7 @@ namespace Mule.File
         bool RightFileHasHigherPrio(PartFile left, PartFile right);
 
         DeadSourceList DeadSourceList { get; set; }
+
+        void RefilterFileComments();
     }
 }

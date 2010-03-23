@@ -114,15 +114,12 @@ namespace Mule.File.Impl
             }
         }
 
-        [DllImport("kernel32.dll")]
-        private static extern uint GetCompressedFileSize(string filepath, out uint filesizehigh);
-
         public ulong RealFileSize
         {
             get
             {
                 uint low = 0, high = 0;
-                low = GetCompressedFileSize(FilePath, out high);
+                low = MpdUtilities.GetCompressedFileSize(FilePath, out high);
 
                 ulong size = high << 32;
 
@@ -3375,6 +3372,13 @@ namespace Mule.File.Impl
             get { return requestedblocks_list_; }
             set { requestedblocks_list_ = value; }
         }
+
+
+        public void RefilterFileComments()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

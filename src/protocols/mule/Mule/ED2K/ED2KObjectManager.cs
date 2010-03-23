@@ -15,6 +15,15 @@ namespace Mule.ED2K
         ED2KNodesListLink CreateED2KNodesListLink(string address);
 
         ED2KFileLink CreateED2KFileLink(string pszName,
+            string pszSize,
+            string pszHash);
+
+        ED2KFileLink CreateED2KFileLink(string pszName,
+            string pszSize,
+            string pszHash,
+            string[] allParams);
+
+        ED2KFileLink CreateED2KFileLink(string pszName,
            string pszSize,
            string pszHash,
            string[] allParams,
@@ -33,5 +42,8 @@ namespace Mule.ED2K
         ED2KServer CreateED2KServer(ushort port, string ipaddr);
 
         ED2KServerList CreateED2KServerList();
+
+        string CreateED2KLink(Mule.File.PartFile pPartFile);
+        string CreateED2KLink(Mule.File.PartFile pPartFile, bool bEscapeLink);
     }
 }

@@ -2417,5 +2417,20 @@ namespace Mule.Core.Impl
             Disconnected(cs.DisonnectReason, true);
         }
         #endregion
+
+        #region UpDownClient Members
+
+
+        public void SetConnectOptions(byte byOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetConnectOptions(byte byOptions, bool bEncryption)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

@@ -40,10 +40,18 @@ namespace Mule.Core
 
         public void Clear()
         {
-            Array.Clear(a,0,a.Length);
+            Array.Clear(a, 0, a.Length);
         }
 
         public int[] a = null;
+    };
+
+    public enum CategoryStatusEnum
+    {
+        MP_CANCEL = 10201,
+        MP_STOP = 10202,
+        MP_PAUSE = 10203,
+        MP_RESUME = 10204,
     };
 
     public interface DownloadQueue
@@ -66,9 +74,9 @@ namespace Mule.Core
         void RemoveFile(PartFile toremove);
         void DeleteAll();
 
-        int FileCount { get;}
-        uint DownloadingFileCount { get;}
-        uint PausedFileCount { get;}
+        int FileCount { get; }
+        uint DownloadingFileCount { get; }
+        uint PausedFileCount { get; }
 
         bool IsFileExisting(byte[] fileid/*, bool bLogWarnings = true*/);
         bool IsFileExisting(byte[] fileid, bool bLogWarnings);
@@ -103,18 +111,18 @@ namespace Mule.Core
         int GetDownloadFilesStats(ref ulong ui64TotalFileSize,
             ref ulong ui64TotalLeftToTransfer,
             ref ulong ui64TotalAdditionalNeededSpace);
-        uint Datarate { get;}
+        uint DataRate { get; }
 
         void AddUDPFileReasks();
-        uint UDPFileReasks { get;}
+        uint UDPFileReasks { get; }
         void AddFailedUDPFileReasks();
-        uint FailedUDPFileReasks { get;}
+        uint FailedUDPFileReasks { get; }
 
         // categories
-        void ResetCatParts(uint cat);
-        void SetCatPrio(uint cat, byte newprio);
-        void RemoveAutoPrioInCat(uint cat, byte newprio); // ZZ:DownloadManager
-        void SetCatStatus(uint cat, int newstatus);
+        void ResetCatParts(int cat);
+        void SetCatPrio(int cat, byte newprio);
+        void RemoveAutoPrioInCat(int cat, byte newprio); // ZZ:DownloadManager
+        void SetCatStatus(int cat, int newstatus);
         void MoveCat(uint from, uint to);
         void SetAutoCat(PartFile newfile);
 
@@ -147,6 +155,6 @@ namespace Mule.Core
 
         string GetOptimalTempDir(uint nCat, ulong nFileSize);
 
-        ED2KServer CurrentUDPServer { get; set;}
+        ED2KServer CurrentUDPServer { get; set; }
     }
 }

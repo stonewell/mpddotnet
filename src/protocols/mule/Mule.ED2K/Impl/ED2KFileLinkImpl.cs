@@ -309,6 +309,9 @@ namespace Mule.ED2K.Impl
 
         private void HandleParams(string[] allParams)
         {
+            if (allParams == null || allParams.Length == 0)
+                return;
+
             bool bError = false;
             for (int i = 0; !bError && i < allParams.Length; i++)
             {

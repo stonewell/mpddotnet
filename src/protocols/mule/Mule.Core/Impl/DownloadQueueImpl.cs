@@ -32,30 +32,26 @@ namespace Mule.Core.Impl
     class DownloadQueueImpl : DownloadQueue
     {
         #region Fields
-        private List<PartFile> filelist = new List<PartFile>();
-        private List<PartFile> m_localServerReqQueue = new List<PartFile>();
-        private ushort filesrdy;
-        private uint datarate;
+        private List<PartFile> filelist_ = new List<PartFile>();
+        private List<PartFile> localServerReqQueue_ = new List<PartFile>();
 
-        private PartFile lastfile;
-        private uint lastcheckdiskspacetime;
-        private uint lastudpsearchtime;
-        private uint lastudpstattime;
-        private uint udcounter;
-        private uint m_cRequestsSentToServer;
-        private uint m_dwNextTCPSrcReq;
-        private int m_iSearchedServers;
-        private uint lastkademliafilerequest;
+        private PartFile lastfile_;
+        private uint lastcheckdiskspacetime_;
+        private uint lastudpsearchtime_;
+        private uint lastudpstattime_;
+        private uint udcounter_;
+        private uint requestsSentToServer_;
+        private uint nextTCPSrcReq_;
+        private int searchedServers_;
+        private uint lastkademliafilerequest_;
 
-        private ulong m_datarateMS;
-        private uint m_nUDPFileReasks;
-        private uint m_nFailedUDPFileReasks;
+        private ulong datarateMS_;
 
         // By BadWolf - Accurate Speed Measurement
-        private List<TransferredData> avarage_dr_list = new List<TransferredData>();
+        private List<TransferredData> avarage_dr_list_ = new List<TransferredData>();
         // END By BadWolf - Accurate Speed Measurement
 
-        private uint m_dwLastA4AFtime; // ZZ:DownloadManager
+        private uint lastA4AFtime_; // ZZ:DownloadManager
 
         private SourceHostnameResolver sourceHostnameResolver_;
         #endregion
@@ -63,22 +59,21 @@ namespace Mule.Core.Impl
         #region Constructors
         public DownloadQueueImpl()
         {
-            filesrdy = 0;
-            datarate = 0;
+            DataRate = 0;
             CurrentUDPServer = null;
-            lastfile = null;
-            lastcheckdiskspacetime = 0;
-            lastudpsearchtime = 0;
-            lastudpstattime = 0;
+            lastfile_ = null;
+            lastcheckdiskspacetime_ = 0;
+            lastudpsearchtime_ = 0;
+            lastudpstattime_ = 0;
             SetLastKademliaFileRequest();
-            udcounter = 0;
-            m_iSearchedServers = 0;
-            m_datarateMS = 0;
-            m_nUDPFileReasks = 0;
-            m_nFailedUDPFileReasks = 0;
-            m_dwNextTCPSrcReq = 0;
-            m_cRequestsSentToServer = 0;
-            m_dwLastA4AFtime = 0; // ZZ:DownloadManager
+            udcounter_ = 0;
+            searchedServers_ = 0;
+            datarateMS_ = 0;
+            UDPFileReasks = 0;
+            FailedUDPFileReasks = 0;
+            nextTCPSrcReq_ = 0;
+            requestsSentToServer_ = 0;
+            lastA4AFtime_ = 0; // ZZ:DownloadManager
         }
         #endregion
 
@@ -90,39 +85,39 @@ namespace Mule.Core.Impl
 
             uint downspeed = 0;
             ulong maxDownload = MuleApplication.Instance.Preference.GetMaxDownloadInBytesPerSec(true);
-            if (maxDownload != MuleConstants.UNLIMITED * 1024 && datarate > 1500)
+            if (maxDownload != MuleConstants.UNLIMITED * 1024 && DataRate > 1500)
             {
-                downspeed = (uint)((maxDownload * 100) / (datarate + 1));
+                downspeed = (uint)((maxDownload * 100) / (DataRate + 1));
                 if (downspeed < 50)
                     downspeed = 50;
                 else if (downspeed > 200)
                     downspeed = 200;
             }
 
-            while (avarage_dr_list.Count > 0 &&
-                (MpdUtilities.GetTickCount() - avarage_dr_list[0].timestamp > 10 * 1000))
+            while (avarage_dr_list_.Count > 0 &&
+                (MpdUtilities.GetTickCount() - avarage_dr_list_[0].timestamp > 10 * 1000))
             {
-                m_datarateMS -= avarage_dr_list[0].datalen;
-                avarage_dr_list.RemoveAt(0);
+                datarateMS_ -= avarage_dr_list_[0].datalen;
+                avarage_dr_list_.RemoveAt(0);
             }
 
-            if (avarage_dr_list.Count > 1)
+            if (avarage_dr_list_.Count > 1)
             {
-                datarate = (uint)(m_datarateMS / (ulong)avarage_dr_list.Count);
+                DataRate = (uint)(datarateMS_ / (ulong)avarage_dr_list_.Count);
             }
             else
             {
-                datarate = 0;
+                DataRate = 0;
             }
 
             uint datarateX = 0;
-            udcounter++;
+            udcounter_++;
 
             MuleApplication.Instance.Statistics.GlobalDone = 0;
             MuleApplication.Instance.Statistics.GlobalSize = 0;
             MuleApplication.Instance.Statistics.OverallStatus = 0;
-            //filelist is already sorted by prio, therefore I removed all the extra loops..
-            foreach (PartFile cur_file in filelist)
+            //filelist is already sorted by prio, therefore I removed all the extra loops.
+            foreach (PartFile cur_file in filelist_)
             {
                 // maintain global download stats
                 MuleApplication.Instance.Statistics.GlobalDone += (ulong)cur_file.CompletedSize;
@@ -137,39 +132,39 @@ namespace Mule.Core.Impl
                 if (cur_file.Status == PartFileStatusEnum.PS_READY ||
                     cur_file.Status == PartFileStatusEnum.PS_EMPTY)
                 {
-                    datarateX += cur_file.Process(downspeed, udcounter);
+                    datarateX += cur_file.Process(downspeed, udcounter_);
                 }
                 else
                 {
-                    //This will make sure we don't keep old sources to paused and stoped files..
+                    //This will make sure we don't keep old sources to paused and stoped files.
                     cur_file.StopPausedFile();
                 }
             }
 
             TransferredData newitem = new TransferredData(datarateX, MpdUtilities.GetTickCount());
-            avarage_dr_list.Add(newitem);
-            m_datarateMS += datarateX;
+            avarage_dr_list_.Add(newitem);
+            datarateMS_ += datarateX;
 
-            if (udcounter == 5)
+            if (udcounter_ == 5)
             {
                 if (MuleApplication.Instance.ServerConnect.IsUDPSocketAvailable)
                 {
-                    if ((lastudpstattime == 0) ||
-                        (MpdUtilities.GetTickCount() - lastudpstattime) > MuleConstants.UDPSERVERSTATTIME)
+                    if ((lastudpstattime_ == 0) ||
+                        (MpdUtilities.GetTickCount() - lastudpstattime_) > MuleConstants.UDPSERVERSTATTIME)
                     {
-                        lastudpstattime = MpdUtilities.GetTickCount();
+                        lastudpstattime_ = MpdUtilities.GetTickCount();
                         MuleApplication.Instance.ServerList.ServerStats();
                     }
                 }
             }
 
-            if (udcounter == 10)
+            if (udcounter_ == 10)
             {
-                udcounter = 0;
+                udcounter_ = 0;
                 if (MuleApplication.Instance.ServerConnect.IsUDPSocketAvailable)
                 {
-                    if ((lastudpsearchtime == 0) ||
-                        (MpdUtilities.GetTickCount() - lastudpsearchtime) > MuleConstants.UDPSERVERREASKTIME)
+                    if ((lastudpsearchtime_ == 0) ||
+                        (MpdUtilities.GetTickCount() - lastudpsearchtime_) > MuleConstants.UDPSERVERREASKTIME)
                         SendNextUDPPacket();
                 }
             }
@@ -177,10 +172,10 @@ namespace Mule.Core.Impl
             CheckDiskspaceTimed();
 
             // ZZ:DownloadManager -.
-            if ((m_dwLastA4AFtime == 0) || (MpdUtilities.GetTickCount() - m_dwLastA4AFtime) > MuleConstants.ONE_MIN_MS * 8)
+            if ((lastA4AFtime_ == 0) || (MpdUtilities.GetTickCount() - lastA4AFtime_) > MuleConstants.ONE_MIN_MS * 8)
             {
                 MuleApplication.Instance.ClientList.ProcessA4AFClients();
-                m_dwLastA4AFtime = MpdUtilities.GetTickCount();
+                lastA4AFtime_ = MpdUtilities.GetTickCount();
             }
             // <-- ZZ:DownloadManager
         }
@@ -226,7 +221,7 @@ namespace Mule.Core.Impl
                     if (eResult == PartFileLoadResultEnum.PLR_LOADSUCCESS)
                     {
                         count++;
-                        filelist.Add(toadd);			// to downloadqueue
+                        filelist_.Add(toadd);			// to downloadqueue
                         if (toadd.GetStatus(true) == PartFileStatusEnum.PS_READY)
                             MuleApplication.Instance.SharedFiles.SafeAddKFile(toadd); // part files are always shared files
                     }
@@ -246,7 +241,7 @@ namespace Mule.Core.Impl
                     {
                         toadd.SavePartFile(true); // resave backup, don't overwrite existing bak files yet
                         count++;
-                        filelist.Add(toadd);			// to downloadqueue
+                        filelist_.Add(toadd);			// to downloadqueue
                         if (toadd.GetStatus(true) == PartFileStatusEnum.PS_READY)
                             MuleApplication.Instance.SharedFiles.SafeAddKFile(toadd); // part files are always shared files
                     }
@@ -265,7 +260,7 @@ namespace Mule.Core.Impl
 
         public void AddPartFilesToShare()
         {
-            filelist.ForEach(cur =>
+            filelist_.ForEach(cur =>
                 {
                     if (cur.GetStatus(true) == PartFileStatusEnum.PS_READY)
                         MuleApplication.Instance.SharedFiles.SafeAddKFile(cur, true);
@@ -281,7 +276,7 @@ namespace Mule.Core.Impl
 
             SetAutoCat(newfile);// HoaX_69 / Slugfiller: AutoCat
 
-            filelist.Add(newfile);
+            filelist_.Add(newfile);
             SortByPriority();
             CheckDiskspace();
             ExportPartMetFilesOverview();
@@ -437,11 +432,11 @@ namespace Mule.Core.Impl
         {
             RemoveLocalServerRequest(toremove);
 
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 if (toremove == cur_file)
                 {
-                    filelist.Remove(cur_file);
+                    filelist_.Remove(cur_file);
                     break;
                 }
             }
@@ -453,7 +448,7 @@ namespace Mule.Core.Impl
 
         public void DeleteAll()
         {
-            filelist.ForEach(cur_file =>
+            filelist_.ForEach(cur_file =>
             {
                 cur_file.SourceList.Clear();
                 // Barry - Should also remove all requested blocks
@@ -465,17 +460,36 @@ namespace Mule.Core.Impl
 
         public int FileCount
         {
-            get { throw new NotImplementedException(); }
+            get { return filelist_.Count; }
         }
 
         public uint DownloadingFileCount
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                uint result = 0;
+                foreach (PartFile cur_file in filelist_)
+                {
+                    if (cur_file.Status == PartFileStatusEnum.PS_READY ||
+                        cur_file.Status == PartFileStatusEnum.PS_EMPTY)
+                        result++;
+                }
+                return result;
+            }
         }
 
         public uint PausedFileCount
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                uint result = 0;
+                foreach (PartFile cur_file in filelist_)
+                {
+                    if (cur_file.Status == PartFileStatusEnum.PS_PAUSED)
+                        result++;
+                }
+                return result;
+            }
         }
 
         public bool IsFileExisting(byte[] fileid)
@@ -499,7 +513,7 @@ namespace Mule.Core.Impl
 
         public bool IsPartFile(KnownFile file)
         {
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
                 if (cur_file == file)
                     return true;
 
@@ -508,7 +522,7 @@ namespace Mule.Core.Impl
 
         public PartFile GetFileByID(byte[] filehash)
         {
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 if (MpdUtilities.Md4Cmp(filehash, cur_file.FileHash) == 0)
                     return cur_file;
@@ -518,15 +532,15 @@ namespace Mule.Core.Impl
 
         public PartFile GetFileByIndex(int index)
         {
-            if (index < filelist.Count && index >= 0)
-                return filelist[index];
+            if (index < filelist_.Count && index >= 0)
+                return filelist_[index];
 
             return null;
         }
 
         public PartFile GetFileByKadFileSearchID(uint id)
         {
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 if (id == cur_file.KadFileSearchID)
                     return cur_file;
@@ -558,7 +572,7 @@ namespace Mule.Core.Impl
             if (cat != -1)
             {
                 // try to find in specified category
-                foreach (PartFile cur_file in filelist)
+                foreach (PartFile cur_file in filelist_)
                 {
                     if (cur_file.Status == PartFileStatusEnum.PS_PAUSED &&
                         (
@@ -579,7 +593,7 @@ namespace Mule.Core.Impl
 
             if (cat == -1 || pfile == null && force)
             {
-                foreach (PartFile cur_file in filelist)
+                foreach (PartFile cur_file in filelist_)
                 {
                     if (cur_file.Status == PartFileStatusEnum.PS_PAUSED &&
                         cur_file.RightFileHasHigherPrio(pfile, cur_file))
@@ -594,12 +608,15 @@ namespace Mule.Core.Impl
 
         public void RefilterAllComments()
         {
-            throw new NotImplementedException();
+            filelist_.ForEach(cur_file =>
+            {
+                cur_file.RefilterFileComments();
+            });
         }
 
         public UpDownClient GetDownloadClientByIP(uint dwIP)
         {
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 foreach (UpDownClient cur_client in cur_file.SourceList)
                 {
@@ -624,7 +641,7 @@ namespace Mule.Core.Impl
             UpDownClient pMatchingIPClient = null;
             uint cMatches = 0;
 
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 foreach (UpDownClient cur_client in cur_file.SourceList)
                 {
@@ -650,7 +667,7 @@ namespace Mule.Core.Impl
 
         public bool IsInList(UpDownClient client)
         {
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 foreach (UpDownClient cur_client in cur_file.SourceList)
                 {
@@ -697,7 +714,7 @@ namespace Mule.Core.Impl
             // "Filter LAN IPs" and/or "IPfilter" is not required here, because it was already done in parent functions
 
             // uses this only for temp. clients
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 foreach (UpDownClient cur_client in cur_file.SourceList)
                 {
@@ -761,8 +778,8 @@ namespace Mule.Core.Impl
                 sender.DeadSourceList.IsDeadSource(source))
             {
                 //if (MuleApplication.Instance.Preference.GetLogFilteredIPs())
-                //	AddDebugLogLine(DLP_DEFAULT, false, _T("Rejected source because it was found on the DeadSourcesList (%s) for file %s : %s")
-                //	,sender.m_DeadSourceList.IsDeadSource(source)? _T("Local") : _T("Global"), sender.GetFileName(), source.DbgGetClientInfo() );
+                //	AddDebugLogLine(DLP_DEFAULT, false, ("Rejected source because it was found on the DeadSourcesList (%s) for file %s : %s")
+                //	,sender.m_DeadSourceList.IsDeadSource(source)? ("Local") : ("Global"), sender.GetFileName(), source.DbgGetClientInfo() );
                 return false;
             }
 
@@ -788,13 +805,13 @@ namespace Mule.Core.Impl
                 if (!MpdUtilities.IsGoodIP(nClientIP))
                 { // check for 0-IP, localhost and LAN addresses
                     //if (MuleApplication.Instance.Preference.GetLogFilteredIPs())
-                    //	AddDebugLogLine(false, _T("Ignored already known source with IP=%s"), ipstr(nClientIP));
+                    //	AddDebugLogLine(false, ("Ignored already known source with IP=%s"), ipstr(nClientIP));
                     return false;
                 }
             }
 
             // use this for client which are already know (downloading for example)
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 if (cur_file.SourceList.Contains(source))
                 {
@@ -826,7 +843,7 @@ namespace Mule.Core.Impl
         public bool RemoveSource(UpDownClient toremove, bool bDoStatsUpdate)
         {
             bool bRemovedSrcFromPartFile = false;
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 foreach (UpDownClient src in cur_file.SourceList)
                 {
@@ -891,7 +908,7 @@ namespace Mule.Core.Impl
 
         public void GetDownloadSourcesStats(DownloadStatsStruct results)
         {
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 results.a[0] += (int)cur_file.SourceCount;
                 results.a[1] += (int)cur_file.TransferringSrcCount;
@@ -921,39 +938,59 @@ namespace Mule.Core.Impl
             }
         }
 
-        public int GetDownloadFilesStats(ref ulong ui64TotalFileSize, ref ulong ui64TotalLeftToTransfer, ref ulong ui64TotalAdditionalNeededSpace)
+        public int GetDownloadFilesStats(ref ulong ui64TotalFileSize,
+            ref ulong ui64TotalLeftToTransfer, ref ulong ui64TotalAdditionalNeededSpace)
         {
-            throw new NotImplementedException();
+            int iActiveFiles = 0;
+            foreach (PartFile cur_file in filelist_)
+            {
+                if (cur_file.Status == PartFileStatusEnum.PS_READY ||
+                    cur_file.Status == PartFileStatusEnum.PS_EMPTY)
+                {
+                    ulong ui64LeftToTransfer = 0;
+                    ulong ui64AdditionalNeededSpace = 0;
+                    cur_file.GetLeftToTransferAndAdditionalNeededSpace(ref ui64LeftToTransfer,
+                        ref ui64AdditionalNeededSpace);
+                    ui64TotalFileSize += cur_file.FileSize;
+                    ui64TotalLeftToTransfer += ui64LeftToTransfer;
+                    ui64TotalAdditionalNeededSpace += ui64AdditionalNeededSpace;
+                    iActiveFiles++;
+                }
+            }
+            return iActiveFiles;
         }
 
-        public uint Datarate
+        public uint DataRate
         {
-            get { throw new NotImplementedException(); }
+            get;
+            private set;
         }
 
         public void AddUDPFileReasks()
         {
-            throw new NotImplementedException();
+            UDPFileReasks++;
         }
 
         public uint UDPFileReasks
         {
-            get { throw new NotImplementedException(); }
+            get;
+            private set;
         }
 
         public void AddFailedUDPFileReasks()
         {
-            throw new NotImplementedException();
+            FailedUDPFileReasks++;
         }
 
         public uint FailedUDPFileReasks
         {
-            get { throw new NotImplementedException(); }
+            get;
+            private set;
         }
 
-        public void ResetCatParts(uint cat)
+        public void ResetCatParts(int cat)
         {
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 if (cur_file.Category == cat)
                     cur_file.Category = 0;
@@ -962,9 +999,9 @@ namespace Mule.Core.Impl
             }
         }
 
-        public void SetCatPrio(uint cat, byte newprio)
+        public void SetCatPrio(int cat, byte newprio)
         {
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 if (cat == 0 || cur_file.Category == cat)
                     if (newprio == (byte)PriorityEnum.PR_AUTO)
@@ -983,9 +1020,9 @@ namespace Mule.Core.Impl
             MuleApplication.Instance.DownloadQueue.CheckDiskspaceTimed();
         }
 
-        public void RemoveAutoPrioInCat(uint cat, byte newprio)
+        public void RemoveAutoPrioInCat(int cat, byte newprio)
         {
-            foreach (PartFile cur_file in filelist)
+            foreach (PartFile cur_file in filelist_)
             {
                 if (cur_file.IsAutoDownPriority && (cat == 0 || cur_file.Category == cat))
                 {
@@ -998,117 +1035,312 @@ namespace Mule.Core.Impl
             MuleApplication.Instance.DownloadQueue.CheckDiskspaceTimed();
         }
 
-        public void SetCatStatus(uint cat, int newstatus)
+        public void SetCatStatus(int cat, int newstatus)
         {
-            //bool reset = false;
-            //bool resort = false;
+            bool reset = false;
+            bool resort = false;
 
-            //POSITION pos = filelist.GetHeadPosition();
-            //while (pos != 0)
-            //{
-            //    CPartFile* cur_file = filelist.GetAt(pos);
-            //    if (!cur_file)
-            //        continue;
+            List<PartFile>.Enumerator it = filelist_.GetEnumerator();
+            while (it.MoveNext())
+            {
+                PartFile cur_file = it.Current;
+                if (cur_file == null)
+                    continue;
 
-            //    if (cat == -1 ||
-            //        (cat == -2 && cur_file->GetCategory() == 0) ||
-            //        (cat == 0 && cur_file->CheckShowItemInGivenCat(cat)) ||
-            //        (cat > 0 && cat == cur_file->GetCategory()))
-            //    {
-            //        switch (newstatus)
-            //        {
-            //            case MP_CANCEL:
-            //                cur_file->DeleteFile();
-            //                reset = true;
-            //                break;
-            //            case MP_PAUSE:
-            //                cur_file->PauseFile(false, false);
-            //                resort = true;
-            //                break;
-            //            case MP_STOP:
-            //                cur_file->StopFile(false, false);
-            //                resort = true;
-            //                break;
-            //            case MP_RESUME:
-            //                if (cur_file->CanResumeFile())
-            //                {
-            //                    if (cur_file->GetStatus() == PS_INSUFFICIENT)
-            //                        cur_file->ResumeFileInsufficient();
-            //                    else
-            //                    {
-            //                        cur_file->ResumeFile(false);
-            //                        resort = true;
-            //                    }
-            //                }
-            //                break;
-            //        }
-            //    }
-            //    filelist.GetNext(pos);
-            //    if (reset)
-            //    {
-            //        reset = false;
-            //        pos = filelist.GetHeadPosition();
-            //    }
-            //}
+                if (cat == -1 ||
+                    (cat == -2 && cur_file.Category == 0) ||
+                    (cat == 0 && cur_file.CheckShowItemInGivenCat(cat)) ||
+                    (cat > 0 && cat == cur_file.Category))
+                {
+                    switch ((CategoryStatusEnum)newstatus)
+                    {
+                        case CategoryStatusEnum.MP_CANCEL:
+                            cur_file.DeleteFile();
+                            reset = true;
+                            break;
+                        case CategoryStatusEnum.MP_PAUSE:
+                            cur_file.PauseFile(false, false);
+                            resort = true;
+                            break;
+                        case CategoryStatusEnum.MP_STOP:
+                            cur_file.StopFile(false, false);
+                            resort = true;
+                            break;
+                        case CategoryStatusEnum.MP_RESUME:
+                            if (cur_file.CanResumeFile)
+                            {
+                                if (cur_file.Status == PartFileStatusEnum.PS_INSUFFICIENT)
+                                    cur_file.ResumeFileInsufficient();
+                                else
+                                {
+                                    cur_file.ResumeFile(false);
+                                    resort = true;
+                                }
+                            }
+                            break;
+                    }
+                }
 
-            //if (resort)
-            //{
-            //    theApp.downloadqueue->SortByPriority();
-            //    theApp.downloadqueue->CheckDiskspace();
-            //}
+                if (reset)
+                {
+                    reset = false;
+                    it = filelist_.GetEnumerator();
+                }
+            }
+
+            if (resort)
+            {
+                MuleApplication.Instance.DownloadQueue.SortByPriority();
+                MuleApplication.Instance.DownloadQueue.CheckDiskspace();
+            }
         }
 
         public void MoveCat(uint from, uint to)
         {
-            throw new NotImplementedException();
+            if (from < to)
+                --to;
+
+            List<PartFile>.Enumerator it = filelist_.GetEnumerator();
+            while (it.MoveNext())
+            {
+                PartFile cur_file = it.Current;
+                if (cur_file == null)
+                    continue;
+
+                uint mycat = cur_file.Category;
+                if ((mycat >= Math.Min(from, to) && mycat <= Math.Max(from, to)))
+                {
+                    //if ((from<to && (mycat<from || mycat>to)) || (from>to && (mycat>from || mycat<to)) )	continue; //not affected
+
+                    if (mycat == from)
+                        cur_file.Category = to;
+                    else
+                    {
+                        if (from < to)
+                            cur_file.Category = mycat - 1;
+                        else
+                            cur_file.Category = mycat + 1;
+                    }
+                }
+            }
         }
 
         public void SetAutoCat(PartFile newfile)
         {
-            throw new NotImplementedException();
+            if (MuleApplication.Instance.Preference.CategoryCount == 1)
+                return;
+            string catExt;
+
+            for (int ix = 1; ix < MuleApplication.Instance.Preference.CategoryCount; ix++)
+            {
+                catExt = MuleApplication.Instance.Preference.GetCategory(ix).AutoCategory;
+                if (string.IsNullOrEmpty(catExt))
+                    continue;
+
+                if (!MuleApplication.Instance.Preference.GetCategory(ix).ac_regexpeval)
+                {
+                    // simple string comparison
+
+                    catExt.ToLower();
+
+                    string fullname = newfile.FileName;
+                    fullname.ToLower();
+                    string[] cmpExts = catExt.Split('|');
+
+                    foreach (string cmpExt in cmpExts)
+                    {
+                        if (!string.IsNullOrEmpty(cmpExt))
+                        {
+                            // HoaX_69: Allow wildcards in autocat string
+                            //  thanks to: bluecow, khaos and SlugFiller
+                            if (cmpExt.IndexOf("*") != -1 || cmpExt.IndexOf("?") != -1)
+                            {
+                                // Use wildcards
+                                if (MpdUtilities.PathMatchSpec(fullname, cmpExt))
+                                {
+                                    newfile.Category = (uint)ix;
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                if (fullname.IndexOf(cmpExt) != -1)
+                                {
+                                    newfile.Category = (uint)ix;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // regular expression evaluation
+                    if (MpdUtilities.RegularExpressionMatch(catExt, newfile.FileName))
+                        newfile.Category = (uint)ix;
+                }
+            }
         }
 
         public void SendLocalSrcRequest(PartFile sender)
         {
-            throw new NotImplementedException();
+            if (localServerReqQueue_.Contains(sender))
+                return;
+            localServerReqQueue_.Add(sender);
         }
 
         public void RemoveLocalServerRequest(PartFile pFile)
         {
-            throw new NotImplementedException();
+            int pos = 0;
+
+            while (pos < localServerReqQueue_.Count)
+            {
+                if (localServerReqQueue_[pos] == pFile)
+                {
+                    localServerReqQueue_.RemoveAt(pos);
+                    pFile.LocalSrcReqQueued = false;
+                    // could 'break' here. fail safe: go through entire list.
+                }
+                else
+                {
+                    pos++;
+                }
+            }
         }
 
         public void ResetLocalServerRequests()
         {
-            throw new NotImplementedException();
+            nextTCPSrcReq_ = 0;
+            localServerReqQueue_.Clear();
+
+            foreach (PartFile pFile in filelist_)
+            {
+                if (pFile.Status == PartFileStatusEnum.PS_READY ||
+                    pFile.Status == PartFileStatusEnum.PS_EMPTY)
+                    pFile.ResumeFile();
+                pFile.LocalSrcReqQueued = false;
+            }
         }
 
         public void SetLastKademliaFileRequest()
         {
-            throw new NotImplementedException();
+            lastkademliafilerequest_ = MpdUtilities.GetTickCount();
         }
 
         public bool DoKademliaFileRequest()
         {
-            throw new NotImplementedException();
+            return ((MpdUtilities.GetTickCount() - lastkademliafilerequest_) > MuleConstants.KADEMLIAASKTIME);
         }
 
-        public void KademliaSearchFile(uint searchID, Mpd.Generic.UInt128 pcontactID, Mpd.Generic.UInt128 pkadID, byte type, uint ip, ushort tcp, ushort udp, uint dwBuddyIP, ushort dwBuddyPort, byte byCryptOptions)
+        public void KademliaSearchFile(uint searchID,
+            Mpd.Generic.UInt128 pcontactID,
+            Mpd.Generic.UInt128 pkadID,
+            byte type, uint ip, ushort tcp,
+            ushort udp, uint dwBuddyIP,
+            ushort dwBuddyPort, byte byCryptOptions)
         {
-            throw new NotImplementedException();
+            //Safty measure to make sure we are looking for these sources
+            PartFile temp = GetFileByKadFileSearchID(searchID);
+            if (temp == null)
+                return;
+            //Do we need more sources?
+            if (!(!temp.IsStopped && temp.MaxSources > temp.SourceCount))
+                return;
+
+            uint ED2Kip = (uint)IPAddress.NetworkToHostOrder(ip);
+            if (MuleApplication.Instance.IPFilter.IsFiltered(ED2Kip))
+            {
+                return;
+            }
+            if ((ip == MuleApplication.Instance.KadEngine.IPAddress ||
+                ED2Kip == MuleApplication.Instance.ServerConnect.ClientID) &&
+                tcp == MuleApplication.Instance.Preference.Port)
+                return;
+            UpDownClient ctemp = null;
+            //DEBUG_ONLY( DebugLog(("Kadsource received, type %u, IP %s"), type, ipstr(ED2Kip)) );
+            switch (type)
+            {
+                case 4:
+                case 1:
+                    {
+                        //NonFirewalled users
+                        if (tcp == 0)
+                        {
+                            return;
+                        }
+                        ctemp = MuleApplication.Instance.CoreObjectManager.CreateUpDownClient(temp, tcp, ip, 0, 0, false);
+                        ctemp.SourceFrom = SourceFromEnum.SF_KADEMLIA;
+                        // not actually sent or needed for HighID sources
+                        //ctemp.SetServerIP(serverip);
+                        //ctemp.SetServerPort(serverport);
+                        ctemp.KadPort = udp;
+                        ctemp.UserHash = pcontactID.Bytes;
+                        break;
+                    }
+                case 2:
+                    {
+                        //Don't use this type... Some clients will process it wrong..
+                        break;
+                    }
+                case 5:
+                case 3:
+                    {
+                        //This will be a firewaled client connected to Kad only.
+                        // if we are firewalled ourself, the source is useless to us
+                        if (MuleApplication.Instance.IsFirewalled)
+                            break;
+
+                        //We set the clientID to 1 as a Kad user only has 1 buddy.
+                        ctemp = MuleApplication.Instance.CoreObjectManager.CreateUpDownClient(temp, tcp, 1, 0, 0, false);
+                        //The only reason we set the real IP is for when we get a callback
+                        //from this firewalled source, the compare method will match them.
+                        ctemp.SourceFrom = SourceFromEnum.SF_KADEMLIA;
+                        ctemp.KadPort = udp;
+                        ctemp.UserHash = pcontactID.Bytes;
+                        ctemp.BuddyID = pkadID.Bytes;
+                        ctemp.BuddyIP = dwBuddyIP;
+                        ctemp.BuddyPort = dwBuddyPort;
+                        break;
+                    }
+                case 6:
+                    {
+                        // firewalled source which supports direct udp callback
+                        // if we are firewalled ourself, the source is useless to us
+                        if (MuleApplication.Instance.IsFirewalled)
+                            break;
+
+                        if ((byCryptOptions & 0x08) == 0)
+                        {
+                            break;
+                        }
+                        ctemp = MuleApplication.Instance.CoreObjectManager.CreateUpDownClient(temp, tcp, 1, 0, 0, false);
+                        ctemp.SourceFrom = SourceFromEnum.SF_KADEMLIA;
+                        ctemp.KadPort = udp;
+                        ctemp.IP = ED2Kip; // need to set the Ip address, which cannot be used for TCP but for UDP
+                        ctemp.UserHash = pcontactID.Bytes;
+                        break;
+                    }
+            }
+
+            if (ctemp != null)
+            {
+                // add encryption settings
+                ctemp.SetConnectOptions(byCryptOptions);
+                CheckAndAddSource(temp, ctemp);
+            }
         }
 
         public void StopUDPRequests()
         {
             CurrentUDPServer = null;
-            lastudpsearchtime = MpdUtilities.GetTickCount();
-            lastfile = null;
-            m_iSearchedServers = 0;
+            lastudpsearchtime_ = MpdUtilities.GetTickCount();
+            lastfile_ = null;
+            searchedServers_ = 0;
         }
 
         public void SortByPriority()
         {
-            uint n = (uint)filelist.Count;
+            uint n = (uint)filelist_.Count;
             if (n == 0)
                 return;
             uint i;
@@ -1128,7 +1360,7 @@ namespace Mule.Core.Impl
 
         public void CheckDiskspace(bool bNotEnoughSpaceLeft)
         {
-            lastcheckdiskspacetime = MpdUtilities.GetTickCount();
+            lastcheckdiskspacetime_ = MpdUtilities.GetTickCount();
 
             // sorting the list could be done here, but I prefer to "see" that function call in the calling functions.
             //SortByPriority();
@@ -1138,7 +1370,7 @@ namespace Mule.Core.Impl
             {
                 if (!bNotEnoughSpaceLeft) // avoid worse case, if we already had 'disk full'
                 {
-                    foreach (PartFile cur_file in filelist)
+                    foreach (PartFile cur_file in filelist_)
                     {
                         switch (cur_file.Status)
                         {
@@ -1155,16 +1387,16 @@ namespace Mule.Core.Impl
             }
 
             ulong nTotalAvailableSpaceMain = bNotEnoughSpaceLeft ?
-                0 : MpdUtilities.GetFreeDiskSpaceX(MuleApplication.Instance.Preference.GetTempDir());
+                0 : MpdUtilities.GetFreeDiskSpace(MuleApplication.Instance.Preference.GetTempDir());
 
             // 'bNotEnoughSpaceLeft' - avoid worse case, if we already had 'disk full'
             if (MuleApplication.Instance.Preference.MinFreeDiskSpace == 0)
             {
-                foreach (PartFile cur_file in filelist)
+                foreach (PartFile cur_file in filelist_)
                 {
                     ulong nTotalAvailableSpace = bNotEnoughSpaceLeft ? 0 :
                         ((MuleApplication.Instance.Preference.TempDirCount == 1) ?
-                        nTotalAvailableSpaceMain : MpdUtilities.GetFreeDiskSpaceX(cur_file.TempPath));
+                        nTotalAvailableSpaceMain : MpdUtilities.GetFreeDiskSpace(cur_file.TempPath));
 
                     switch (cur_file.Status)
                     {
@@ -1188,7 +1420,7 @@ namespace Mule.Core.Impl
             }
             else
             {
-                foreach (PartFile cur_file in filelist)
+                foreach (PartFile cur_file in filelist_)
                 {
                     switch (cur_file.Status)
                     {
@@ -1201,7 +1433,7 @@ namespace Mule.Core.Impl
 
                     ulong nTotalAvailableSpace = bNotEnoughSpaceLeft ? 0 :
                         ((MuleApplication.Instance.Preference.TempDirCount == 1) ?
-                        nTotalAvailableSpaceMain : MpdUtilities.GetFreeDiskSpaceX(cur_file.TempPath));
+                        nTotalAvailableSpaceMain : MpdUtilities.GetFreeDiskSpace(cur_file.TempPath));
                     if (nTotalAvailableSpace < MuleApplication.Instance.Preference.MinFreeDiskSpace)
                     {
                         if (cur_file.IsNormalFile)
@@ -1230,19 +1462,84 @@ namespace Mule.Core.Impl
 
         public void CheckDiskspaceTimed()
         {
-            if ((lastcheckdiskspacetime == 0) ||
-                (MpdUtilities.GetTickCount() - lastcheckdiskspacetime) > MuleConstants.DISKSPACERECHECKTIME)
+            if ((lastcheckdiskspacetime_ == 0) ||
+                (MpdUtilities.GetTickCount() - lastcheckdiskspacetime_) > MuleConstants.DISKSPACERECHECKTIME)
                 CheckDiskspace();
         }
 
         public void ExportPartMetFilesOverview()
         {
-            throw new NotImplementedException();
+            string strFileListPath =
+                Path.Combine(MuleApplication.Instance.Preference.GetMuleDirectory(DefaultDirectoryEnum.EMULE_CONFIGDIR),
+                "downloads.txt");
+
+            string strTmpFileListPath =
+                Path.Combine(MuleApplication.Instance.Preference.GetMuleDirectory(DefaultDirectoryEnum.EMULE_CONFIGDIR),
+                    Path.GetFileNameWithoutExtension(strFileListPath) + ".tmp");
+
+            SafeBufferedFile file =
+                MpdObjectManager.CreateSafeBufferedFile(strTmpFileListPath, FileMode.Create, FileAccess.Write, FileShare.Write);
+
+            // write Unicode byte-order mark 0xFEFF
+            file.Write(new byte[] { 0xFE, 0xFF });
+
+            try
+            {
+                file.WriteString(string.Format("Date:      {0}\r\n", DateTime.Now));
+                if (MuleApplication.Instance.Preference.TempDirCount == 1)
+                    file.WriteString(string.Format("Directory: {0}\r\n",
+                        MuleApplication.Instance.Preference.GetTempDir()));
+                file.WriteString(("\r\n"));
+                file.WriteString(("Part file\teD2K link\r\n"));
+                file.WriteString(("--------------------------------------------------------------------------------\r\n"));
+                foreach (PartFile pPartFile in filelist_)
+                {
+                    if (pPartFile.GetStatus(true) != PartFileStatusEnum.PS_COMPLETE)
+                    {
+                        string strPartFilePath = pPartFile.FilePath;
+                        if (MuleApplication.Instance.Preference.TempDirCount == 1)
+                            file.WriteString(string.Format("{0}{1}\t{2}\r\n",
+                                Path.GetFileNameWithoutExtension(strPartFilePath),
+                                Path.GetExtension(strPartFilePath),
+                                MuleApplication.Instance.ED2KObjectManager.CreateED2KLink(pPartFile)));
+                        else
+                            file.WriteString(string.Format("{0}\t{1}\r\n",
+                                pPartFile.FullName,
+                                MuleApplication.Instance.ED2KObjectManager.CreateED2KLink(pPartFile)));
+                    }
+                }
+
+                if (MuleApplication.Instance.Preference.CommitFiles >= 2 ||
+                    (MuleApplication.Instance.Preference.CommitFiles >= 1 && !
+                    MuleApplication.Instance.IsRunning))
+                {
+                    file.Flush(); // flush file stream buffers to disk buffers
+                }
+                file.Close();
+
+                string strBakFileListPath = strFileListPath;
+                Path.Combine(Path.GetDirectoryName(strFileListPath),
+                Path.GetFileNameWithoutExtension(strFileListPath) + ".bak");
+
+                System.IO.File.Delete(strBakFileListPath);
+                System.IO.File.Move(strFileListPath, strBakFileListPath);
+                System.IO.File.Move(strTmpFileListPath, strFileListPath);
+            }
+            catch
+            {
+                file.Abort();
+                System.IO.File.Delete(strTmpFileListPath);
+            }
         }
 
         public void OnConnectionState(bool bConnected)
         {
-            throw new NotImplementedException();
+            foreach (PartFile pPartFile in filelist_)
+            {
+                if (pPartFile.Status == PartFileStatusEnum.PS_READY ||
+                    pPartFile.Status == PartFileStatusEnum.PS_EMPTY)
+                    pPartFile.SetActive(bConnected);
+            }
         }
 
         public void AddToResolved(PartFile pFile, Mule.ED2K.UnresolvedHostname pUH)
@@ -1253,7 +1550,128 @@ namespace Mule.Core.Impl
 
         public string GetOptimalTempDir(uint nCat, ulong nFileSize)
         {
-            throw new NotImplementedException();
+            // shortcut
+            if (MuleApplication.Instance.Preference.TempDirCount == 1)
+                return MuleApplication.Instance.Preference.GetTempDir();
+
+            Dictionary<int, long> mapNeededSpaceOnDrive = new Dictionary<int, long>();
+            Dictionary<int, long> mapFreeSpaceOnDrive = new Dictionary<int, long>();
+
+            long llBuffer = 0;
+            long llHighestFreeSpace = 0;
+            int nHighestFreeSpaceDrive = -1;
+            // first collect the free space on drives
+            for (int i = 0; i < MuleApplication.Instance.Preference.TempDirCount; i++)
+            {
+                int nDriveNumber = MpdUtilities.GetPathDriveNumber(MuleApplication.Instance.Preference.GetTempDir(i));
+                if (mapFreeSpaceOnDrive.ContainsKey(nDriveNumber))
+                    continue;
+                llBuffer = (long)(MpdUtilities.GetFreeDiskSpace(MuleApplication.Instance.Preference.GetTempDir(i)) -
+                    MuleApplication.Instance.Preference.MinFreeDiskSpace);
+                mapFreeSpaceOnDrive[nDriveNumber] = llBuffer;
+                if (llBuffer > llHighestFreeSpace)
+                {
+                    nHighestFreeSpaceDrive = nDriveNumber;
+                    llHighestFreeSpace = llBuffer;
+                }
+
+            }
+
+            // now get the space we would need to download all files in the current queue
+            foreach (PartFile pCurFile in filelist_)
+            {
+                int nDriveNumber = MpdUtilities.GetPathDriveNumber(pCurFile.TempPath);
+
+                long llNeededForCompletion = 0;
+                switch (pCurFile.GetStatus(false))
+                {
+                    case PartFileStatusEnum.PS_READY:
+                        goto case PartFileStatusEnum.PS_INSUFFICIENT;
+                    case PartFileStatusEnum.PS_EMPTY:
+                        goto case PartFileStatusEnum.PS_INSUFFICIENT;
+                    case PartFileStatusEnum.PS_WAITINGFORHASH:
+                        goto case PartFileStatusEnum.PS_INSUFFICIENT;
+                    case PartFileStatusEnum.PS_INSUFFICIENT:
+                        llNeededForCompletion = (long)(pCurFile.FileSize - pCurFile.RealFileSize);
+                        if (llNeededForCompletion < 0)
+                            llNeededForCompletion = 0;
+                        break;
+                }
+                llBuffer =
+                    mapNeededSpaceOnDrive[nDriveNumber];
+                llBuffer += llNeededForCompletion;
+                mapNeededSpaceOnDrive[nDriveNumber] = llBuffer;
+            }
+
+            long llHighestTotalSpace = 0;
+            int nHighestTotalSpaceDir = -1;
+            int nHighestFreeSpaceDir = -1;
+            int nAnyAvailableDir = -1;
+            // first round (0): on same drive as incomming and enough space for all downloading
+            // second round (1): enough space for all downloading
+            // third round (2): most actual free space
+            for (int i = 0; i < MuleApplication.Instance.Preference.TempDirCount; i++)
+            {
+                int nDriveNumber = MpdUtilities.GetPathDriveNumber(MuleApplication.Instance.Preference.GetTempDir(i));
+                llBuffer = 0;
+
+                long llAvailableSpace =
+                    mapFreeSpaceOnDrive[nDriveNumber];
+                llBuffer =
+                    mapNeededSpaceOnDrive[nDriveNumber];
+                llAvailableSpace -= llBuffer;
+
+                // no condition can be met for a large file on a FAT volume
+                if (nFileSize <= MuleConstants.OLD_MAX_EMULE_FILE_SIZE ||
+                    !MpdUtilities.IsFileOnFATVolume(MuleApplication.Instance.Preference.GetTempDir(i)))
+                {
+                    // condition 0
+                    // needs to be same drive and enough space
+                    if (MpdUtilities.GetPathDriveNumber(MuleApplication.Instance.Preference.GetCatPath(nCat)) == nDriveNumber &&
+                        llAvailableSpace > (long)nFileSize)
+                    {
+                        //this one is perfect
+                        return MuleApplication.Instance.Preference.GetTempDir(i);
+                    }
+                    // condition 1
+                    // needs to have enough space for downloading
+                    if (llAvailableSpace > (long)nFileSize && llAvailableSpace > llHighestTotalSpace)
+                    {
+                        llHighestTotalSpace = llAvailableSpace;
+                        nHighestTotalSpaceDir = i;
+                    }
+                    // condition 2
+                    // first one which has the highest actualy free space
+                    if (nDriveNumber == nHighestFreeSpaceDrive && nHighestFreeSpaceDir == (-1))
+                    {
+                        nHighestFreeSpaceDir = i;
+                    }
+                    // condition 3
+                    // any directory which can be used for this file (ak not FAT for large files)
+                    if (nAnyAvailableDir == (-1))
+                    {
+                        nAnyAvailableDir = i;
+                    }
+                }
+            }
+
+            if (nHighestTotalSpaceDir != (-1))
+            {	 //condtion 0 was apperently too much, take 1
+                return MuleApplication.Instance.Preference.GetTempDir(nHighestTotalSpaceDir);
+            }
+            else if (nHighestFreeSpaceDir != (-1))
+            { // condtion 1 could not be met too, take 2
+                return MuleApplication.Instance.Preference.GetTempDir(nHighestFreeSpaceDir);
+            }
+            else if (nAnyAvailableDir != (-1))
+            {
+                return MuleApplication.Instance.Preference.GetTempDir(nAnyAvailableDir);
+            }
+            else
+            { // so was condtion 2 and 3, take 4.. wait there is no 3 - this must be a bug
+                Debug.Assert(false);
+                return MuleApplication.Instance.Preference.GetTempDir();
+            }
         }
 
         public Mule.ED2K.ED2KServer CurrentUDPServer
@@ -1267,7 +1685,7 @@ namespace Mule.Core.Impl
         #region Protected
         protected bool SendNextUDPPacket()
         {
-            if (filelist.Count == 0
+            if (filelist_.Count == 0
                 || !MuleApplication.Instance.ServerConnect.IsUDPSocketAvailable
                 || !MuleApplication.Instance.ServerConnect.IsConnected
                 || MuleApplication.Instance.Preference.IsClientCryptLayerRequired) // we cannot use sources received without userhash, so dont ask
@@ -1294,7 +1712,7 @@ namespace Mule.Core.Impl
                     StopUDPRequests();
                     return false;
                 }
-                m_cRequestsSentToServer = 0;
+                requestsSentToServer_ = 0;
             }
 
             bool bGetSources2Packet = (CurrentUDPServer.UDPFlags & ED2KServerUdpFlagsEnum.SRV_UDPFLG_EXT_GETSOURCES2) > 0;
@@ -1315,25 +1733,25 @@ namespace Mule.Core.Impl
                     (nextfile.Status == PartFileStatusEnum.PS_READY ||
                     nextfile.Status == PartFileStatusEnum.PS_EMPTY)))
                 {
-                    if (lastfile == null) // we just started the global source searching or have switched the server
+                    if (lastfile_ == null) // we just started the global source searching or have switched the server
                     {
                         // get first file to search sources for
-                        nextfile = filelist[0];
-                        lastfile = nextfile;
+                        nextfile = filelist_[0];
+                        lastfile_ = nextfile;
                     }
                     else
                     {
-                        int pos = filelist.IndexOf(lastfile);
+                        int pos = filelist_.IndexOf(lastfile_);
                         if (pos == 0) // the last file is no longer in the DL-list (may have been finished or canceld)
                         {
                             // get first file to search sources for
-                            nextfile = filelist[0];
-                            lastfile = nextfile;
+                            nextfile = filelist_[0];
+                            lastfile_ = nextfile;
                         }
                         else
                         {
                             pos++;
-                            if (pos >= filelist.Count) // finished asking the current server for all files
+                            if (pos >= filelist_.Count) // finished asking the current server for all files
                             {
                                 // if there are pending requests for the current server, send them
                                 if (dataGlobGetSources.Length > 0)
@@ -1355,19 +1773,19 @@ namespace Mule.Core.Impl
                                         continue;
                                     break;
                                 }
-                                m_cRequestsSentToServer = 0;
+                                requestsSentToServer_ = 0;
                                 if (CurrentUDPServer == null)
                                 {
                                     // finished asking all servers for all files
                                     StopUDPRequests();
                                     return false; // finished (processed all file & all servers)
                                 }
-                                m_iSearchedServers++;
+                                searchedServers_++;
 
                                 // if we already sent a packet, switch to the next file at next function call
                                 if (bSentPacket)
                                 {
-                                    lastfile = null;
+                                    lastfile_ = null;
                                     break;
                                 }
 
@@ -1375,13 +1793,13 @@ namespace Mule.Core.Impl
                                 bServerSupportsLargeFiles = CurrentUDPServer.DoesSupportsLargeFilesUDP;
 
                                 // have selected a new server; get first file to search sources for
-                                nextfile = filelist[0];
-                                lastfile = nextfile;
+                                nextfile = filelist_[0];
+                                lastfile_ = nextfile;
                             }
                             else
                             {
-                                nextfile = filelist[pos];
-                                lastfile = nextfile;
+                                nextfile = filelist_[pos];
+                                lastfile_ = nextfile;
                             }
                         }
                     }
@@ -1422,16 +1840,16 @@ namespace Mule.Core.Impl
 
             // send max 35 UDP request to one server per interval
             // if we have more than 35 files, we rotate the list and use it as queue
-            if (m_cRequestsSentToServer >= MAX_REQUESTS_PER_SERVER)
+            if (requestsSentToServer_ >= MAX_REQUESTS_PER_SERVER)
             {
                 // move the last 35 files to the head
-                if (filelist.Count >= MAX_REQUESTS_PER_SERVER)
+                if (filelist_.Count >= MAX_REQUESTS_PER_SERVER)
                 {
                     for (int i = 0; i != MAX_REQUESTS_PER_SERVER; i++)
                     {
-                        PartFile f = filelist[filelist.Count - 1];
-                        filelist.Remove(f);
-                        filelist.Insert(0, f);
+                        PartFile f = filelist_[filelist_.Count - 1];
+                        filelist_.Remove(f);
+                        filelist_.Insert(0, f);
                     }
                 }
 
@@ -1444,14 +1862,14 @@ namespace Mule.Core.Impl
                         continue;
                     break;
                 }
-                m_cRequestsSentToServer = 0;
+                requestsSentToServer_ = 0;
                 if (CurrentUDPServer == null)
                 {
                     StopUDPRequests();
                     return false; // finished (processed all file & all servers)
                 }
-                m_iSearchedServers++;
-                lastfile = null;
+                searchedServers_++;
+                lastfile_ = null;
             }
 
             return true;
@@ -1459,7 +1877,106 @@ namespace Mule.Core.Impl
 
         protected void ProcessLocalRequests()
         {
-            throw new Exception();
+            if ((localServerReqQueue_.Count > 0) && (nextTCPSrcReq_ < MpdUtilities.GetTickCount()))
+            {
+                SafeMemFile dataTcpFrame = MpdObjectManager.CreateSafeMemFile(22);
+                int iMaxFilesPerTcpFrame = 15;
+                int iFiles = 0;
+                while (localServerReqQueue_.Count > 0 && iFiles < iMaxFilesPerTcpFrame)
+                {
+                    // find the file with the longest waitingtime
+                    int pos = 0;
+                    uint dwBestWaitTime = 0xFFFFFFFF;
+                    int posNextRequest = -1;
+                    PartFile cur_file;
+                    while (pos < localServerReqQueue_.Count)
+                    {
+                        cur_file = localServerReqQueue_[pos];
+                        if (cur_file.Status == PartFileStatusEnum.PS_READY ||
+                            cur_file.Status == PartFileStatusEnum.PS_EMPTY)
+                        {
+                            PriorityEnum nPriority = cur_file.DownPriority;
+                            if (nPriority > PriorityEnum.PR_HIGH)
+                            {
+                                Debug.Assert(false);
+                                nPriority = PriorityEnum.PR_HIGH;
+                            }
+
+                            if (cur_file.LastSearchTime + (PriorityEnum.PR_HIGH - nPriority) < dwBestWaitTime)
+                            {
+                                dwBestWaitTime = (uint)(cur_file.LastSearchTime + (PriorityEnum.PR_HIGH - nPriority));
+                                posNextRequest = pos;
+                            }
+
+                            pos++;
+                        }
+                        else
+                        {
+                            localServerReqQueue_.RemoveAt(pos);
+                            cur_file.LocalSrcReqQueued = false;
+                        }
+                    }
+
+                    if (posNextRequest != -1)
+                    {
+                        cur_file = localServerReqQueue_[posNextRequest];
+                        cur_file.LocalSrcReqQueued = false;
+                        cur_file.LastSearchTime = MpdUtilities.GetTickCount();
+                        localServerReqQueue_.RemoveAt(posNextRequest);
+
+                        if (cur_file.IsLargeFile &&
+                            (MuleApplication.Instance.ServerConnect.CurrentServer == null ||
+                            !MuleApplication.Instance.ServerConnect.CurrentServer.DoesSupportsLargeFilesTCP))
+                        {
+                            Debug.Assert(false);
+                            continue;
+                        }
+
+                        iFiles++;
+
+                        // create request packet
+                        SafeMemFile smPacket = MpdObjectManager.CreateSafeMemFile();
+                        smPacket.WriteHash16(cur_file.FileHash);
+                        if (!cur_file.IsLargeFile)
+                        {
+                            smPacket.WriteUInt32((uint)cur_file.FileSize);
+                        }
+                        else
+                        {
+                            smPacket.WriteUInt32(0); // indicates that this is a large file and a ulong follows
+                            smPacket.WriteUInt64(cur_file.FileSize);
+                        }
+
+                        OperationCodeEnum byOpcode = 0;
+                        if (MuleApplication.Instance.Preference.IsClientCryptLayerSupported &&
+                            MuleApplication.Instance.ServerConnect.CurrentServer != null &&
+                            MuleApplication.Instance.ServerConnect.CurrentServer.DoesSupportsGetSourcesObfuscation)
+                            byOpcode = OperationCodeEnum.OP_GETSOURCES_OBFU;
+                        else
+                            byOpcode = OperationCodeEnum.OP_GETSOURCES;
+
+                        Packet packet = MuleApplication.Instance.NetworkObjectManager.CreatePacket(smPacket,
+                            MuleConstants.OP_EDONKEYPROT, byOpcode);
+                        dataTcpFrame.Write(packet.Packet, 0, (int)packet.RealPacketSize);
+                    }
+                }
+
+                int iSize = (int)dataTcpFrame.Length;
+                if (iSize > 0)
+                {
+                    // create one 'packet' which contains all buffered OP_GETSOURCES eD2K packets to be sent with one TCP frame
+                    // server credits: 16*iMaxFilesPerTcpFrame+1 = 241
+                    Packet packet = MuleApplication.Instance.NetworkObjectManager.CreatePacket(new byte[iSize],
+                        (uint)dataTcpFrame.Length, true, false);
+                    dataTcpFrame.Seek(0, SeekOrigin.Begin);
+                    dataTcpFrame.Read(packet.Packet, 0, iSize);
+                    MuleApplication.Instance.Statistics.AddUpDataOverheadServer(packet.Size);
+                    MuleApplication.Instance.ServerConnect.SendPacket(packet, true);
+                }
+
+                // next TCP frame with up to 15 source requests is allowed to be sent in.
+                nextTCPSrcReq_ = (uint)(MpdUtilities.GetTickCount() + MuleConstants.ONE_SEC_MS * iMaxFilesPerTcpFrame * (16 + 4));
+            }
         }
 
         private const int MAX_UDP_PACKET_DATA = 510;
@@ -1481,7 +1998,7 @@ namespace Mule.Core.Impl
                 int nUsedBytes = (int)(nFiles * nBytesPerNormalFile +
                     nIncludedLargeFiles * ADDITIONAL_BYTES_PER_LARGEFILE);
 
-                return (m_cRequestsSentToServer >= MAX_REQUESTS_PER_SERVER) ||
+                return (requestsSentToServer_ >= MAX_REQUESTS_PER_SERVER) ||
                     (nUsedBytes >= MAX_UDP_PACKET_DATA);
             }
             else
@@ -1511,7 +2028,7 @@ namespace Mule.Core.Impl
                 MuleApplication.Instance.Statistics.AddUpDataOverheadServer(packet.Size);
                 MuleApplication.Instance.ServerConnect.SendUDPPacket(packet, CurrentUDPServer, false);
 
-                m_cRequestsSentToServer += nFiles;
+                requestsSentToServer_ += nFiles;
                 bSentPacket = true;
             }
 
@@ -1522,18 +2039,18 @@ namespace Mule.Core.Impl
         #region Private
         private bool CompareParts(int pos1, int pos2)
         {
-            PartFile file1 = filelist[(pos1)];
-            PartFile file2 = filelist[(pos2)];
+            PartFile file1 = filelist_[(pos1)];
+            PartFile file2 = filelist_[(pos2)];
             return file1.RightFileHasHigherPrio(file1, file2);
         }
 
         private void SwapParts(int pos1, int pos2)
         {
-            PartFile file1 = filelist[(pos1)];
-            PartFile file2 = filelist[(pos2)];
+            PartFile file1 = filelist_[(pos1)];
+            PartFile file2 = filelist_[(pos2)];
 
-            filelist[pos1] = file2;
-            filelist[pos2] = file1;
+            filelist_[pos1] = file2;
+            filelist_[pos2] = file1;
         }
 
         class PartFileComparer : Comparer<PartFile>
@@ -1546,7 +2063,7 @@ namespace Mule.Core.Impl
 
         private void HeapSort(uint first, uint last)
         {
-            MpdUtilities.HeapSort(ref filelist, (int)first, (int)last, new PartFileComparer());
+            MpdUtilities.HeapSort(ref filelist_, (int)first, (int)last, new PartFileComparer());
         }
         #endregion
     }

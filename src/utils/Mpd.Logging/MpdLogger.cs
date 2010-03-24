@@ -23,6 +23,11 @@ namespace Mpd.Logging
             Log(MpdLogLevelEnum.Info, 1, args);
         }
 
+        public static void Log(int ignoreStackFrameCount, params object[] args)
+        {
+            Log(MpdLogLevelEnum.Info, ignoreStackFrameCount + 1, args);
+        }
+
         public static void Log(MpdLogLevelEnum level,
             params object[] args)
         {
@@ -71,14 +76,20 @@ namespace Mpd.Logging
 
             List<Exception> exceptions = new List<Exception>();
 
-            builder.AppendLine("Messages:");
+            StringBuilder b = new StringBuilder();
+            b.AppendLine("Messages:");
 
             foreach (object o in args)
             {
                 if (o is Exception)
                     exceptions.Add(o as Exception);
                 else if (o != null)
-                    builder.AppendFormat("\t{0}", o).AppendLine();
+                    b.AppendFormat("\t{0}", o).AppendLine();
+            }
+
+            if (exceptions.Count < args.Length)
+            {
+                builder.AppendLine(b.ToString());
             }
 
             if (exceptions.Count > 0)
@@ -89,25 +100,40 @@ namespace Mpd.Logging
 
                 foreach (Exception e in exceptions)
                 {
-                    builder.AppendFormat("\tException {0} Begins------------------",i).AppendLine();
-                    BuildExceptionMessage(builder, e);
-                    builder.AppendFormat("\tException {0} Ends--------------------",i++).AppendLine();
+                    if (exceptions.Count > 1)
+                    {
+                        builder.AppendFormat("\tException {0} Begins------------------", i).AppendLine();
+                    }
+
+                    BuildExceptionMessage("\t", builder, e);
+
+                    if (exceptions.Count > 1)
+                    {
+                        builder.AppendFormat("\tException {0} Ends--------------------", i++).AppendLine();
+                    }
+                    builder.AppendLine();
                 }
 
                 builder.AppendLine();
             }
         }
 
-        private static void BuildExceptionMessage(StringBuilder builder, Exception e)
+        private static void BuildExceptionMessage(string prefix, StringBuilder builder, Exception e)
         {
-            builder.AppendFormat("{0}:{1}", e.GetType().FullName, e.Message).AppendLine();
-            builder.AppendFormat("{0}", e.StackTrace).AppendLine();
+            builder.AppendFormat("{2}\t{0}:{1}", e.GetType().FullName, e.Message, prefix).AppendLine();
+
+            if (!string.IsNullOrEmpty(e.StackTrace))
+            {
+                builder.AppendFormat("{0}\tStackTrace:", prefix).AppendLine();
+                builder.AppendFormat("{1}\t{0}", e.StackTrace, prefix).AppendLine();
+            }
 
             if (e.InnerException != null)
             {
-                builder.AppendLine("InnerException Begins ------------------------");
-                BuildExceptionMessage(builder, e.InnerException);
-                builder.AppendLine("InnerException Ends ------------------------");
+                builder.AppendLine();
+                builder.AppendFormat("{0}\tInnerException Begins ------------------------", prefix).AppendLine();
+                BuildExceptionMessage(prefix + "\t", builder, e.InnerException);
+                builder.AppendFormat("{0}\tInnerException Ends ------------------------", prefix).AppendLine();
             }
         }
 

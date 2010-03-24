@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Reflection;
+using Mpd.Logging;
 
 namespace Mpd.Utilities
 {
@@ -456,22 +457,27 @@ namespace Mpd.Utilities
 
         public static void AddDebugLogLine(params object[] args)
         {
+            MpdLogger.Log(MpdLogLevelEnum.Debug, 1, args);
         }
 
         public static void DebugLog(params object[] args)
         {
+            MpdLogger.Log(MpdLogLevelEnum.Debug, 1, args);
         }
 
         public static void DebugLogError(params object[] args)
         {
+            MpdLogger.Log(MpdLogLevelEnum.Error, 1, args);
         }
 
-        public static void DebugLogWarning(params object[] argss)
+        public static void DebugLogWarning(params object[] args)
         {
+            MpdLogger.Log(MpdLogLevelEnum.Warn, 1, args);
         }
 
         public static void QueueDebugLogLine(params object[] args)
         {
+            MpdLogger.Log(MpdLogLevelEnum.Debug, 1, args);
         }
 
         public static bool Compress(byte[] inBuf, uint size, out byte[] output)
@@ -676,6 +682,11 @@ namespace Mpd.Utilities
                     }
                 }
             }
+        }
+
+        public static void QueueLogLine(bool p, string p_2)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1478,7 +1478,8 @@ namespace Mule.Core.Impl
                     Path.GetFileNameWithoutExtension(strFileListPath) + ".tmp");
 
             SafeBufferedFile file =
-                MpdObjectManager.CreateSafeBufferedFile(strTmpFileListPath, FileMode.Create, FileAccess.Write, FileShare.Write);
+                MpdObjectManager.CreateSafeBufferedFile(strTmpFileListPath, 
+                FileMode.Create, FileAccess.ReadWrite, FileShare.Write);
 
             // write Unicode byte-order mark 0xFEFF
             file.Write(new byte[] { 0xFE, 0xFF });

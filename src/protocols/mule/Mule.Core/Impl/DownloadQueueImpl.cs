@@ -310,7 +310,7 @@ namespace Mule.Core.Impl
             }
 
             if (paused == 2)
-                paused = (byte)MuleApplication.Instance.Preference.AddNewFilesPaused();
+                paused = MuleApplication.Instance.Preference.IsAddNewFilesPaused ? (byte)1 : (byte)0;
 
             AddDownload(newfile, (paused == 1));
 
@@ -373,7 +373,7 @@ namespace Mule.Core.Impl
             }
 
             if (paused == 2)
-                paused = (byte)MuleApplication.Instance.Preference.AddNewFilesPaused();
+                paused = (byte)(MuleApplication.Instance.Preference.IsAddNewFilesPaused ? 1 : 0);
             AddDownload(newfile, (paused == 1));
         }
 
@@ -391,7 +391,7 @@ namespace Mule.Core.Impl
             }
             else
             {
-                AddDownload(newfile, MuleApplication.Instance.Preference.AddNewFilesPaused() != 0);
+                AddDownload(newfile, MuleApplication.Instance.Preference.IsAddNewFilesPaused);
             }
 
             PartFile partfile = newfile;
@@ -550,9 +550,9 @@ namespace Mule.Core.Impl
 
         public void StartNextFileIfPrefs(int cat)
         {
-            if (MuleApplication.Instance.Preference.StartNextFile() > 0)
-                StartNextFile((MuleApplication.Instance.Preference.StartNextFile() > 1 ? cat : -1),
-                    (MuleApplication.Instance.Preference.StartNextFile() != 3));
+            if (MuleApplication.Instance.Preference.StartNextFile > 0)
+                StartNextFile((MuleApplication.Instance.Preference.StartNextFile > 1 ? cat : -1),
+                    (MuleApplication.Instance.Preference.StartNextFile != 3));
         }
 
         public void StartNextFile()

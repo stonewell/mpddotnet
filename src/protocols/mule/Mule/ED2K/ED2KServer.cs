@@ -98,7 +98,7 @@ namespace Mule.ED2K
         uint LastDescPingedCount { get; }
         void SetLastDescPingedCount(bool reset);
 
-        bool StaticMember { get; set; }
+        bool IsStaticMember { get; set; }
 
         uint Challenge { get; set; }
         uint DescReqChallenge { get; set; }

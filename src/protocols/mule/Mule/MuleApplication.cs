@@ -93,6 +93,7 @@ namespace Mule
 
         public MulePreference Preference { get; private set; }
         public MuleStatistics Statistics { get; private set; }
+        public ListenSocket ListenSocket { get; private set; }
 
         public int PublicIP { get; private set; }
 

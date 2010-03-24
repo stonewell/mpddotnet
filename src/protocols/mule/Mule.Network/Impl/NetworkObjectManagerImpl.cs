@@ -107,5 +107,15 @@ namespace Mule.Network.Impl
         {
             return new RawPacketImpl(pcData, offset, size, bFromPartFile);
         }
+
+        #region NetworkObjectManager Members
+
+
+        public ServerSocket CreateServerSocket(Mule.Core.ServerConnect serverConnect, bool singleConnect)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

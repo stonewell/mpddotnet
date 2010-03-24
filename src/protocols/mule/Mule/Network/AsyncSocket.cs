@@ -46,7 +46,7 @@ namespace Mule.Network
         
         
         bool Connected { get; }
-        void Connect(string host, int port);
+        bool Connect(string host, uint port);
         
         EndPoint RemoteEndPoint { get; }
 

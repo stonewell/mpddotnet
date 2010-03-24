@@ -102,11 +102,13 @@
     <Compile Include="Network\AsyncSocket.cs" />
     <Compile Include="Network\ClientReqSocket.cs" />
     <Compile Include="Network\EMSocket.cs" />
+    <Compile Include="Network\EncryptedDatagramSocket.cs" />
     <Compile Include="Network\EncryptedStreamSocket.cs" />
     <Compile Include="Network\ListenSocket.cs" />
     <Compile Include="Network\NetworkObjectManager.cs" />
     <Compile Include="Network\ServerSocket.cs" />
     <Compile Include="Network\Packet.cs" />
+    <Compile Include="Network\UDPSocket.cs" />
     <Compile Include="Preference\Category.cs" />
     <Compile Include="Preference\FileComments.cs" />
     <Compile Include="Preference\MulePreference.cs" />

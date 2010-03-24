@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using Mpd.Generic.IO;
+using Mule.Core;
 
 namespace Mule.Network
 {
@@ -45,5 +46,7 @@ namespace Mule.Network
         RawPacket CreateRawPacket(byte[] pcData, int offset, int size);
 
         RawPacket CreateRawPacket(byte[] pcData, int offset, int size, bool bFromPartFile);
+
+        ServerSocket CreateServerSocket(ServerConnect serverConnect, bool singleConnect);
     }
 }

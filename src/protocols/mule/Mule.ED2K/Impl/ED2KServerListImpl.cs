@@ -300,7 +300,7 @@ namespace Mule.ED2K.Impl
             return servers_.IndexOf(pServer);
         }
 
-        public uint ServerPostion
+        public uint ServerPosition
         {
             get
             {
@@ -575,6 +575,11 @@ namespace Mule.ED2K.Impl
                 else if (pServer.DoesSupportsObfuscationUDP && pServer.GetServerKeyUDP(false) != 0)
                     cKeysTotal++;
             }
+        }
+
+        public void GetUserSortedServers()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

@@ -80,8 +80,6 @@ namespace Mule.Network
 
         uint TimeOut { get; set;}
 
-        bool Connect(string lpszHostAddress, uint nHostPort);
-
         void InitProxySupport();
         void RemoveAllLayers();
         string LastProxyError { get; }

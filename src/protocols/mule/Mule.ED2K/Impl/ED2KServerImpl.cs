@@ -51,7 +51,7 @@ namespace Mule.ED2K.Impl
         {
             Port = pOld.Port;
             IP = pOld.IP;
-            StaticMember = pOld.StaticMember;
+            IsStaticMember = pOld.IsStaticMember;
             FileCount = pOld.FileCount;
             UserCount = pOld.UserCount;
             Preference = pOld.Preference;
@@ -89,7 +89,7 @@ namespace Mule.ED2K.Impl
             FailedCount = 0;
             LastPinged = 0;
             LastPingedTime = 0;
-            StaticMember = false;
+            IsStaticMember = false;
             MaxUsers = 0;
             SoftFiles = 0;
             HardFiles = 0;
@@ -243,7 +243,7 @@ namespace Mule.ED2K.Impl
                 LastDescPingedCount++;
         }
 
-        public bool StaticMember
+        public bool IsStaticMember
         {
             get;
             set;

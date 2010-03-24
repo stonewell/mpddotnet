@@ -30,7 +30,7 @@ namespace Mule.ED2K
         ED2KServer GetServerByIPUDP(uint nIP, ushort nUDPPort, bool bObfuscationPorts);
         int GetPositionOfServer(ED2KServer pServer);
 
-        uint ServerPostion { get; set; }
+        uint ServerPosition { get; set; }
 
         void ResetSearchServerPos();
         ED2KServer GetNextSearchServer();
@@ -48,5 +48,7 @@ namespace Mule.ED2K
         bool GiveServersForTraceRoute();
 
         void CheckForExpiredUDPKeys();
+
+        void GetUserSortedServers();
     }
 }

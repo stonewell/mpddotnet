@@ -28,5 +28,7 @@ namespace Mule.Network
 {
     public interface ServerSocket : EMSocket
     {
+        void ConnectTo(Mule.ED2K.ED2KServer toconnect, bool bNoCrypt);
+        bool IsDeleting { get; }
     }
 }

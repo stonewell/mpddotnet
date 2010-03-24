@@ -138,9 +138,11 @@ namespace Mule.Network.Impl
             get { return socket_.Connected; }
         }
 
-        public virtual void Connect(string host, int port)
+        public virtual bool Connect(string host, uint port)
         {
-            socket_.Connect(host, port);
+            socket_.Connect(host,(int) port);
+
+            return Connected;
         }
 
         public virtual EndPoint RemoteEndPoint

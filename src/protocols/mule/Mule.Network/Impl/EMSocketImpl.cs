@@ -288,13 +288,13 @@ namespace Mule.Network.Impl
             get;set;
         }
 
-        public virtual bool Connect(string lpszHostAddress, uint nHostPort)
+        public override bool Connect(string lpszHostAddress, uint nHostPort)
         {
             InitProxySupport();
 
             try
             {
-                base.Connect(lpszHostAddress, Convert.ToInt32(nHostPort));
+                base.Connect(lpszHostAddress, nHostPort);
                 return base.Connected;
             }
             catch (Exception ex)

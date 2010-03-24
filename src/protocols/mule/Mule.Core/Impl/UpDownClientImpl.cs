@@ -1479,7 +1479,7 @@ namespace Mule.Core.Impl
             get { throw new NotImplementedException(); }
         }
 
-        public uint Datarate
+        public uint DataRate
         {
             get { throw new NotImplementedException(); }
         }

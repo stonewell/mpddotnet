@@ -165,7 +165,7 @@ namespace Mule.Core
         bool IsDownloading { get; }
         bool HasBlocks { get; }
         uint NumberOfRequestedBlocksInQueue { get; }
-        uint Datarate { get; }
+        uint DataRate { get; }
         uint GetScore(bool sysvalue, bool isdownloading, bool onlybasevalue);
         void AddReqBlock(RequestedBlock reqblock);
         void CreateNextBlockPackage();

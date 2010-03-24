@@ -1296,7 +1296,8 @@ namespace Mule.File.Impl
             try
             {
                 file =
-                    MpdObjectManager.CreateSafeBufferedFile(strTmpFile, FileMode.Create, FileAccess.Write, FileShare.None);
+                    MpdObjectManager.CreateSafeBufferedFile(strTmpFile, 
+                    FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             }
             catch (Exception)
             {

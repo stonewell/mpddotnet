@@ -17,11 +17,16 @@ namespace TestMuleApplication
                 app.InitApplication();
                 app.Preference.Save();
                 app.StartUp();
+
+                int j = 0;
+                int i = 1000 / j;
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine(ex);
+                Mpd.Logging.MpdLogger.Log(ex);
             }
+
+            Console.ReadKey();
         }
     }
 }

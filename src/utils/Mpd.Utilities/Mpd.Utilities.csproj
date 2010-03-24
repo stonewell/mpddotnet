@@ -50,6 +50,10 @@
     <Compile Include="Scanner.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Mpd.Logging\Mpd.Logging.csproj">
+      <Project>{CEE37A48-C4B7-4BA9-A53C-3B5012137D46}</Project>
+      <Name>Mpd.Logging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Mule.Xml\Mpd.Xml.csproj">
       <Project>{367A4CB0-2255-4C2B-9CCF-E1A51A405EED}</Project>
       <Name>Mpd.Xml</Name>

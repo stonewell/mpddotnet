@@ -70,6 +70,7 @@
     <Compile Include="Impl\IPFilterImpl.cs" />
     <Compile Include="Impl\LastCommonRouteFinderImpl.cs" />
     <Compile Include="Impl\MuleCollectionImpl.cs" />
+    <Compile Include="Impl\Pinger.cs" />
     <Compile Include="Impl\ServerConnectImpl.cs" />
     <Compile Include="Impl\SharedFileListImpl.cs" />
     <Compile Include="Impl\SourceHostnameResolverImpl.cs" />

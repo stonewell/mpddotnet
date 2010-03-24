@@ -311,5 +311,6 @@ namespace Mule
         public const uint MAX_IRC_MSG_LEN = 450;	// 450 = same as in mIRC
 
         public const uint UNLIMITED = 0xFFFF;
+        public const uint RAND_MAX = 0x7fff;
     }
 }

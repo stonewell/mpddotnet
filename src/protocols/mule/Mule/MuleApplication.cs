@@ -230,6 +230,21 @@ namespace Mule
             }
         }
 
+        public void Stop()
+        {
+            try
+            {
+                LastCommonRouteFinder.StopFinder();
+
+                Preference.Save();
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError("MuleApplication Stop Fail",
+                    ex);
+            }
+        }
+
         public bool IsRunning { get; set; }
     }
 }

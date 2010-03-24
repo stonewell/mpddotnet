@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mule;
+using System.IO;
 
 namespace TestMuleApplication
 {
@@ -17,14 +18,13 @@ namespace TestMuleApplication
                 app.InitApplication();
                 app.Preference.Save();
                 app.StartUp();
-
-                int j = 0;
-                int i = 1000 / j;
             }
             catch (Exception ex)
             {
                 Mpd.Logging.MpdLogger.Log(ex);
             }
+
+            MuleApplication.Instance.Stop();
 
             Console.ReadKey();
         }

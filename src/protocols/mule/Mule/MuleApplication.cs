@@ -95,7 +95,7 @@ namespace Mule
         public MuleStatistics Statistics { get; private set; }
         public ListenSocket ListenSocket { get; private set; }
 
-        public int PublicIP { get; private set; }
+        public int PublicIP { get; set; }
 
         public SharedFileList SharedFiles { get; private set; }
 
@@ -235,6 +235,8 @@ namespace Mule
         {
             try
             {
+                ServerConnect.Stop();
+
                 LastCommonRouteFinder.StopFinder();
 
                 Preference.Save();
@@ -247,5 +249,13 @@ namespace Mule
         }
 
         public bool IsRunning { get; set; }
+
+        public Version Version
+        {
+            get
+            {
+                return GetType().Assembly.GetName().Version;
+            }
+        }
     }
 }

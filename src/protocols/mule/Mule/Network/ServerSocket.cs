@@ -23,12 +23,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mule.ED2K;
 
 namespace Mule.Network
 {
     public interface ServerSocket : EMSocket
     {
-        void ConnectTo(Mule.ED2K.ED2KServer toconnect, bool bNoCrypt);
-        bool IsDeleting { get; }
+        void ConnectTo(ED2KServer toconnect, bool bNoCrypt);
+        bool IsDeleting { get; set; }
+        ED2KServer CurrentServer { get; }
+        uint LastTransmission { get;}
     }
 }

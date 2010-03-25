@@ -55,11 +55,10 @@ namespace Mule.Core
         bool Disconnect();
         bool IsConnecting { get;}
         bool IsConnected { get; }
-        uint ClientID { get; }
+        uint ClientID { get; set; }
         ED2KServer CurrentServer { get;}
 
         bool IsLowID { get;}
-        void SetClientID(uint newid);
         bool IsLocalServer(uint dwIP, ushort nPort);
         void TryAnotherConnectionRequest();
         bool IsSingleConnect { get;}
@@ -67,6 +66,8 @@ namespace Mule.Core
         uint LocalIP { get; }
 
         bool AwaitingTestFromIP(uint dwIP);
-        bool IsConnectedObfuscated();
+        bool IsConnectedObfuscated { get; }
+
+        void Stop();
     }
 }

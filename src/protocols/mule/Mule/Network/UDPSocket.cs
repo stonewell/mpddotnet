@@ -21,5 +21,7 @@ namespace Mule.Network
             ushort nSpecialPort, 
             byte[] pRawPacket, 
             uint nLen);
+
+        void Create();
     }
 }

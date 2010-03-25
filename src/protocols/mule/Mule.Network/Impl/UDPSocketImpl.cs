@@ -11,17 +11,17 @@ namespace Mule.Network.Impl
 
         public void SendPacket(Packet packet, Mule.ED2K.ED2KServer host)
         {
-            throw new NotImplementedException();
+            SendPacket(packet, host, 0, null, 0);
         }
 
         public void SendPacket(Packet packet, Mule.ED2K.ED2KServer host, ushort nSpecialPort)
         {
-            throw new NotImplementedException();
+            SendPacket(packet, host, nSpecialPort, null, 0);
         }
 
         public void SendPacket(Packet packet, Mule.ED2K.ED2KServer host, ushort nSpecialPort, byte[] pRawPacket)
         {
-            throw new NotImplementedException();
+            SendPacket(packet, host, nSpecialPort, pRawPacket, 0);
         }
 
         public void SendPacket(Packet packet, Mule.ED2K.ED2KServer host, ushort nSpecialPort, byte[] pRawPacket, uint nLen)
@@ -29,6 +29,9 @@ namespace Mule.Network.Impl
             throw new NotImplementedException();
         }
 
+        public void Create()
+        {
+        }
         #endregion
 
         #region ThrottledControlSocket Members
@@ -38,6 +41,18 @@ namespace Mule.Network.Impl
             throw new NotImplementedException();
         }
 
+        #endregion
+
+        #region Overrides
+        protected override void OnReceive(int nErrorCode)
+        {
+            base.OnReceive(nErrorCode);
+        }
+
+        protected override void OnSend(int nErrorCode)
+        {
+            base.OnSend(nErrorCode);
+        }
         #endregion
     }
 }

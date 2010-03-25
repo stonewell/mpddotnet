@@ -738,6 +738,7 @@ namespace Mule.Core.Impl
             if (MuleApplication.Instance.Preference.ServerUDPPort != 0)
             {
                 udpsocket_ = MuleApplication.Instance.NetworkObjectManager.CreateUDPSocket(); // initalize socket for udp packets
+                udpsocket_.Create();
             }
             else
                 udpsocket_ = null;

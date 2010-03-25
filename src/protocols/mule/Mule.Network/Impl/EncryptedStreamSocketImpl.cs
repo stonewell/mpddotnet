@@ -114,11 +114,11 @@ namespace Mule.Network.Impl
 
                 MD5 md5 = MD5.Create();
 
-                rc4SendKey_ = MuleUtilities.RC4CreateKey(md5.ComputeHash(achKeyData), 16, null);
+                rc4SendKey_ = MuleUtilities.RC4CreateKey(md5.ComputeHash(achKeyData), 16);
 
                 achKeyData[16] = Convert.ToByte(MuleConstants.MAGICVALUE_SERVER);
 
-                rc4ReceiveKey_ = MuleUtilities.RC4CreateKey(md5.ComputeHash(achKeyData), 16, null);
+                rc4ReceiveKey_ = MuleUtilities.RC4CreateKey(md5.ComputeHash(achKeyData), 16);
             }
             else if (bServerConnection && bEnabled)
             {
@@ -457,9 +457,11 @@ namespace Mule.Network.Impl
                                 fiReceiveBuffer_.Read(achKeyData, 17, 4); // random key part sent from remote client
 
                                 MD5 md5 = MD5.Create();
-                                rc4ReceiveKey_ = MuleUtilities.RC4CreateKey(md5.ComputeHash(achKeyData), 16, null);
+                                rc4ReceiveKey_ = 
+                                    MuleUtilities.RC4CreateKey(md5.ComputeHash(achKeyData), 16);
                                 achKeyData[16] = Convert.ToByte(MuleConstants.MAGICVALUE_SERVER);
-                                rc4SendKey_ = MuleUtilities.RC4CreateKey(md5.ComputeHash(achKeyData), 16, null);
+                                rc4SendKey_ = 
+                                    MuleUtilities.RC4CreateKey(md5.ComputeHash(achKeyData), 16);
 
                                 negotiatingState_ = NegotiatingStateEnum.ONS_BASIC_CLIENTA_MAGICVALUE;
                                 receiveBytesWanted_ = 4;
@@ -576,9 +578,11 @@ namespace Mule.Network.Impl
                                 aBuffer[MuleConstants.PRIMESIZE_BYTES] = Convert.ToByte(MuleConstants.MAGICVALUE_REQUESTER);
                                 MD5 md5 = MD5.Create();
 
-                                rc4SendKey_ = MuleUtilities.RC4CreateKey(md5.ComputeHash(aBuffer), 16, null);
+                                rc4SendKey_ = 
+                                    MuleUtilities.RC4CreateKey(md5.ComputeHash(aBuffer), 16);
                                 aBuffer[MuleConstants.PRIMESIZE_BYTES] = Convert.ToByte(MuleConstants.MAGICVALUE_SERVER);
-                                rc4ReceiveKey_ = MuleUtilities.RC4CreateKey(md5.ComputeHash(aBuffer), 16, null);
+                                rc4ReceiveKey_ = 
+                                    MuleUtilities.RC4CreateKey(md5.ComputeHash(aBuffer), 16);
 
                                 negotiatingState_ = NegotiatingStateEnum.ONS_BASIC_SERVER_MAGICVALUE;
                                 receiveBytesWanted_ = 4;

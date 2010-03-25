@@ -24,15 +24,17 @@ namespace Mule
 
         public static RC4Key RC4CreateKey(byte[] pachKeyData, uint nLen)
         {
-            return RC4CreateKey(pachKeyData, nLen, null, false);
+            RC4Key key = null;
+
+            return RC4CreateKey(pachKeyData, nLen, ref key, false);
         }
 
-        public static RC4Key RC4CreateKey(byte[] pachKeyData, uint nLen, RC4Key key)
+        public static RC4Key RC4CreateKey(byte[] pachKeyData, uint nLen, ref RC4Key key)
         {
-            return RC4CreateKey(pachKeyData, nLen, key, false);
+            return RC4CreateKey(pachKeyData, nLen, ref key, false);
         }
 
-        public static RC4Key RC4CreateKey(byte[] pachKeyData, uint nLen, RC4Key key, bool bSkipDiscard)
+        public static RC4Key RC4CreateKey(byte[] pachKeyData, uint nLen, ref RC4Key key, bool bSkipDiscard)
         {
             byte index1;
             byte index2;
@@ -55,8 +57,10 @@ namespace Mule
                 MpdUtilities.SwapByte(ref pabyState[i], ref pabyState[index2]);
                 index1 = (byte)((index1 + 1) % nLen);
             }
+            
             if (!bSkipDiscard)
                 RC4Crypt(null, null, 1024, key);
+
             return key;
         }
 

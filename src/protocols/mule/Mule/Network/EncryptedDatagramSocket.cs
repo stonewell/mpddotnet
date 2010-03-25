@@ -10,11 +10,11 @@ namespace Mule.Network
         int DecryptReceivedClient(byte[] pbyBufIn, int nBufLen,
             out byte[] ppbyBufOut, uint dwIP, 
             out uint nReceiverVerifyKey, out uint nSenderVerifyKey);
-        int EncryptSendClient(out byte[] ppbyBuf, int nBufLen,
+        int EncryptSendClient(ref byte[] ppbyBuf, int nBufLen,
             byte[] pachClientHashOrKadID, bool bKad,
             uint nReceiverVerifyKey, uint nSenderVerifyKey);
         int DecryptReceivedServer(byte[] pbyBufIn, int nBufLen,
             out byte[] ppbyBufOut, uint dwBaseKey, uint dbgIP);
-        int EncryptSendServer(out byte[] ppbyBuf, int nBufLen, uint dwBaseKey);
+        int EncryptSendServer(ref byte[] ppbyBuf, int nBufLen, uint dwBaseKey);
     }
 }

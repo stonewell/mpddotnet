@@ -22,6 +22,6 @@ namespace Mule.Network
             byte[] pRawPacket, 
             uint nLen);
 
-        void Create();
+        bool Create();
     }
 }

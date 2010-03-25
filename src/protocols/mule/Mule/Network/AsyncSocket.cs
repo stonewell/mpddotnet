@@ -60,6 +60,16 @@ namespace Mule.Network
         int Receive(byte[] pBuffer, int nBufLen, SocketFlags nFlags);
         int Receive(byte[] pBuffer, int offset, int nBufLen, SocketFlags nFlags);
 
+        int ReceiveFrom(byte[] buf, ref EndPoint endPoint);
+        int ReceiveFrom(byte[] buf, SocketFlags flags, ref EndPoint endPoint);
+        int ReceiveFrom(byte[] buf, int size, SocketFlags flags, ref EndPoint endPoint);
+        int ReceiveFrom(byte[] buf, int offset, int size, SocketFlags flags, ref EndPoint endPoint);
+
+        int SendTo(byte[] buf, EndPoint endPoint);
+        int SendTo(byte[] buf, SocketFlags flags, EndPoint endPoint);
+        int SendTo(byte[] buf, int size, SocketFlags flags, EndPoint endPoint);
+        int SendTo(byte[] buf, int offset, int size, SocketFlags flags, EndPoint endPoint);
+
         object GetSocketOption(SocketOptionLevel level, SocketOptionName name);
         void GetSocketOption(SocketOptionLevel level, SocketOptionName name, byte[] val);
         byte[] GetSocketOption(SocketOptionLevel level, SocketOptionName name, int len);

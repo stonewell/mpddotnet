@@ -305,6 +305,45 @@ namespace Mule.Network.Impl
             SocketDisconnected(this, new SocketEventArgs());
         }
 
+        public int ReceiveFrom(byte[] buf, ref EndPoint endPoint)
+        {
+            return socket_.ReceiveFrom(buf, ref endPoint);
+        }
+
+        public int ReceiveFrom(byte[] buf, SocketFlags flags, ref EndPoint endPoint)
+        {
+            return socket_.ReceiveFrom(buf, flags,ref endPoint);
+        }
+
+        public int ReceiveFrom(byte[] buf, int size, SocketFlags flags, ref EndPoint endPoint)
+        {
+            return socket_.ReceiveFrom(buf, size, flags, ref endPoint);
+        }
+
+        public int ReceiveFrom(byte[] buf, int offset, int size, SocketFlags flags, ref EndPoint endPoint)
+        {
+            return socket_.ReceiveFrom(buf, offset, size, flags, ref endPoint);
+        }
+
+        public int SendTo(byte[] buf, EndPoint endPoint)
+        {
+            return socket_.SendTo(buf, endPoint);
+        }
+
+        public int SendTo(byte[] buf, SocketFlags flags, EndPoint endPoint)
+        {
+            return socket_.SendTo(buf, flags, endPoint);
+        }
+
+        public int SendTo(byte[] buf, int size, SocketFlags flags, EndPoint endPoint)
+        {
+            return socket_.SendTo(buf, size, flags, endPoint);
+        }
+
+        public int SendTo(byte[] buf, int offset, int size, SocketFlags flags, EndPoint endPoint)
+        {
+            return socket_.SendTo(buf, offset, size, flags, endPoint);
+        }
         #endregion
 
         #region Event Handlers

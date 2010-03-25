@@ -101,6 +101,7 @@
     <Compile Include="MuleUtilities.cs" />
     <Compile Include="Network\AsyncSocket.cs" />
     <Compile Include="Network\ClientReqSocket.cs" />
+    <Compile Include="Network\ClientUDPSocket.cs" />
     <Compile Include="Network\EMSocket.cs" />
     <Compile Include="Network\EncryptedDatagramSocket.cs" />
     <Compile Include="Network\EncryptedStreamSocket.cs" />

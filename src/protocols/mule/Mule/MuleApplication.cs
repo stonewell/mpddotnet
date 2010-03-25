@@ -55,6 +55,9 @@ namespace Mule
             ServerList = ED2KObjectManager.CreateED2KServerList();
             DownloadQueue = CoreObjectManager.CreateDownloadQueue();
             IPFilter = CoreObjectManager.CreateIPFilter();
+
+            ListenSocket = NetworkObjectManager.CreateListenSocket();
+            ClientUDP = NetworkObjectManager.CreateClientUDPSocket();
         }
 
         private void InitObjectManagers()
@@ -216,11 +219,23 @@ namespace Mule
 
         public void StartUp()
         {
+            if (IsRunning)
+                return;
+
+            IsRunning = false;
+
             try
             {
                 ServerList.Init();
 
                 DownloadQueue.Init();
+
+                ListenSocket.StartListening();
+
+                ClientUDP.Create();
+
+                if (Preference.DoesAutoConnect)
+                    StartConnection();
 
                 IsRunning = true;
             }
@@ -231,14 +246,96 @@ namespace Mule
             }
         }
 
+        public void CloseConnection()
+        {
+            if (ServerConnect.IsConnected)
+            {
+                ServerConnect.Disconnect();
+            }
+
+            if (ServerConnect.IsConnecting)
+            {
+                ServerConnect.StopConnectionTry();
+            }
+
+            KadEngine.Stop();
+        }
+
+        public void StartConnection()
+        {
+            if ((!ServerConnect.IsConnecting && !ServerConnect.IsConnected)
+                || !KadEngine.IsRunning)
+            {
+                // ed2k
+                if (Preference.UseNetworkED2K &&
+                    !ServerConnect.IsConnecting && !ServerConnect.IsConnected)
+                {
+                    ServerConnect.ConnectToAnyServer();
+                }
+
+                // kad
+                if ((Preference.UseNetworkKademlia) && !KadEngine.IsRunning)
+                {
+                    KadEngine.Start();
+                }
+            }
+
+        }
+
         public void Stop()
         {
             try
             {
+                CloseConnection();
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError("MuleApplication Stop Fail",
+                    ex);
+            }
+
+            try
+            {
                 ServerConnect.Stop();
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError("MuleApplication Stop Fail",
+                    ex);
+            }
 
+            try
+            {
+                ClientUDP.Close();
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError("MuleApplication Stop Fail",
+                    ex);
+            }
+
+            try
+            {
+                ListenSocket.StopListening();
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError("MuleApplication Stop Fail",
+                    ex);
+            }
+
+            try
+            {
                 LastCommonRouteFinder.StopFinder();
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError("MuleApplication Stop Fail",
+                    ex);
+            }
 
+            try
+            {
                 Preference.Save();
             }
             catch (Exception ex)
@@ -257,5 +354,7 @@ namespace Mule
                 return GetType().Assembly.GetName().Version;
             }
         }
+
+        public ClientUDPSocket ClientUDP { get; private set; }
     }
 }

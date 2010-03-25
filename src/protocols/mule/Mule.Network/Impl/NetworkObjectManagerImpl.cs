@@ -10,6 +10,7 @@ namespace Mule.Network.Impl
 {
     class NetworkObjectManagerImpl : NetworkObjectManager
     {
+        #region NetworkObjectManager Members
         public Packet CreatePacket()
         {
             return new PacketImpl();
@@ -108,22 +109,24 @@ namespace Mule.Network.Impl
             return new RawPacketImpl(pcData, offset, size, bFromPartFile);
         }
 
-        #region NetworkObjectManager Members
-
-
         public ServerSocket CreateServerSocket(Mule.Core.ServerConnect serverConnect, bool singleConnect)
         {
-            throw new NotImplementedException();
+            return new ServerSocketImpl(serverConnect, singleConnect);
         }
-
-        #endregion
-
-        #region NetworkObjectManager Members
-
 
         public UDPSocket CreateUDPSocket()
         {
-            throw new NotImplementedException();
+            return new UDPSocketImpl();
+        }
+
+        public ListenSocket CreateListenSocket()
+        {
+            return new ListenSocketImpl();
+        }
+
+        public ClientUDPSocket CreateClientUDPSocket()
+        {
+            return new ClientUDPSocketImpl();
         }
 
         #endregion

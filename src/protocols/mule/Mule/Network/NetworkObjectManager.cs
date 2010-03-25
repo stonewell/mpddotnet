@@ -50,5 +50,9 @@ namespace Mule.Network
         ServerSocket CreateServerSocket(ServerConnect serverConnect, bool singleConnect);
 
         UDPSocket CreateUDPSocket();
+
+        ListenSocket CreateListenSocket();
+
+        ClientUDPSocket CreateClientUDPSocket();
     }
 }

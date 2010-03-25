@@ -35,7 +35,7 @@ namespace Mule.Network.Impl
         #region ClientReqSocket Members
         private void Disconnect(string reason)
         {
-            ConnectionState = ConnectionStateEnum.ES_DISCONNECTED;
+            ConnectionState = ConnectionStateEnum.CS_DISCONNECTED;
 
             DisonnectReason =
                 string.Format("ClientRequestSocket Disconnected:{0}", reason);

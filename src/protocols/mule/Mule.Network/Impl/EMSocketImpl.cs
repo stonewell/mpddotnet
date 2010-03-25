@@ -82,7 +82,7 @@ namespace Mule.Network.Impl
             DataReceived += OnDataReceived;
             PacketReceived += OnPacketReceived;
 
-            connState_ = ConnectionStateEnum.ES_NOTCONNECTED;
+            connState_ = ConnectionStateEnum.CS_NOTCONNECTED;
             TimeOut = MuleConstants.CONNECTION_TIMEOUT; // default timeout for ed2k sockets
 
             // Download (pseudo) rate control	
@@ -151,7 +151,7 @@ namespace Mule.Network.Impl
             {
                 do
                 {
-                    if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
+                    if (connState_ == ConnectionStateEnum.CS_DISCONNECTED)
                     {
                         break;
                     }
@@ -201,7 +201,7 @@ namespace Mule.Network.Impl
 
         public bool IsConnected
         {
-            get { return connState_ == ConnectionStateEnum.ES_CONNECTED; }
+            get { return connState_ == ConnectionStateEnum.CS_CONNECTED; }
         }
 
         public ConnectionStateEnum ConnectionState
@@ -403,7 +403,7 @@ namespace Mule.Network.Impl
 
                 lock (sendLocker_)
                 {
-                    if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
+                    if (connState_ == ConnectionStateEnum.CS_DISCONNECTED)
                     {
                         return 0;
                     }
@@ -475,7 +475,7 @@ namespace Mule.Network.Impl
             // won't be in the middle of things
             lock (sendLocker_)
             {
-                connState_ = ConnectionStateEnum.ES_DISCONNECTED;
+                connState_ = ConnectionStateEnum.CS_DISCONNECTED;
             }
 
             // now that we know no other method will keep adding to the queue
@@ -505,12 +505,12 @@ namespace Mule.Network.Impl
 
                     IsBusy = false;
 
-                    if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
+                    if (connState_ == ConnectionStateEnum.CS_DISCONNECTED)
                     {
                         break;
                     }
                     else
-                        connState_ = ConnectionStateEnum.ES_CONNECTED;
+                        connState_ = ConnectionStateEnum.CS_CONNECTED;
 
                     if (currentPacket_is_controlpacket_)
                     {
@@ -535,13 +535,13 @@ namespace Mule.Network.Impl
             }
 
             // Check current connection state
-            if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
+            if (connState_ == ConnectionStateEnum.CS_DISCONNECTED)
             {
                 return;
             }
             else
             {
-                connState_ = ConnectionStateEnum.ES_CONNECTED; // ES_DISCONNECTED, ES_NOTCONNECTED, ES_CONNECTED
+                connState_ = ConnectionStateEnum.CS_CONNECTED; 
             }
 
             // CPU load improvement
@@ -563,7 +563,7 @@ namespace Mule.Network.Impl
             // We attempt to read up to 2 megs at a time (minus whatever is in our internal read buffer)
             int ret = Receive(GlobalReadBuffer, Convert.ToInt32(pendingHeaderSize_), Convert.ToInt32(readMax));
             if (ret == SOCKET_ERROR ||
-                connState_ == ConnectionStateEnum.ES_DISCONNECTED)
+                connState_ == ConnectionStateEnum.CS_DISCONNECTED)
             {
                 return;
             }
@@ -695,7 +695,7 @@ namespace Mule.Network.Impl
         {
             lock (sendLocker_)
             {
-                if (connState_ == ConnectionStateEnum.ES_DISCONNECTED)
+                if (connState_ == ConnectionStateEnum.CS_DISCONNECTED)
                 {
                     return new SocketSentBytes(false, 0, 0);
                 }
@@ -704,7 +704,7 @@ namespace Mule.Network.Impl
                 uint sentStandardPacketBytesThisCall = 0;
                 uint sentControlPacketBytesThisCall = 0;
 
-                if (connState_ == ConnectionStateEnum.ES_CONNECTED
+                if (connState_ == ConnectionStateEnum.CS_CONNECTED
                     && IsEncryptionLayerReady &&
                     !(IsBusy && onlyAllowedToSendControlPacket))
                 {

@@ -7,25 +7,25 @@ using Mule.ED2K;
 using Mpd.Utilities;
 using Mpd.Generic.IO;
 using Mpd.Generic;
+using System.Web.Configuration;
+using System.Threading;
+using System.Net;
 
 namespace Mule.Core.Impl
 {
     class ServerConnectImpl : ServerConnect
     {
         #region Fields
-        private bool connecting;
-        private bool singleconnecting;
-        private bool connected;
-        private bool m_bTryObfuscated;
-        private byte max_simcons;
-        private uint m_uStartAutoConnectPos;
-        private ServerSocket connectedsocket;
-        private UDPSocket udpsocket;
-        private List<object> m_lstOpenSockets =
-            new List<object>();	// list of currently opened sockets
-        private uint m_idRetryTimer;
-        private uint m_nLocalIP;
-        private Dictionary<ulong, ServerSocket> connectionattemps =
+        private bool tryObfuscated_;
+        private byte maxSimulateCons_;
+        private uint startAutoConnectPos_;
+        private ServerSocket connectedSocket_;
+        private UDPSocket udpsocket_;
+        private List<ServerSocket> openSockets_ =
+            new List<ServerSocket>();	// list of currently opened sockets
+        private Timer retryTimer_;
+        private uint clientId_;
+        private Dictionary<ulong, ServerSocket> connectionAttemps_ =
             new Dictionary<ulong, ServerSocket>();
         #endregion
 
@@ -33,106 +33,210 @@ namespace Mule.Core.Impl
 
         public void ConnectionFailed(Mule.Network.ServerSocket sender)
         {
-            throw new NotImplementedException();
+            if (!IsConnecting && sender != connectedSocket_)
+            {
+                // just return, cleanup is done by the socket itself
+                return;
+            }
+
+            ED2KServer pServer = MuleApplication.Instance.ServerList.GetServerByAddress(sender.CurrentServer.Address, sender.CurrentServer.Port);
+            switch (sender.ConnectionState)
+            {
+                case ConnectionStateEnum.CS_FATALERROR:
+                    //TODO:Log
+                    break;
+                case ConnectionStateEnum.CS_DISCONNECTED:
+                    MuleApplication.Instance.SharedFiles.ClearED2KPublishInfo();
+                    break;
+                case ConnectionStateEnum.CS_SERVERDEAD:
+                    if (pServer != null)
+                    {
+                        pServer.AddFailedCount();
+                    }
+                    break;
+                case ConnectionStateEnum.CS_ERROR:
+                    break;
+                case ConnectionStateEnum.CS_SERVERFULL:
+                    break;
+                case ConnectionStateEnum.CS_NOTCONNECTED:
+                    break;
+            }
+
+            // IMPORTANT: mark this socket not to be deleted in StopConnectionTry(),
+            // because it will delete itself after this function!
+            sender.IsDeleting = true;
+
+            switch (sender.ConnectionState)
+            {
+                case ConnectionStateEnum.CS_FATALERROR:
+                    {
+                        bool autoretry = !IsSingleConnect;
+                        StopConnectionTry();
+                        if (MuleApplication.Instance.Preference.IsReconnect && autoretry &&
+                            retryTimer_ == null)
+                        {
+                            // There are situations where we may get Winsock error codes which indicate
+                            // that the network is down, although it is not. Those error codes may get
+                            // thrown only for particular IPs. If the first server in our list has such
+                            // an IP and will therefor throw such an error we would never connect to
+                            // any server at all. To circumvent that, start the next auto-connection
+                            // attempt with a different server (use the next server in the list).
+                            startAutoConnectPos_ = 0; // default: start at 0
+                            if (pServer != null)
+                            {
+                                // If possible, use the "next" server.
+                                int iPosInList =
+                                    MuleApplication.Instance.ServerList.GetPositionOfServer(pServer);
+                                if (iPosInList >= 0)
+                                    startAutoConnectPos_ = (uint)((iPosInList + 1) %
+                                        MuleApplication.Instance.ServerList.ServerCount);
+                            }
+
+                            retryTimer_ =
+                                new Timer(new TimerCallback(RetryConnectTimer),
+                                    this, 0,
+                            MuleConstants.ONE_SEC_MS * MuleConstants.CS_RETRYCONNECTTIME);
+                        }
+                        break;
+                    }
+                case ConnectionStateEnum.CS_DISCONNECTED:
+                    {
+                        MuleApplication.Instance.SharedFiles.ClearED2KPublishInfo();
+                        IsConnected = false;
+                        if (connectedSocket_ != null)
+                        {
+                            connectedSocket_.Close();
+                            connectedSocket_ = null;
+                        }
+                        MuleApplication.Instance.Statistics.ServerConnectTime = 0;
+                        MuleApplication.Instance.Statistics.Add2TotalServerDuration();
+                        if (MuleApplication.Instance.Preference.IsReconnect && !IsConnecting)
+                            ConnectToAnyServer();
+                        break;
+                    }
+                case ConnectionStateEnum.CS_ERROR:
+                case ConnectionStateEnum.CS_NOTCONNECTED:
+                    {
+                        if (!IsConnecting)
+                            break;
+                    }
+                    goto case ConnectionStateEnum.CS_SERVERDEAD;
+                case ConnectionStateEnum.CS_SERVERDEAD:
+                case ConnectionStateEnum.CS_SERVERFULL:
+                    {
+                        if (!IsConnecting)
+                            break;
+                        if (IsSingleConnect)
+                        {
+                            if (pServer != null && sender.IsServerCryptEnabledConnection &&
+                                !MuleApplication.Instance.Preference.IsClientCryptLayerRequired)
+                            {
+                                // try reconnecting without obfuscation
+                                ConnectToServer(pServer, false, true);
+                                break;
+                            }
+                            StopConnectionTry();
+                            break;
+                        }
+
+                        Dictionary<ulong, ServerSocket>.Enumerator pos = connectionAttemps_.GetEnumerator();
+                        while (pos.MoveNext())
+                        {
+                            if (pos.Current.Value == sender)
+                            {
+                                connectionAttemps_.Remove(pos.Current.Key);
+                                break;
+                            }
+                        }
+                        TryAnotherConnectionRequest();
+                    }
+                    break;
+            }
         }
 
         public void ConnectionEstablished(Mule.Network.ServerSocket sender)
         {
-    //if (!connecting) {
-    //    // we are already connected to another server
-    //    DestroySocket(sender);
-    //    return;
-    //}
-	
-    //InitLocalIP();
-    //if (sender.GetConnectionState() == CS_WAITFORLOGIN)
-    //{
-    //    ED2KServer pServer = MuleApplication.Instance.ServerList.GetServerByAddress(sender.CurrentServer.GetAddress(), sender.cur_server.GetPort());
-    //    if (pServer != null) {
-    //        pServer.ResetFailedCount();
-    //    }
+            if (!IsConnecting)
+            {
+                // we are already IsConnected to another server
+                DestroySocket(sender);
+                return;
+            }
 
-    //    // Send login packet
-    //    SafeMemFile data = MpdObjectManager.CreateSafeMemFile(256);
-    //    data.WriteHash16(MuleApplication.Instance.Preference.GetUserHash());
-    //    data.WriteUInt32(GetClientID());
-    //    data.WriteUInt16(MuleApplication.Instance.Preference.GetPort());
+            InitLocalIP();
+            if (sender.ConnectionState == ConnectionStateEnum.CS_WAITFORLOGIN)
+            {
+                ED2KServer pServer =
+                    MuleApplication.Instance.ServerList.GetServerByAddress(sender.CurrentServer.Address,
+                    sender.CurrentServer.Port);
+                if (pServer != null)
+                {
+                    pServer.ResetFailedCount();
+                }
 
-    //    UINT tagcount = 4;
-    //    data.WriteUInt32(tagcount);
+                // Send login packet
+                SafeMemFile data = MpdObjectManager.CreateSafeMemFile(256);
+                data.WriteHash16(MuleApplication.Instance.Preference.UserHash);
+                data.WriteUInt32(ClientID);
+                data.WriteUInt16(MuleApplication.Instance.Preference.Port);
 
-    //    CTag tagName(CT_NAME, MuleApplication.Instance.Preference.GetUserNick());
-    //    tagName.WriteTagToFile(&data);
+                uint tagcount = 4;
+                data.WriteUInt32(tagcount);
 
-    //    CTag tagVersion(CT_VERSION, EDONKEYVERSION);
-    //    tagVersion.WriteTagToFile(&data);
+                Tag tagName = MpdObjectManager.CreateTag(TagTypeEnum.CT_NAME,
+                    MuleApplication.Instance.Preference.UserNick);
+                tagName.WriteTagToFile(data);
 
-    //    uint32 dwCryptFlags = 0;
-    //    if (MuleApplication.Instance.Preference.IsClientCryptLayerSupported())
-    //        dwCryptFlags |= SRVCAP_SUPPORTCRYPT;
-    //    if (MuleApplication.Instance.Preference.IsClientCryptLayerRequested())
-    //        dwCryptFlags |= SRVCAP_REQUESTCRYPT;
-    //    if (MuleApplication.Instance.Preference.IsClientCryptLayerRequired())
-    //        dwCryptFlags |= SRVCAP_REQUIRECRYPT;
+                Tag tagVersion = MpdObjectManager.CreateTag(TagTypeEnum.CT_VERSION, VersionsEnum.EDONKEYVERSION);
+                tagVersion.WriteTagToFile(data);
 
-    //    CTag tagFlags(CT_SERVER_FLAGS, SRVCAP_ZLIB | SRVCAP_NEWTAGS | SRVCAP_LARGEFILES | SRVCAP_UNICODE | dwCryptFlags);
-    //    tagFlags.WriteTagToFile(&data);
+                ServerFlagsEnum dwCryptFlags = 0;
+                if (MuleApplication.Instance.Preference.IsClientCryptLayerSupported)
+                    dwCryptFlags |= ServerFlagsEnum.SRVCAP_SUPPORTCRYPT;
+                if (MuleApplication.Instance.Preference.IsClientCryptLayerRequested)
+                    dwCryptFlags |= ServerFlagsEnum.SRVCAP_REQUESTCRYPT;
+                if (MuleApplication.Instance.Preference.IsClientCryptLayerRequired)
+                    dwCryptFlags |= ServerFlagsEnum.SRVCAP_REQUIRECRYPT;
 
-    //    // eMule Version (14-Mar-2004: requested by lugdunummaster (need for LowID clients which have no chance 
-    //    // to send an Hello packet to the server during the callback test))
-    //    CTag tagMuleVersion(CT_EMULE_VERSION, 
-    //                        //(uCompatibleClientID		<< 24) |
-    //                        (CemuleApp::m_nVersionMjr	<< 17) |
-    //                        (CemuleApp::m_nVersionMin	<< 10) |
-    //                        (CemuleApp::m_nVersionUpd	<<  7) );
-    //    tagMuleVersion.WriteTagToFile(&data);
+                Tag tagFlags = MpdObjectManager.CreateTag(TagTypeEnum.CT_SERVER_FLAGS,
+                    ServerFlagsEnum.SRVCAP_ZLIB | ServerFlagsEnum.SRVCAP_NEWTAGS |
+                    ServerFlagsEnum.SRVCAP_LARGEFILES |
+                    ServerFlagsEnum.SRVCAP_UNICODE | dwCryptFlags);
 
-    //    Packet* packet = new Packet(&data);
-    //    packet.opcode = OP_LOGINREQUEST;
-    //    if (MuleApplication.Instance.Preference.GetDebugServerTCPLevel() > 0)
-    //        Debug(_T(">>> Sending OP__LoginRequest\n"));
-    //    theStats.AddUpDataOverheadServer(packet.size);
-    //    SendPacket(packet, true, sender);
-    //}
-    //else if (sender.GetConnectionState() == CS_CONNECTED)
-    //{
-    //    theStats.reconnects++;
-    //    theStats.serverConnectTime = GetTickCount();
-    //    connected = true;
-    //    CString strMsg;
-    //    if (sender.IsObfusicating())
-    //        strMsg.Format(GetResString(IDS_CONNECTEDTOOBFUSCATED) + _T(" (%s:%u)"), sender.cur_server.GetListName(), sender.cur_server.GetAddress(), sender.cur_server.GetObfuscationPortTCP());
-    //    else
-    //        strMsg.Format(GetResString(IDS_CONNECTEDTO) + _T(" (%s:%u)"), sender.cur_server.GetListName(), sender.cur_server.GetAddress(), sender.cur_server.GetPort());
+                tagFlags.WriteTagToFile(data);
 
-    //    Log(LOG_SUCCESS | LOG_STATUSBAR, strMsg);
-    //    theApp.emuledlg.ShowConnectionState();
-    //    connectedsocket = sender;
-    //    StopConnectionTry();
-    //    theApp.sharedfiles.ClearED2KPublishInfo();
-    //    theApp.sharedfiles.SendListToServer();
-    //    theApp.emuledlg.serverwnd.serverlistctrl.RemoveAllDeadServers();
+                // eMule Version (14-Mar-2004: requested by lugdunummaster (need for LowID clients which have no chance 
+                // to send an Hello packet to the server during the callback test))
+                Tag tagMuleVersion = MpdObjectManager.CreateTag(TagTypeEnum.CT_EMULE_VERSION,
+                                    (MuleApplication.Instance.Version.Major << 17) |
+                                    (MuleApplication.Instance.Version.Minor << 10) |
+                                    (MuleApplication.Instance.Version.Build << 7));
+                tagMuleVersion.WriteTagToFile(data);
 
-    //    // tecxx 1609 2002 - serverlist update
-    //    if (MuleApplication.Instance.Preference.GetAddServersFromServer())
-    //    {
-    //        Packet* packet = new Packet(OP_GETSERVERLIST,0);
-    //        if (MuleApplication.Instance.Preference.GetDebugServerTCPLevel() > 0)
-    //            Debug(_T(">>> Sending OP__GetServerList\n"));
-    //        theStats.AddUpDataOverheadServer(packet.size);
-    //        SendPacket(packet, true);
-    //    }
+                Packet packet = MuleApplication.Instance.NetworkObjectManager.CreatePacket(data);
+                packet.OperationCode = OperationCodeEnum.OP_LOGINREQUEST;
+                MuleApplication.Instance.Statistics.AddUpDataOverheadServer(packet.Size);
+                SendPacket(packet, true, sender);
+            }
+            else if (sender.ConnectionState == ConnectionStateEnum.CS_CONNECTED)
+            {
+                MuleApplication.Instance.Statistics.Reconnects++;
+                MuleApplication.Instance.Statistics.ServerConnectTime = MpdUtilities.GetTickCount();
+                IsConnected = true;
+                connectedSocket_ = sender;
+                StopConnectionTry();
+                MuleApplication.Instance.SharedFiles.ClearED2KPublishInfo();
+                MuleApplication.Instance.SharedFiles.SendListToServer();
 
-    //    ED2KServer pServer = MuleApplication.Instance.ServerList.GetServerByAddress(sender.cur_server.GetAddress(), sender.cur_server.GetPort());
-    //    if (pServer)
-    //        theApp.emuledlg.serverwnd.serverlistctrl.RefreshServer(pServer);
-    //}
-    //theApp.emuledlg.ShowConnectionState();
-        }
-
-        private SafeMemFile MpdObjectmanager(int p)
-        {
-            throw new NotImplementedException();
+                if (MuleApplication.Instance.Preference.DoesAddServersFromServer)
+                {
+                    Packet packet =
+                        MuleApplication.Instance.NetworkObjectManager.CreatePacket(
+                        OperationCodeEnum.OP_GETSERVERLIST, 0);
+                    MuleApplication.Instance.Statistics.AddUpDataOverheadServer(packet.Size);
+                    SendPacket(packet, true);
+                }
+            }
         }
 
         public void ConnectToAnyServer()
@@ -159,9 +263,9 @@ namespace Mule.Core.Impl
         {
             StopConnectionTry();
             Disconnect();
-            connecting = true;
-            singleconnecting = false;
-            m_bTryObfuscated =
+            IsConnecting = true;
+            IsSingleConnect = false;
+            tryObfuscated_ =
                 MuleApplication.Instance.Preference.IsServerCryptLayerTCPRequested && !bNoCrypt;
 
             // Barry - Only auto-connect to static server option
@@ -180,7 +284,7 @@ namespace Mule.Core.Impl
                 }
                 if (!anystatic)
                 {
-                    connecting = false;
+                    IsConnecting = false;
                     return;
                 }
             }
@@ -193,7 +297,7 @@ namespace Mule.Core.Impl
 
             if (MuleApplication.Instance.ServerList.ServerCount == 0)
             {
-                connecting = false;
+                IsConnecting = false;
                 return;
             }
             MuleApplication.Instance.ListenSocket.Process();
@@ -218,33 +322,32 @@ namespace Mule.Core.Impl
                 StopConnectionTry();
                 Disconnect();
             }
-            connecting = true;
-            singleconnecting = !multiconnect;
+            IsConnecting = true;
+            IsSingleConnect = !multiconnect;
 
             ServerSocket newsocket =
                 MuleApplication.Instance.NetworkObjectManager.CreateServerSocket(this, !multiconnect);
-            m_lstOpenSockets.Add(newsocket);
+            openSockets_.Add(newsocket);
             newsocket.ConnectTo(toconnect, bNoCrypt);
-            connectionattemps[MpdUtilities.GetTickCount()] = newsocket;
+            connectionAttemps_[MpdUtilities.GetTickCount()] = newsocket;
         }
 
         public void StopConnectionTry()
         {
-            connectionattemps.Clear();
-            connecting = false;
-            singleconnecting = false;
+            connectionAttemps_.Clear();
+            IsConnecting = false;
+            IsSingleConnect = false;
 
-            //TODO:
-            //if (m_idRetryTimer)
-            //{
-            //    KillTimer(NULL, m_idRetryTimer);
-            //    m_idRetryTimer = 0;
-            //}
-
-            // close all currenty opened sockets except the one which is connected to our current server
-            foreach(ServerSocket pSck in m_lstOpenSockets)
+            if (retryTimer_ != null)
             {
-                if (pSck == connectedsocket)		// don't destroy socket which is connected to server
+                retryTimer_.Dispose();
+                retryTimer_ = null;
+            }
+
+            // close all currenty opened sockets except the one which is IsConnected to our current server
+            foreach (ServerSocket pSck in openSockets_)
+            {
+                if (pSck == connectedSocket_)		// don't destroy socket which is IsConnected to server
                     continue;
                 if (pSck.IsDeleting == false)	// don't destroy socket if it is going to destroy itself later on
                     DestroySocket(pSck);
@@ -253,125 +356,245 @@ namespace Mule.Core.Impl
 
         public void CheckForTimeout()
         {
-            throw new NotImplementedException();
+            uint dwServerConnectTimeout = MuleConstants.CONSERVTIMEOUT;
+            // If we are using a proxy, increase server connection timeout to default connection timeout
+            if (MuleApplication.Instance.Preference.ProxySettings.UseProxy)
+                dwServerConnectTimeout = Math.Max(dwServerConnectTimeout, MuleConstants.CONNECTION_TIMEOUT);
+
+            uint dwCurTick = MpdUtilities.GetTickCount();
+
+            int pos = 0;
+
+            while (pos < connectionAttemps_.Count)
+            {
+                List<ulong> keys = connectionAttemps_.Keys.ToList();
+
+                ulong key = keys[pos];
+
+                ServerSocket sock = connectionAttemps_[key];
+
+                if (sock == null)
+                {
+                    connectionAttemps_.Remove(key);
+                    return;
+                }
+
+                if (dwCurTick - key > dwServerConnectTimeout)
+                {
+                    connectionAttemps_.Remove(key);
+                    DestroySocket(sock);
+                    if (IsSingleConnect)
+                        StopConnectionTry();
+                    else
+                        TryAnotherConnectionRequest();
+                }
+                else
+                {
+                    pos++;
+                }
+            }
         }
 
         public void DestroySocket(Mule.Network.ServerSocket pSck)
         {
-            throw new NotImplementedException();
+            if (pSck == null)
+                return;
+            // remove socket from list of opened sockets
+            foreach (ServerSocket pTestSck in openSockets_)
+            {
+                if (pTestSck == pSck)
+                {
+                    openSockets_.Remove(pTestSck);
+                    break;
+                }
+            }
+
+            if (pSck != null)
+            { // deadlake PROXYSUPPORT - changed to AsyncSocketEx
+                pSck.Close();
+            }
         }
 
         public bool SendPacket(Mule.Network.Packet packet)
         {
-            throw new NotImplementedException();
+            return SendPacket(packet, true, null);
         }
 
         public bool SendPacket(Mule.Network.Packet packet, bool delpacket)
         {
-            throw new NotImplementedException();
+            return SendPacket(packet, delpacket, null);
         }
 
         public bool SendPacket(Mule.Network.Packet packet, bool delpacket, Mule.Network.ServerSocket to)
         {
-            throw new NotImplementedException();
+            if (to != null)
+            {
+                if (IsConnected)
+                {
+                    connectedSocket_.SendPacket(packet, delpacket, true);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                to.SendPacket(packet, delpacket, true);
+            }
+            return true;
         }
 
         public bool IsUDPSocketAvailable
         {
-            get { throw new NotImplementedException(); }
+            get { return udpsocket_ != null; }
         }
 
         public bool SendUDPPacket(Mule.Network.Packet packet, Mule.ED2K.ED2KServer host)
         {
-            throw new NotImplementedException();
+            return SendUDPPacket(packet, host, false, 0, null, 0);
         }
 
         public bool SendUDPPacket(Mule.Network.Packet packet, Mule.ED2K.ED2KServer host, bool delpacket)
         {
-            throw new NotImplementedException();
+            return SendUDPPacket(packet, host, delpacket, 0, null, 0);
         }
 
-        public bool SendUDPPacket(Mule.Network.Packet packet, Mule.ED2K.ED2KServer host, bool delpacket, ushort nSpecialPort)
+        public bool SendUDPPacket(Mule.Network.Packet packet, Mule.ED2K.ED2KServer host,
+            bool delpacket, ushort nSpecialPort)
         {
-            throw new NotImplementedException();
+            return SendUDPPacket(packet, host, delpacket, nSpecialPort, null, 0);
         }
 
-        public bool SendUDPPacket(Mule.Network.Packet packet, Mule.ED2K.ED2KServer host, bool delpacket, ushort nSpecialPort, byte[] pRawPacket)
+        public bool SendUDPPacket(Mule.Network.Packet packet, Mule.ED2K.ED2KServer host,
+            bool delpacket, ushort nSpecialPort, byte[] pRawPacket)
         {
-            throw new NotImplementedException();
+            return SendUDPPacket(packet, host, delpacket, nSpecialPort, pRawPacket, 0);
         }
 
         public bool SendUDPPacket(Mule.Network.Packet packet, Mule.ED2K.ED2KServer host, bool delpacket, ushort nSpecialPort, byte[] pRawPacket, uint nLen)
         {
-            throw new NotImplementedException();
+            if (MuleApplication.Instance.IsConnected)
+            {
+                if (udpsocket_ != null)
+                    udpsocket_.SendPacket(packet, host, nSpecialPort, pRawPacket, nLen);
+            }
+            return true;
         }
 
         public void KeepConnectionAlive()
         {
-            throw new NotImplementedException();
+            uint dwServerKeepAliveTimeout = MuleApplication.Instance.Preference.ServerKeepAliveTimeout;
+            if (dwServerKeepAliveTimeout > 0 &&
+                IsConnected &&
+                connectedSocket_ != null &&
+                connectedSocket_.ConnectionState == ConnectionStateEnum.CS_CONNECTED &&
+                MpdUtilities.GetTickCount() - connectedSocket_.LastTransmission >= dwServerKeepAliveTimeout)
+            {
+                // "Ping" the server if the TCP connection was not used for the specified interval with 
+                // an empty publish files packet . recommended by lugdunummaster himself!
+                SafeMemFile files = MpdObjectManager.CreateSafeMemFile(4);
+                files.WriteUInt32(0); // nr. of files
+                Packet packet = MuleApplication.Instance.NetworkObjectManager.CreatePacket(files);
+                packet.OperationCode = OperationCodeEnum.OP_OFFERFILES;
+                MuleApplication.Instance.Statistics.AddUpDataOverheadServer(packet.Size);
+                connectedSocket_.SendPacket(packet, true);
+            }
         }
 
         public bool Disconnect()
         {
-            throw new NotImplementedException();
+            if (IsConnected && connectedSocket_ != null)
+            {
+                MuleApplication.Instance.SharedFiles.ClearED2KPublishInfo();
+                IsConnected = false;
+                ED2KServer pServer =
+                    MuleApplication.Instance.ServerList.GetServerByAddress(connectedSocket_.CurrentServer.Address, connectedSocket_.CurrentServer.Port);
+                MuleApplication.Instance.PublicIP = 0;
+                DestroySocket(connectedSocket_);
+                connectedSocket_ = null;
+                MuleApplication.Instance.Statistics.ServerConnectTime = 0;
+                MuleApplication.Instance.Statistics.Add2TotalServerDuration();
+                return true;
+            }
+            return false;
         }
 
         public bool IsConnecting
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public bool IsConnected
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public uint ClientID
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                return clientId_;
+            }
+
+            set
+            {
+                clientId_ = value;
+
+                if (!MuleUtilities.IsLowID(value))
+                    MuleApplication.Instance.PublicIP = (int)value;
+            }
         }
 
         public Mule.ED2K.ED2KServer CurrentServer
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                if (IsConnected && connectedSocket_ != null)
+                    return connectedSocket_.CurrentServer;
+                return null;
+            }
         }
 
         public bool IsLowID
         {
-            get { throw new NotImplementedException(); }
-        }
-
-        public void SetClientID(uint newid)
-        {
-            throw new NotImplementedException();
+            get { return MuleUtilities.IsLowID(ClientID); }
         }
 
         public bool IsLocalServer(uint dwIP, ushort nPort)
         {
-            throw new NotImplementedException();
+            if (IsConnected)
+            {
+                if (connectedSocket_.CurrentServer.IP == dwIP &&
+                    connectedSocket_.CurrentServer.Port == nPort)
+                    return true;
+            }
+            return false;
         }
 
         public void TryAnotherConnectionRequest()
         {
-            if (connectionattemps.Count < (MuleApplication.Instance.Preference.IsSafeServerConnectEnabled ? 1 : 2))
+            if (connectionAttemps_.Count < (MuleApplication.Instance.Preference.IsSafeServerConnectEnabled ? 1 : 2))
             {
                 ED2KServer next_server =
-                    MuleApplication.Instance.ServerList.GetNextServer(m_bTryObfuscated);
+                    MuleApplication.Instance.ServerList.GetNextServer(tryObfuscated_);
                 if (next_server == null)
                 {
-                    if (connectionattemps.Count == 0)
+                    if (connectionAttemps_.Count == 0)
                     {
-                        if (m_bTryObfuscated && !MuleApplication.Instance.Preference.IsClientCryptLayerRequired)
+                        if (tryObfuscated_ && !MuleApplication.Instance.Preference.IsClientCryptLayerRequired)
                         {
                             // try all servers on the non-obfuscated port next
-                            m_bTryObfuscated = false;
+                            tryObfuscated_ = false;
                             ConnectToAnyServer(0, true, true, true);
                         }
-                        else if (m_idRetryTimer == 0)
+                        else if (retryTimer_ == null)
                         {
                             // 05-Nov-2003: If we have a very short server list, we could put serious load on those few servers
                             // if we start the next connection tries without waiting.
-                            m_uStartAutoConnectPos = 0; // default: start at 0
+                            startAutoConnectPos_ = 0; // default: start at 0
                         }
                     }
                     return;
@@ -381,38 +604,147 @@ namespace Mule.Core.Impl
                 if (MuleApplication.Instance.Preference.DoesAutoConnectToStaticServersOnly)
                 {
                     if (next_server.IsStaticMember)
-                        ConnectToServer(next_server, true, !m_bTryObfuscated);
+                        ConnectToServer(next_server, true, !tryObfuscated_);
                 }
                 else
-                    ConnectToServer(next_server, true, !m_bTryObfuscated);
+                    ConnectToServer(next_server, true, !tryObfuscated_);
             }
         }
 
         public bool IsSingleConnect
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public void InitLocalIP()
         {
-            throw new NotImplementedException();
+            LocalIP = 0;
+
+            // Using 'gethostname/gethostbyname' does not solve the problem when we have more than 
+            // one IP address. Using 'gethostname/gethostbyname' even seems to return the last IP 
+            // address which we got. e.g. if we already got an IP from our ISP, 
+            // 'gethostname/gethostbyname' will returned that (primary) IP, but if we add another
+            // IP by opening a VPN connection, 'gethostname' will still return the same hostname, 
+            // but 'gethostbyname' will return the 2nd IP.
+            // To weaken that problem at least for users which are binding eMule to a certain IP,
+            // we use the explicitly specified bind address as our local IP address.
+            if (MuleApplication.Instance.Preference.BindAddr != null)
+            {
+                IPAddress ulBindAddr = null;
+
+                if (IPAddress.TryParse(MuleApplication.Instance.Preference.BindAddr,
+                    out ulBindAddr))
+                {
+                    LocalIP = BitConverter.ToUInt32(ulBindAddr.GetAddressBytes(), 0);
+                    return;
+                }
+            }
+
+            // Don't use 'gethostbyname(null)'. The winsock DLL may be replaced by a DLL from a third party
+            // which is not fully compatible to the original winsock DLL. ppl reported crash with SCORSOCK.DLL
+            // when using 'gethostbyname(null)'.
+            try
+            {
+                string hostName = Dns.GetHostName();
+                IPHostEntry hostEntry = Dns.GetHostEntry(hostName);
+
+                if (hostEntry.AddressList != null && hostEntry.AddressList.Length > 0)
+                    LocalIP = BitConverter.ToUInt32(hostEntry.AddressList[0].GetAddressBytes(), 0);
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError(ex);
+            }
         }
 
         public uint LocalIP
         {
-            get { throw new NotImplementedException(); }
+            get;
+            set;
         }
 
         public bool AwaitingTestFromIP(uint dwIP)
         {
-            throw new NotImplementedException();
+            if (connectionAttemps_.Count == 0)
+                return false;
+            Dictionary<ulong, ServerSocket>.Enumerator pos = connectionAttemps_.GetEnumerator();
+            while (pos.MoveNext())
+            {
+                if (pos.Current.Value != null &&
+                    pos.Current.Value.CurrentServer != null &&
+                    pos.Current.Value.CurrentServer.IP == dwIP &&
+                    pos.Current.Value.ConnectionState == ConnectionStateEnum.CS_WAITFORLOGIN)
+                    return true;
+            }
+            return false;
         }
 
-        public bool IsConnectedObfuscated()
+        public bool IsConnectedObfuscated
         {
-            throw new NotImplementedException();
+            get
+            {
+                return connectedSocket_ != null && connectedSocket_.IsObfusicating;
+            }
         }
 
+        public void Stop()
+        {
+            // stop all connections
+            StopConnectionTry();
+            // close IsConnected socket, if any
+            DestroySocket(connectedSocket_);
+            connectedSocket_ = null;
+            // close udp socket
+            if (udpsocket_ != null)
+            {
+                udpsocket_.Close();
+            }
+        }
+        #endregion
+
+        #region Privates
+
+        private void RetryConnectTimer(object state)
+        {
+            // NOTE: Always handle all type of MFC exceptions in TimerProcs - otherwise we'll get mem leaks
+            try
+            {
+                StopConnectionTry();
+                if (IsConnected)
+                    return;
+                if (startAutoConnectPos_ >= MuleApplication.Instance.ServerList.ServerCount)
+                    startAutoConnectPos_ = 0;
+                ConnectToAnyServer(startAutoConnectPos_, true, true);
+
+            }
+            catch(Exception ex)
+            {
+                MpdUtilities.DebugLogError(ex);
+            }
+        }
+
+        #endregion
+
+        #region Constructors
+        public ServerConnectImpl()
+        {
+            connectedSocket_ = null;
+            maxSimulateCons_ = (byte)((MuleApplication.Instance.Preference.IsSafeServerConnectEnabled) ? 1 : 2);
+            IsConnecting = false;
+            IsConnected = false;
+            clientId_ = 0;
+            IsSingleConnect = false;
+            if (MuleApplication.Instance.Preference.ServerUDPPort != 0)
+            {
+                udpsocket_ = MuleApplication.Instance.NetworkObjectManager.CreateUDPSocket(); // initalize socket for udp packets
+            }
+            else
+                udpsocket_ = null;
+            retryTimer_ = null;
+            startAutoConnectPos_ = 0;
+            InitLocalIP();
+        }
         #endregion
     }
 }

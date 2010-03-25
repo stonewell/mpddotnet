@@ -312,5 +312,7 @@ namespace Mule
 
         public const uint UNLIMITED = 0xFFFF;
         public const uint RAND_MAX = 0x7fff;
+
+        public const uint CS_RETRYCONNECTTIME = 30;
     }
 }

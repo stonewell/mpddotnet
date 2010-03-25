@@ -70,7 +70,21 @@ namespace Mule.Network
         event DataReceivedHandler DataReceived;
         event PacketReceivedHandler PacketReceived;
 
-        void SendPacket(Packet packet, bool delpacket, bool controlpacket, uint actualPayloadSize, bool bForceImmediateSend);
+        void SendPacket(Packet packet);
+        void SendPacket(Packet packet,
+            bool delpacket);
+        void SendPacket(Packet packet,
+            bool delpacket,
+            bool controlpacket);
+        void SendPacket(Packet packet,
+            bool delpacket,
+            bool controlpacket,
+            uint actualPayloadSize);
+        void SendPacket(Packet packet, 
+            bool delpacket, 
+            bool controlpacket, 
+            uint actualPayloadSize, 
+            bool bForceImmediateSend);
 
         bool IsConnected { get; }
         ConnectionStateEnum ConnectionState { get; }

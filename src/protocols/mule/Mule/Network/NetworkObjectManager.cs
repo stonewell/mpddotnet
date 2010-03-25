@@ -48,5 +48,7 @@ namespace Mule.Network
         RawPacket CreateRawPacket(byte[] pcData, int offset, int size, bool bFromPartFile);
 
         ServerSocket CreateServerSocket(ServerConnect serverConnect, bool singleConnect);
+
+        UDPSocket CreateUDPSocket();
     }
 }

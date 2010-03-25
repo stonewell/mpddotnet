@@ -197,11 +197,18 @@ namespace Mule
         PFOP_UNCOMPRESSING
     };
 
-    public enum ConnectionStateEnum : byte
+    public enum ConnectionStateEnum
     {
-        ES_DISCONNECTED = 0xFF,
-        ES_NOTCONNECTED = 0x00,
-        ES_CONNECTED = 0x01
+        CS_FATALERROR,
+        CS_DISCONNECTED,
+        CS_SERVERDEAD,
+        CS_ERROR,
+        CS_SERVERFULL,
+        CS_NOTCONNECTED,
+        CS_CONNECTING,
+        CS_CONNECTED,
+        CS_WAITFORLOGIN,
+        CS_WAITFORPROXYLISTENING,
     };
 
     public enum EMSocketErrorCodeEnum : int

@@ -117,5 +117,15 @@ namespace Mule.Network.Impl
         }
 
         #endregion
+
+        #region NetworkObjectManager Members
+
+
+        public UDPSocket CreateUDPSocket()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

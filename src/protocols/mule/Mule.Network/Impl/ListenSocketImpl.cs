@@ -85,7 +85,7 @@ namespace Mule.Network.Impl
 
             tmp.ForEach(s =>
                 {
-                    if (s.ConnectionState == ConnectionStateEnum.ES_DISCONNECTED)
+                    if (s.ConnectionState == ConnectionStateEnum.CS_DISCONNECTED)
                         s.Close();
                     else
                         s.CheckTimeOut();
@@ -186,13 +186,13 @@ namespace Mule.Network.Impl
                     {
                         switch (s.ConnectionState)
                         {
-                            case ConnectionStateEnum.ES_DISCONNECTED:
+                            case ConnectionStateEnum.CS_DISCONNECTED:
                                 connectionStates_[0]++;
                                 break;
-                            case ConnectionStateEnum.ES_NOTCONNECTED:
+                            case ConnectionStateEnum.CS_NOTCONNECTED:
                                 connectionStates_[1]++;
                                 break;
-                            case ConnectionStateEnum.ES_CONNECTED:
+                            case ConnectionStateEnum.CS_CONNECTED:
                                 connectionStates_[2]++;
                                 break;
                         }

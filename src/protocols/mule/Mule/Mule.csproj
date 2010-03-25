@@ -66,6 +66,7 @@
     <Compile Include="Core\IPFilter.cs" />
     <Compile Include="Core\LastCommonRouteFinder.cs" />
     <Compile Include="Core\MuleCollection.cs" />
+    <Compile Include="Core\SearchList.cs" />
     <Compile Include="Core\ServerConnect.cs" />
     <Compile Include="Core\SharedFileList.cs" />
     <Compile Include="Core\SourceHostnameResolver.cs" />

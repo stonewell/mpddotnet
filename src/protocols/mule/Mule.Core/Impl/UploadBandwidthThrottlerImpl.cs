@@ -20,5 +20,15 @@ namespace Mule.Core.Impl
         }
 
         #endregion
+
+        #region UploadBandwidthThrottler Members
+
+
+        public void RemoveAllFromQueue(Mule.Network.ThrottledControlSocket socket)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

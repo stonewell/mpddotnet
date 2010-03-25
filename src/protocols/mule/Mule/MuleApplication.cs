@@ -356,5 +356,6 @@ namespace Mule
         }
 
         public ClientUDPSocket ClientUDP { get; private set; }
+        public SearchList SearchList { get; private set; }
     }
 }

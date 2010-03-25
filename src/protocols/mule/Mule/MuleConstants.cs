@@ -314,5 +314,29 @@ namespace Mule
         public const uint RAND_MAX = 0x7fff;
 
         public const uint CS_RETRYCONNECTTIME = 30;
+
+        public const uint INV_SERV_DESC_LEN = 0xF0FF;
+
+        public const uint ST_SERVERNAME = 0x01;// <string>
+        public const uint ST_DESCRIPTION = 0x0B;// <string>
+        public const uint ST_PING = 0x0C;// <uint32>
+        public const uint ST_FAIL = 0x0D;// <uint32>
+        public const uint ST_PREFERENCE = 0x0E;// <uint32>
+        public const uint ST_PORT = 0x0F;// <uint32>
+        public const uint ST_IP = 0x10;// <uint32>
+        public const uint ST_DYNIP = 0x85;// <string>
+        //public const uint  ST_LASTPING			= 0x86	;// <int> No longer used.
+        public const uint ST_MAXUSERS = 0x87;// <uint32>
+        public const uint ST_SOFTFILES = 0x88;// <uint32>
+        public const uint ST_HARDFILES = 0x89;// <uint32>
+        public const uint ST_LASTPING = 0x90;// <uint32>
+        public const uint ST_VERSION = 0x91;// <string>|<uint32>
+        public const uint ST_UDPFLAGS = 0x92;// <uint32>
+        public const uint ST_AUXPORTSLIST = 0x93;// <string>
+        public const uint ST_LOWIDUSERS = 0x94;// <uint32>
+        public const uint ST_UDPKEY = 0x95;// <uint32>
+        public const uint ST_UDPKEYIP = 0x96;// <uint32>
+        public const uint ST_TCPPORTOBFUSCATION = 0x97;// <uint16>
+        public const uint ST_UDPPORTOBFUSCATION = 0x98;// <uint16>
     }
 }

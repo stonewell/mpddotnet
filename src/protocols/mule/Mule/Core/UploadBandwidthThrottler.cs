@@ -10,5 +10,7 @@ namespace Mule.Core
     {
         void QueueForSendingControlPacket(ThrottledControlSocket socket);
         void QueueForSendingControlPacket(ThrottledControlSocket socket, bool hasSent);
+
+        void RemoveAllFromQueue(ThrottledControlSocket socket);
     }
 }

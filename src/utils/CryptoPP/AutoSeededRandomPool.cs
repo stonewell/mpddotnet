@@ -16,5 +16,10 @@ namespace CryptoPP
         {
             throw new NotImplementedException();
         }
+
+        public ushort GenerateWord32(int p, int p_2)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

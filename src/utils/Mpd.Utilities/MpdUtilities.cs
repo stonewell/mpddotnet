@@ -699,5 +699,10 @@ namespace Mpd.Utilities
         {
             throw new NotImplementedException();
         }
+
+        public static uint TimeGetTime()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -51,6 +51,10 @@ namespace Mule.Network.Impl
         {
             try
             {
+                if (!CreateSocket(new IPEndPoint(IPAddress.Any, 0).AddressFamily, 
+                    SocketType.Dgram, 
+                    ProtocolType.Udp))
+                    return false;
 
                 if (MuleApplication.Instance.Preference.UDPPort != 0)
                 {
@@ -61,6 +65,10 @@ namespace Mule.Network.Impl
                     // because we tend to drop packets if several flow in at the same time
                     int val = 64 * 1024;
                     SetSocketOption(SocketOptionLevel.Udp, SocketOptionName.ReceiveBuffer, val);
+                }
+                else
+                {
+                    return false;
                 }
 
                 port_ = MuleApplication.Instance.Preference.UDPPort;
@@ -173,7 +181,7 @@ namespace Mule.Network.Impl
         {
             base.OnClose(nErrorCode);
 
-            MuleApplication.Instance.UploadBandwidthThrottler.RemoveAllFromQueue(this);
+            MuleApplication.Instance.UploadBandwidthThrottler.RemoveFromAllQueues(this);
             controlpacketQueue_.Clear();
         }
 

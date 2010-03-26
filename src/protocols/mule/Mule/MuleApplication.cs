@@ -257,6 +257,8 @@ namespace Mule
             {
                 ServerList.Init();
 
+                UploadBandwidthThrottler.Start();
+
                 DownloadQueue.Init();
 
                 ListenSocket.StartListening();
@@ -365,6 +367,16 @@ namespace Mule
 
             try
             {
+                UploadBandwidthThrottler.Stop();
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError("MuleApplication Stop Fail",
+                    ex);
+            }
+
+            try
+            {
                 Preference.Save();
             }
             catch (Exception ex)
@@ -372,7 +384,14 @@ namespace Mule
                 MpdUtilities.DebugLogError("MuleApplication Stop Fail",
                     ex);
             }
+
+            if (ShutDownMuleApplication != null)
+            {
+                ShutDownMuleApplication(this, new EventArgs());
+            }
         }
+
+        public event EventHandler ShutDownMuleApplication;
 
         public bool IsRunning { get; set; }
 

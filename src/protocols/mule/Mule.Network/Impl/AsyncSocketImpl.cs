@@ -29,13 +29,12 @@ namespace Mule.Network.Impl
 
         #region Fields
         private Socket socket_ = null;
-        private bool connect_event_fired = false;
-        private bool listen_called = false;
+        private bool connect_event_fired_ = false;
+        private bool listen_called_ = false;
         #endregion
 
         #region Constructors
-        public AsyncSocketImpl(AddressFamily family,
-          SocketType sType, ProtocolType pType) : this(new Socket(family, sType, pType))
+        public AsyncSocketImpl()
         {
         }
 
@@ -62,15 +61,28 @@ namespace Mule.Network.Impl
 
             InitEvents();
             socket_.Blocking = false;
+        }
 
-            socketManager_.AddAsyncSocket(this);
+        protected bool CreateSocket(AddressFamily family,
+          SocketType sType, ProtocolType pType)
+        {
+            if (socket_ != null)
+                return true;
+
+            socket_ = new Socket(family, sType, pType);
+
+            Init();
+
             SocketCreated(this, new SocketEventArgs());
+
+            return true;
         }
 
         private void InitEvents()
         {
             SocketCreated += (AsyncSocketImpl_SocketCreated);
             SocketClosed += (AsyncSocketImpl_SocketClosed);
+            SocketClosed += (AsyncSocketImpl_RemoveMe);
             SocketConnected += (AsyncSocketImpl_SocketConnected);
             SocketDisconnected += (AsyncSocketImpl_SocketDisconnected);
             SocketErrorOccured += (AsyncSocketImpl_SocketError);
@@ -83,6 +95,7 @@ namespace Mule.Network.Impl
         {
             SocketCreated -= (AsyncSocketImpl_SocketCreated);
             SocketClosed -= (AsyncSocketImpl_SocketClosed);
+            SocketClosed -= (AsyncSocketImpl_RemoveMe);
             SocketConnected -= (AsyncSocketImpl_SocketConnected);
             SocketDisconnected -= (AsyncSocketImpl_SocketDisconnected);
             SocketErrorOccured -= (AsyncSocketImpl_SocketError);
@@ -105,7 +118,7 @@ namespace Mule.Network.Impl
 
         public void Listen(int backlog)
         {
-            listen_called = true;
+            listen_called_ = true;
             socket_.Listen(backlog);
         }
 
@@ -362,16 +375,21 @@ namespace Mule.Network.Impl
             OnConnect(0);
         }
 
+        private void AsyncSocketImpl_RemoveMe(object sender, SocketEventArgs arg)
+        {
+            socketManager_.RemoveAsyncSocket(this);
+        }
+
         private void AsyncSocketImpl_SocketClosed(object sender, SocketEventArgs arg)
         {
             OnClose(0);
-
-            socketManager_.RemoveAsyncSocket(this);
         }
 
         private void AsyncSocketImpl_SocketCreated(object sender, SocketEventArgs arg)
         {
             OnCreate(0);
+
+            socketManager_.AddAsyncSocket(this);
         }
 
         private void AsyncSocketImpl_SocketAccepted(object sender, SocketEventArgs arg)

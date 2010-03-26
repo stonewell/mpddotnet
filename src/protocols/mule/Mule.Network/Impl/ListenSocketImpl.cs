@@ -27,8 +27,7 @@ namespace Mule.Network.Impl
         #endregion
 
         #region Constructors
-        public ListenSocketImpl() :
-            base(new IPEndPoint(0, 0).AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+        public ListenSocketImpl()
         {
         }
         #endregion
@@ -37,10 +36,12 @@ namespace Mule.Network.Impl
 
         public bool StartListening()
         {
-            bListening_ = true;
-
             try
             {
+                if (!base.CreateSocket(new IPEndPoint(0, 0).AddressFamily, 
+                    SocketType.Stream, ProtocolType.Tcp))
+                    return false;
+
                 IPAddress address = IPAddress.Any;
 
                 if (MuleApplication.Instance.Preference.BindAddr != null &&
@@ -58,6 +59,8 @@ namespace Mule.Network.Impl
                 Listen();
 
                 port_ = MuleApplication.Instance.Preference.Port;
+                bListening_ = true;
+
                 return true;
             }
             catch (Exception ex)

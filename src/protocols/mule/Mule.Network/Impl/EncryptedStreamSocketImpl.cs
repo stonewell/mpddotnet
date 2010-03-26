@@ -58,7 +58,7 @@ namespace Mule.Network.Impl
 
         #region Constructor
         public EncryptedStreamSocketImpl() : 
-            base(new IPEndPoint(IPAddress.Any, 0).AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+            base(new Socket(new IPEndPoint(IPAddress.Any, 0).AddressFamily, SocketType.Stream, ProtocolType.Tcp))
         {
             streamCryptState_ =
                 MuleApplication.Instance.Preference.IsClientCryptLayerSupported ? StreamCryptStateEnum.ECS_UNKNOWN : StreamCryptStateEnum.ECS_NONE;

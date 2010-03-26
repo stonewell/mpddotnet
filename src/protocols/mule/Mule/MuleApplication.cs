@@ -11,6 +11,8 @@ using Mule.File;
 using Mule.AICH;
 using Mpd.Utilities;
 using Mpd.Generic;
+using System.Diagnostics;
+using System.Net;
 
 namespace Mule
 {
@@ -98,7 +100,34 @@ namespace Mule
         public MuleStatistics Statistics { get; private set; }
         public ListenSocket ListenSocket { get; private set; }
 
-        public int PublicIP { get; set; }
+        private int publicIP_ = 0;
+
+        public PeerCacheFinder PeerCacheFinder { get; set; }
+
+        public int PublicIP { get { return GetPublicIP(false); }
+            set
+            {
+	            if (value != 0){
+		            PeerCacheFinder.FoundMyPublicIPAddress(value);	
+	            }
+            	
+	            if (value != 0 && value != publicIP_ && ServerList != null){
+		            publicIP_ = value;
+		            ServerList.CheckForExpiredUDPKeys();
+	            }
+	            else
+                    publicIP_ = value;
+            }
+        }
+
+        public int GetPublicIP(bool ignoreKadIP)
+        {
+            if (publicIP_ == 0 &&
+                KadEngine.IsConnected &&
+                KadEngine.IPAddress != 0 && !ignoreKadIP)
+                return (int)IPAddress.NetworkToHostOrder(KadEngine.IPAddress);
+            return publicIP_;
+        }
 
         public SharedFileList SharedFiles { get; private set; }
 

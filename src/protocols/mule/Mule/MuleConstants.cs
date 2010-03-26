@@ -50,15 +50,6 @@ namespace Mule
         public const ulong PARTSIZE = 9728000;
         public const ulong MAXFRAGSIZE = 1300;
         public const ulong EMBLOCKSIZE = 184320;
-        public const byte OP_EDONKEYHEADER = 0xE3;
-        public const byte OP_KADEMLIAHEADER = 0xE4;
-        public const byte OP_KADEMLIAPACKEDPROT = 0xE5;
-        public const byte OP_EDONKEYPROT = OP_EDONKEYHEADER;
-        public const byte OP_PACKEDPROT = 0xD4;
-        public const byte OP_EMULEPROT = 0xC5;
-        public const byte OP_UDPRESERVEDPROT1 = 0xA3;	// reserved for later UDP headers (important for EncryptedDatagramSocket)
-        public const byte OP_UDPRESERVEDPROT2 = 0xB2;	// reserved for later UDP headers (important for EncryptedDatagramSocket)
-        public const byte OP_MLDONKEYPROT = 0x00;
         public const byte MET_HEADER = 0x0E;
         public const byte MET_HEADER_I64TAGS = 0x0F;
 
@@ -338,5 +329,15 @@ namespace Mule
         public const uint ST_UDPKEYIP = 0x96;// <uint32>
         public const uint ST_TCPPORTOBFUSCATION = 0x97;// <uint16>
         public const uint ST_UDPPORTOBFUSCATION = 0x98;// <uint16>
+
+        public const byte PROTOCOL_EDONKEYHEADER = 0xE3;
+        public const byte PROTOCOL_KADEMLIAHEADER = 0xE4;
+        public const byte PROTOCOL_KADEMLIAPACKEDPROT = 0xE5;
+        public const byte PROTOCOL_EDONKEYPROT = PROTOCOL_EDONKEYHEADER;
+        public const byte PROTOCOL_PACKEDPROT = 0xD4;
+        public const byte PROTOCOL_EMULEPROT = 0xC5;
+        public const byte PROTOCOL_UDPRESERVEDPROT1 = 0xA3;	// reserved for later UDP headers (important for EncryptedDatagramSocket)
+        public const byte PROTOCOL_UDPRESERVEDPROT2 = 0xB2;	// reserved for later UDP headers (important for EncryptedDatagramSocket)
+        public const byte PROTOCOL_MLDONKEYPROT = 0x00;
     }
 }

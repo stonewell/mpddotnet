@@ -221,9 +221,9 @@ namespace Mule.Network.Impl
                         bool bNormalHeader = false;
                         switch (lpBuf[offset])
                         {
-                            case MuleConstants.OP_EDONKEYPROT:
-                            case MuleConstants.OP_PACKEDPROT:
-                            case MuleConstants.OP_EMULEPROT:
+                            case MuleConstants.PROTOCOL_EDONKEYPROT:
+                            case MuleConstants.PROTOCOL_PACKEDPROT:
+                            case MuleConstants.PROTOCOL_EMULEPROT:
                                 bNormalHeader = true;
                                 break;
                         }
@@ -374,9 +374,9 @@ namespace Mule.Network.Impl
                 bool bOk = false;
                 switch (bySemiRandomNotProtocolMarker)
                 { // not allowed values
-                    case MuleConstants.OP_EDONKEYPROT:
-                    case MuleConstants.OP_PACKEDPROT:
-                    case MuleConstants.OP_EMULEPROT:
+                    case MuleConstants.PROTOCOL_EDONKEYPROT:
+                    case MuleConstants.PROTOCOL_PACKEDPROT:
+                    case MuleConstants.PROTOCOL_EMULEPROT:
                         break;
                     default:
                         bOk = true;

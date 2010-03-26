@@ -49,5 +49,10 @@ namespace Kademlia
         {
             throw new Exception("The method or operation is not implemented.");
         }
+
+        public KadUDPKey CreateKadUDPKey(uint key, uint ip)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

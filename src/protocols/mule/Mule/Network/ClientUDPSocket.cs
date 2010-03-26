@@ -10,5 +10,7 @@ namespace Mule.Network
         bool Create();
         bool Rebind();
         ushort ConnectedPort { get; }
+        bool SendPacket(Packet packet, uint dwIP, ushort nPort, bool bEncrypt,
+            byte[] pachTargetClientHashORKadID, bool bKad, uint nReceiverVerifyKey);
     }
 }

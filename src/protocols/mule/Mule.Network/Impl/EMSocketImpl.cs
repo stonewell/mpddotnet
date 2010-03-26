@@ -633,9 +633,9 @@ namespace Mule.Network.Impl
                     // Remark: the default eMule v0.26b had removed this test......
                     switch (pendingPacket_.Protocol)
                     {
-                        case MuleConstants.OP_EDONKEYPROT:
-                        case MuleConstants.OP_PACKEDPROT:
-                        case MuleConstants.OP_EMULEPROT:
+                        case MuleConstants.PROTOCOL_EDONKEYPROT:
+                        case MuleConstants.PROTOCOL_PACKEDPROT:
+                        case MuleConstants.PROTOCOL_EMULEPROT:
                             break;
                         default:
                             pendingPacket_ = null;

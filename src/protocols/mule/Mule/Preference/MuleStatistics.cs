@@ -112,5 +112,7 @@ namespace Mule.Preference
         uint StartTime { get; set; }
 
         void Load();
+
+        void Save();
     }
 }

@@ -12,24 +12,24 @@ namespace Mule.Core.Impl
     class UploadBandwidthThrottlerImpl : UploadBandwidthThrottler
     {
         #region Fields
-        private List<ThrottledControlSocket> m_ControlQueue_list = new List<ThrottledControlSocket>(); // a queue for all the sockets that want to have Send() called on them. // ZZ:UploadBandWithThrottler (UDP)
-        private List<ThrottledControlSocket> m_ControlQueueFirst_list = new List<ThrottledControlSocket>(); // a queue for all the sockets that want to have Send() called on them. // ZZ:UploadBandWithThrottler (UDP)
-        private List<ThrottledControlSocket> m_TempControlQueue_list = new List<ThrottledControlSocket>(); // sockets that wants to enter m_ControlQueue_list // ZZ:UploadBandWithThrottler (UDP)
-        private List<ThrottledControlSocket> m_TempControlQueueFirst_list = new List<ThrottledControlSocket>(); // sockets that wants to enter m_ControlQueue_list and has been able to send before // ZZ:UploadBandWithThrottler (UDP)
+        private List<ThrottledControlSocket> controlQueueList_ = new List<ThrottledControlSocket>(); // a queue for all the sockets that want to have Send() called on them. // ZZ:UploadBandWithThrottler (UDP)
+        private List<ThrottledControlSocket> controlQueueFirstList_ = new List<ThrottledControlSocket>(); // a queue for all the sockets that want to have Send() called on them. // ZZ:UploadBandWithThrottler (UDP)
+        private List<ThrottledControlSocket> tempControlQueueList_ = new List<ThrottledControlSocket>(); // sockets that wants to enter m_ControlQueue_list // ZZ:UploadBandWithThrottler (UDP)
+        private List<ThrottledControlSocket> tempControlQueueFirstList_ = new List<ThrottledControlSocket>(); // sockets that wants to enter m_ControlQueue_list and has been able to send before // ZZ:UploadBandWithThrottler (UDP)
 
-        private List<ThrottledFileSocket> m_StandardOrder_list = new List<ThrottledFileSocket>(); // sockets that have upload slots. Ordered so the most prioritized socket is first
+        private List<ThrottledFileSocket> standardOrderList_ = new List<ThrottledFileSocket>(); // sockets that have upload slots. Ordered so the most prioritized socket is first
 
-        private object sendLocker = new object();
-        private object tempQueueLocker = new object();
+        private object sendLocker_ = new object();
+        private object tempQueueLocker_ = new object();
 
-        private ManualResetEvent threadEndedEvent;
-        private AutoResetEvent pauseEvent;
+        private ManualResetEvent threadEndedEvent_;
+        private AutoResetEvent pauseEvent_;
 
-        private ulong m_SentBytesSinceLastCall;
-        private ulong m_SentBytesSinceLastCallOverhead;
-        private uint m_highestNumberOfFullyActivatedSlots;
+        private ulong sentBytesSinceLastCall_;
+        private ulong sentBytesSinceLastCallOverhead_;
+        private uint highestNumberOfFullyActivatedSlots_;
 
-        private bool doRun;
+        private bool doRun_;
 
         private Thread runningThread_ = null;
         #endregion
@@ -37,12 +37,12 @@ namespace Mule.Core.Impl
         #region Constructors
         public UploadBandwidthThrottlerImpl()
         {
-            m_SentBytesSinceLastCall = 0;
-            m_SentBytesSinceLastCallOverhead = 0;
-            m_highestNumberOfFullyActivatedSlots = 0;
+            sentBytesSinceLastCall_ = 0;
+            sentBytesSinceLastCallOverhead_ = 0;
+            highestNumberOfFullyActivatedSlots_ = 0;
 
-            threadEndedEvent = new ManualResetEvent(false);
-            pauseEvent = new AutoResetEvent(true);
+            threadEndedEvent_ = new ManualResetEvent(false);
+            pauseEvent_ = new AutoResetEvent(true);
         }
         #endregion
 
@@ -56,18 +56,18 @@ namespace Mule.Core.Impl
         public void QueueForSendingControlPacket(Mule.Network.ThrottledControlSocket socket, bool hasSent)
         {
             // Get critical section
-            lock (tempQueueLocker)
+            lock (tempQueueLocker_)
             {
 
-                if (doRun)
+                if (doRun_)
                 {
                     if (hasSent)
                     {
-                        m_TempControlQueueFirst_list.Add(socket);
+                        tempControlQueueFirstList_.Add(socket);
                     }
                     else
                     {
-                        m_TempControlQueue_list.Add(socket);
+                        tempControlQueueList_.Add(socket);
                     }
                 }
 
@@ -82,10 +82,10 @@ namespace Mule.Core.Impl
         public void RemoveFromAllQueues(Mule.Network.ThrottledFileSocket socket)
         {
             // Get critical section
-            lock (sendLocker)
+            lock (sendLocker_)
             {
 
-                if (doRun)
+                if (doRun_)
                 {
                     RemoveFromAllQueues(socket, false);
 
@@ -103,10 +103,10 @@ namespace Mule.Core.Impl
             {
                 ulong result = 0;
 
-                lock (sendLocker)
+                lock (sendLocker_)
                 {
-                    result = m_SentBytesSinceLastCall;
-                    m_SentBytesSinceLastCall = 0;
+                    result = sentBytesSinceLastCall_;
+                    sentBytesSinceLastCall_ = 0;
                 }
 
                 return result;
@@ -119,10 +119,10 @@ namespace Mule.Core.Impl
             {
                 ulong result = 0;
 
-                lock (sendLocker)
+                lock (sendLocker_)
                 {
-                    result = m_SentBytesSinceLastCallOverhead;
-                    m_SentBytesSinceLastCallOverhead = 0;
+                    result = sentBytesSinceLastCallOverhead_;
+                    sentBytesSinceLastCallOverhead_ = 0;
                 }
 
                 return result;
@@ -135,10 +135,10 @@ namespace Mule.Core.Impl
             {
                 uint result = 0;
 
-                lock (sendLocker)
+                lock (sendLocker_)
                 {
-                    result = m_highestNumberOfFullyActivatedSlots;
-                    m_SentBytesSinceLastCallOverhead = 0;
+                    result = highestNumberOfFullyActivatedSlots_;
+                    sentBytesSinceLastCallOverhead_ = 0;
                 }
 
                 return result;
@@ -147,23 +147,23 @@ namespace Mule.Core.Impl
 
         public uint StandardListSize
         {
-            get { return (uint)m_StandardOrder_list.Count; }
+            get { return (uint)standardOrderList_.Count; }
         }
 
         public void AddToStandardList(uint index, Mule.Network.ThrottledFileSocket socket)
         {
             if (socket != null)
             {
-                lock (sendLocker)
+                lock (sendLocker_)
                 {
                     RemoveFromStandardListNoLock(socket);
 
-                    if (index > (uint)m_StandardOrder_list.Count)
+                    if (index > (uint)standardOrderList_.Count)
                     {
-                        index = (uint)m_StandardOrder_list.Count;
+                        index = (uint)standardOrderList_.Count;
                     }
 
-                    m_StandardOrder_list.Insert((int)index, socket);
+                    standardOrderList_.Insert((int)index, socket);
 
                 }
             }
@@ -173,7 +173,7 @@ namespace Mule.Core.Impl
         {
             bool returnValue;
 
-            lock (sendLocker)
+            lock (sendLocker_)
             {
                 returnValue = RemoveFromStandardListNoLock(socket);
             }
@@ -185,11 +185,11 @@ namespace Mule.Core.Impl
         {
             if (paused)
             {
-                pauseEvent.Reset();
+                pauseEvent_.Reset();
             }
             else
             {
-                pauseEvent.Set();
+                pauseEvent_.Set();
             }
         }
 
@@ -224,9 +224,9 @@ namespace Mule.Core.Impl
         {
             runningThread_ = new Thread(new ParameterizedThreadStart(RunInternal));
 
-            lock (sendLocker)
+            lock (sendLocker_)
             {
-                doRun = true;
+                doRun_ = true;
             }
 
             runningThread_.Start(this);
@@ -234,16 +234,16 @@ namespace Mule.Core.Impl
 
         public void Stop()
         {
-            lock (sendLocker)
+            lock (sendLocker_)
             {
                 // signal the thread to stop looping and exit.
-                doRun = false;
+                doRun_ = false;
             }
 
             Pause(false);
 
             // wait for the thread to signal that it has stopped looping.
-            threadEndedEvent.WaitOne();
+            threadEndedEvent_.WaitOne();
 
             runningThread_.Join();
         }
@@ -266,13 +266,11 @@ namespace Mule.Core.Impl
             uint changesCount = 0;
             uint loopsCount = 0;
 
-            bool estimateChangedLog = false;
-            bool lotsOfLog = false;
             bool bAlwaysEnableBigSocketBuffers = false;
 
-            while (doRun)
+            while (doRun_)
             {
-                pauseEvent.WaitOne();
+                pauseEvent_.WaitOne();
 
                 uint timeSinceLastLoop = MpdUtilities.TimeGetTime() - lastLoopTick;
 
@@ -283,16 +281,16 @@ namespace Mule.Core.Impl
                 uint cBusy = 0;
                 uint nCanSend = 0;
 
-                lock (sendLocker)
+                lock (sendLocker_)
                 {
-                    for (int i = 0; i < m_StandardOrder_list.Count &&
+                    for (int i = 0; i < standardOrderList_.Count &&
                         (i < 3 || (uint)i < GetSlotLimit(MuleApplication.Instance.UploadQueue.DataRate)); i++)
                     {
-                        if (m_StandardOrder_list[i] != null && m_StandardOrder_list[i].HasQueues)
+                        if (standardOrderList_[i] != null && standardOrderList_[i].HasQueues)
                         {
                             nCanSend++;
 
-                            if (m_StandardOrder_list[i].IsBusy)
+                            if (standardOrderList_[i].IsBusy)
                                 cBusy++;
                         }
                     }
@@ -325,7 +323,7 @@ namespace Mule.Core.Impl
 
                     if (nUploadStartTime == 0)
                     {
-                        if (m_StandardOrder_list.Count >= 3)
+                        if (standardOrderList_.Count >= 3)
                             nUploadStartTime = MpdUtilities.TimeGetTime();
                     }
                     else if (MpdUtilities.TimeGetTime() - nUploadStartTime > MuleConstants.ONE_SEC_MS * 60)
@@ -410,7 +408,7 @@ namespace Mule.Core.Impl
                     }
                 }
 
-                if (cBusy == nCanSend && m_StandardOrder_list.Count > 0)
+                if (cBusy == nCanSend && standardOrderList_.Count > 0)
                 {
                     allowedDataRate = 0;
                     if (nSlotsBusyLevel < 125 && bUploadUnlimited)
@@ -497,23 +495,23 @@ namespace Mule.Core.Impl
                     ulong spentBytes = 0;
                     ulong spentOverhead = 0;
 
-                    lock (sendLocker)
+                    lock (sendLocker_)
                     {
-                        lock (tempQueueLocker)
+                        lock (tempQueueLocker_)
                         {
 
                             // are there any sockets in m_TempControlQueue_list? Move them to normal m_ControlQueue_list;
-                            while (m_TempControlQueueFirst_list.Count > 0)
+                            while (tempControlQueueFirstList_.Count > 0)
                             {
-                                ThrottledControlSocket moveSocket = m_TempControlQueueFirst_list[0];
-                                m_TempControlQueueFirst_list.RemoveAt(0);
-                                m_ControlQueueFirst_list.Add(moveSocket);
+                                ThrottledControlSocket moveSocket = tempControlQueueFirstList_[0];
+                                tempControlQueueFirstList_.RemoveAt(0);
+                                controlQueueFirstList_.Add(moveSocket);
                             }
-                            while (m_TempControlQueue_list.Count > 0)
+                            while (tempControlQueueList_.Count > 0)
                             {
-                                ThrottledControlSocket moveSocket = m_TempControlQueue_list[0];
-                                m_TempControlQueue_list.RemoveAt(0);
-                                m_ControlQueue_list.Add(moveSocket);
+                                ThrottledControlSocket moveSocket = tempControlQueueList_[0];
+                                tempControlQueueList_.RemoveAt(0);
+                                controlQueueList_.Add(moveSocket);
                             }
 
                         }//tempQueueLocker.Unlock();
@@ -521,19 +519,19 @@ namespace Mule.Core.Impl
                         // Send any queued up control packets first
                         while ((bytesToSpend > 0 && spentBytes < (ulong)bytesToSpend ||
                             allowedDataRate == 0 && spentBytes < 500) &&
-                            (m_ControlQueueFirst_list.Count > 0 || m_ControlQueue_list.Count > 0))
+                            (controlQueueFirstList_.Count > 0 || controlQueueList_.Count > 0))
                         {
                             ThrottledControlSocket socket = null;
 
-                            if (m_ControlQueueFirst_list.Count > 0)
+                            if (controlQueueFirstList_.Count > 0)
                             {
-                                socket = m_ControlQueueFirst_list[0];
-                                m_ControlQueueFirst_list.RemoveAt(0);
+                                socket = controlQueueFirstList_[0];
+                                controlQueueFirstList_.RemoveAt(0);
                             }
-                            else if (m_ControlQueue_list.Count > 0)
+                            else if (controlQueueList_.Count > 0)
                             {
-                                socket = m_ControlQueue_list[0];
-                                m_ControlQueue_list.RemoveAt(0);
+                                socket = controlQueueList_[0];
+                                controlQueueList_.RemoveAt(0);
                             }
 
                             if (socket != null)
@@ -548,9 +546,9 @@ namespace Mule.Core.Impl
                         }
 
                         // Check if any sockets haven't gotten data for a long time. Then trickle them a package.
-                        for (uint slotCounter = 0; slotCounter < (uint)m_StandardOrder_list.Count; slotCounter++)
+                        for (uint slotCounter = 0; slotCounter < (uint)standardOrderList_.Count; slotCounter++)
                         {
-                            ThrottledFileSocket socket = m_StandardOrder_list[(int)slotCounter];
+                            ThrottledFileSocket socket = standardOrderList_[(int)slotCounter];
 
                             if (socket != null)
                             {
@@ -569,9 +567,9 @@ namespace Mule.Core.Impl
                                         spentOverhead += socketSentBytes.SentBytesControlPackets;
 
                                         if (lastSpentBytes > 0 && slotCounter <
-                                            m_highestNumberOfFullyActivatedSlots)
+                                            highestNumberOfFullyActivatedSlots_)
                                         {
-                                            m_highestNumberOfFullyActivatedSlots = slotCounter;
+                                            highestNumberOfFullyActivatedSlots_ = slotCounter;
                                         }
                                     }
                                 }
@@ -579,7 +577,7 @@ namespace Mule.Core.Impl
                         }
 
                         // Equal bandwidth for all slots
-                        uint maxSlot = (uint)m_StandardOrder_list.Count;
+                        uint maxSlot = (uint)standardOrderList_.Count;
                         if (maxSlot > 0 && allowedDataRate / maxSlot < MuleConstants.UPLOAD_CLIENT_DATARATE)
                         {
                             maxSlot = allowedDataRate / MuleConstants.UPLOAD_CLIENT_DATARATE;
@@ -590,20 +588,20 @@ namespace Mule.Core.Impl
                         if (maxSlot > 0 && (allowedDataRate == uint.MaxValue || allowedDataRate / maxSlot > 100 * 1024) && MuleApplication.Instance.UploadQueue.DataRate > 300 * 1024)
                             bUseBigBuffers = true;
 
-                        if (maxSlot > m_highestNumberOfFullyActivatedSlots)
+                        if (maxSlot > highestNumberOfFullyActivatedSlots_)
                         {
-                            m_highestNumberOfFullyActivatedSlots = maxSlot;
+                            highestNumberOfFullyActivatedSlots_ = maxSlot;
                         }
 
-                        for (uint maxCounter = 0; maxCounter < Math.Min(maxSlot, (uint)m_StandardOrder_list.Count) && bytesToSpend > 0 && spentBytes < (ulong)bytesToSpend; maxCounter++)
+                        for (uint maxCounter = 0; maxCounter < Math.Min(maxSlot, (uint)standardOrderList_.Count) && bytesToSpend > 0 && spentBytes < (ulong)bytesToSpend; maxCounter++)
                         {
-                            if (rememberedSlotCounter >= (uint)m_StandardOrder_list.Count ||
+                            if (rememberedSlotCounter >= (uint)standardOrderList_.Count ||
                                rememberedSlotCounter >= maxSlot)
                             {
                                 rememberedSlotCounter = 0;
                             }
 
-                            ThrottledFileSocket socket = m_StandardOrder_list[(int)rememberedSlotCounter];
+                            ThrottledFileSocket socket = standardOrderList_[(int)rememberedSlotCounter];
                             if (bUseBigBuffers)
                                 socket.UseBigSendBuffer();
 
@@ -623,9 +621,9 @@ namespace Mule.Core.Impl
                         }
 
                         // Any bandwidth that hasn't been used yet are used first to last.
-                        for (uint slotCounter = 0; slotCounter < (uint)m_StandardOrder_list.Count && bytesToSpend > 0 && spentBytes < (ulong)bytesToSpend; slotCounter++)
+                        for (uint slotCounter = 0; slotCounter < (uint)standardOrderList_.Count && bytesToSpend > 0 && spentBytes < (ulong)bytesToSpend; slotCounter++)
                         {
-                            ThrottledFileSocket socket = m_StandardOrder_list[(int)slotCounter];
+                            ThrottledFileSocket socket = standardOrderList_[(int)slotCounter];
 
                             if (socket != null)
                             {
@@ -639,11 +637,11 @@ namespace Mule.Core.Impl
                                 spentBytes += lastSpentBytes;
                                 spentOverhead += socketSentBytes.SentBytesControlPackets;
 
-                                if (slotCounter + 1 > m_highestNumberOfFullyActivatedSlots &&
+                                if (slotCounter + 1 > highestNumberOfFullyActivatedSlots_ &&
                                     (lastSpentBytes < bytesToSpendTemp ||
                                     lastSpentBytes >= doubleSendSize))
                                 { // || lastSpentBytes > 0 && spentBytes == bytesToSpend /*|| slotCounter+1 == (uint)m_StandardOrder_list.Count)*/)) {
-                                    m_highestNumberOfFullyActivatedSlots = slotCounter + 1;
+                                    highestNumberOfFullyActivatedSlots_ = slotCounter + 1;
                                 }
                             }
                         }
@@ -651,9 +649,9 @@ namespace Mule.Core.Impl
 
                         // If we couldn't spend all allocated bandwidth this loop, some of it is allowed to be saved
                         // and used the next loop
-                        if (realBytesToSpend < -(((long)m_StandardOrder_list.Count + 1) * minFragSize) * 1000)
+                        if (realBytesToSpend < -(((long)standardOrderList_.Count + 1) * minFragSize) * 1000)
                         {
-                            long newRealBytesToSpend = -(((long)m_StandardOrder_list.Count + 1) * minFragSize) * 1000;
+                            long newRealBytesToSpend = -(((long)standardOrderList_.Count + 1) * minFragSize) * 1000;
 
                             realBytesToSpend = newRealBytesToSpend;
                             lastTickReachedBandwidth = thisLoopTick;
@@ -669,7 +667,7 @@ namespace Mule.Core.Impl
 
                                 if (thisLoopTick - lastTickReachedBandwidth > Math.Max(1000, timeSinceLastLoop * 2))
                                 {
-                                    m_highestNumberOfFullyActivatedSlots = (uint)m_StandardOrder_list.Count + 1;
+                                    highestNumberOfFullyActivatedSlots_ = (uint)standardOrderList_.Count + 1;
                                     lastTickReachedBandwidth = thisLoopTick;
                                     //MuleApplication.Instance.QueueDebugLogLine(false, _T("UploadBandwidthThrottler: Throttler requests new slot due to bw not reached. m_highestNumberOfFullyActivatedSlots: %i m_StandardOrder_list.Count: %i tick: %i"), m_highestNumberOfFullyActivatedSlots, m_StandardOrder_list.Count, thisLoopTick);
                                 }
@@ -681,26 +679,26 @@ namespace Mule.Core.Impl
                         }
 
                         // save info about how much bandwidth we've managed to use since the last time someone polled us about used bandwidth
-                        m_SentBytesSinceLastCall += spentBytes;
-                        m_SentBytesSinceLastCallOverhead += spentOverhead;
+                        sentBytesSinceLastCall_ += spentBytes;
+                        sentBytesSinceLastCallOverhead_ += spentOverhead;
 
                     }// sendLocker.Unlock();
                 }
             }
 
-            threadEndedEvent.Set();
+            threadEndedEvent_.Set();
 
-            lock (tempQueueLocker)
+            lock (tempQueueLocker_)
             {
-                m_TempControlQueue_list.Clear();
-                m_TempControlQueueFirst_list.Clear();
+                tempControlQueueList_.Clear();
+                tempControlQueueFirstList_.Clear();
             }
 
-            lock (sendLocker)
+            lock (sendLocker_)
             {
 
-                m_ControlQueue_list.Clear();
-                m_StandardOrder_list.Clear();
+                controlQueueList_.Clear();
+                standardOrderList_.Clear();
             }
         }
 
@@ -709,22 +707,22 @@ namespace Mule.Core.Impl
             if (dolock)
             {
                 // Get critical section
-                System.Threading.Monitor.Enter(sendLocker);
+                System.Threading.Monitor.Enter(sendLocker_);
             }
 
             try
             {
-                if (doRun)
+                if (doRun_)
                 {
                     // Remove this socket from control packet queue
-                    m_ControlQueue_list.Remove(socket);
-                    m_ControlQueueFirst_list.Remove(socket);
+                    controlQueueList_.Remove(socket);
+                    controlQueueFirstList_.Remove(socket);
 
 
-                    lock (tempQueueLocker)
+                    lock (tempQueueLocker_)
                     {
-                        m_TempControlQueue_list.Remove(socket);
-                        m_TempControlQueueFirst_list.Remove(socket);
+                        tempControlQueueList_.Remove(socket);
+                        tempControlQueueFirstList_.Remove(socket);
                     }
                 }
             }
@@ -732,22 +730,22 @@ namespace Mule.Core.Impl
             {
                 if (dolock)
                 {
-                    System.Threading.Monitor.Exit(sendLocker);
+                    System.Threading.Monitor.Exit(sendLocker_);
                 }
             }
         }
 
         private bool RemoveFromStandardListNoLock(ThrottledFileSocket socket)
         {
-            bool foundSocket = m_StandardOrder_list.Contains(socket);
+            bool foundSocket = standardOrderList_.Contains(socket);
 
             if (foundSocket)
             {
-                m_StandardOrder_list.Remove(socket);
+                standardOrderList_.Remove(socket);
 
-                if (m_highestNumberOfFullyActivatedSlots > (uint)m_StandardOrder_list.Count)
+                if (highestNumberOfFullyActivatedSlots_ > (uint)standardOrderList_.Count)
                 {
-                    m_highestNumberOfFullyActivatedSlots = (uint)m_StandardOrder_list.Count;
+                    highestNumberOfFullyActivatedSlots_ = (uint)standardOrderList_.Count;
                 }
             }
 

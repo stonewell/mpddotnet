@@ -320,11 +320,6 @@ namespace Mpd.Utilities
             return Convert.ToUInt32((dt - TIME_FUNC_BEGIN).Seconds);
         }
 
-        public static void AdjustNTFSDaylightFileTime(ref uint fdate, string searchpath)
-        {
-            throw new Exception("The method or operation is not implemented.");
-        }
-
         public static DateTime UInt32ToDateTime(uint seconds)
         {
             return TIME_FUNC_BEGIN + new TimeSpan(0, 0, Convert.ToInt32(seconds));
@@ -446,11 +441,6 @@ namespace Mpd.Utilities
                 else
                     break;
             }
-        }
-
-        public static uint GetTickCount()
-        {
-            return 0;
         }
 
         public static void SwapByte(ref byte a, ref byte b)
@@ -624,36 +614,6 @@ namespace Mpd.Utilities
             return IsGoodIP(nIP, false);
         }
 
-        public static ulong GetFreeDiskSpace(string tempDir)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static bool PathMatchSpec(string fullname, string cmpExt)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static bool RegularExpressionMatch(string catExt, string p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static uint GetCompressedFileSize(string filepath, out uint filesizehigh)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static int GetPathDriveNumber(string p)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static bool IsFileOnFATVolume(string p)
-        {
-            throw new NotImplementedException();
-        }
-
         public static void XmlSerialize(Stream fs, object val)
         {
             if (val == null)
@@ -695,14 +655,57 @@ namespace Mpd.Utilities
             }
         }
 
-        public static void QueueLogLine(bool p, string p_2)
+        public static void QueueLogLine(bool addToStatusBar, string format, params object[] args)
         {
-            throw new NotImplementedException();
+            if (args == null)
+                MpdLogger.Log(MpdLogLevelEnum.Info, 1, format);            
+            else
+                MpdLogger.Log(MpdLogLevelEnum.Info, 1, string.Format(format, args));            
         }
 
         public static uint TimeGetTime()
         {
+            return Convert.ToUInt32(System.Environment.TickCount);
+        }
+
+        public static void AdjustNTFSDaylightFileTime(ref uint fdate, string searchpath)
+        {
+            throw new Exception("The method or operation is not implemented.");
+        }
+
+        public static ulong GetFreeDiskSpace(string tempDir)
+        {
             throw new NotImplementedException();
+        }
+
+        public static bool PathMatchSpec(string fullname, string cmpExt)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool RegularExpressionMatch(string catExt, string p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static uint GetCompressedFileSize(string filepath, out uint filesizehigh)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static int GetPathDriveNumber(string p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static bool IsFileOnFATVolume(string p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static uint GetTickCount()
+        {
+            return Convert.ToUInt32(System.Environment.TickCount);
         }
     }
 }

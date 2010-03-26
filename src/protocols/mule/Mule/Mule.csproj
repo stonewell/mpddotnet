@@ -57,12 +57,14 @@
     <Compile Include="Core\CBBRecord.cs" />
     <Compile Include="Core\Chunk.cs" />
     <Compile Include="Core\ClientCredits.cs" />
+    <Compile Include="Core\ClientCreditsList.cs" />
     <Compile Include="Core\ClientList.cs" />
     <Compile Include="Core\CoreObjectManager.cs" />
     <Compile Include="Core\CorruptionBlackBox.cs" />
     <Compile Include="Core\DeadSourceList.cs" />
     <Compile Include="Core\DownloadQueue.cs" />
     <Compile Include="Core\Friend.cs" />
+    <Compile Include="Core\FriendList.cs" />
     <Compile Include="Core\IPFilter.cs" />
     <Compile Include="Core\LastCommonRouteFinder.cs" />
     <Compile Include="Core\MuleCollection.cs" />
@@ -91,6 +93,7 @@
     <Compile Include="File\FileIdentifierBase.cs" />
     <Compile Include="File\FileObjectManager.cs" />
     <Compile Include="File\KnownFile.cs" />
+    <Compile Include="File\KnownFileList.cs" />
     <Compile Include="File\PartFile.cs" />
     <Compile Include="File\PendingBlock.cs" />
     <Compile Include="File\RequestedBlock.cs" />
@@ -107,8 +110,12 @@
     <Compile Include="Network\EMSocket.cs" />
     <Compile Include="Network\EncryptedDatagramSocket.cs" />
     <Compile Include="Network\EncryptedStreamSocket.cs" />
+    <Compile Include="Network\HttpClientReqSocket.cs" />
     <Compile Include="Network\ListenSocket.cs" />
     <Compile Include="Network\NetworkObjectManager.cs" />
+    <Compile Include="Network\PeerCacheDownSocket.cs" />
+    <Compile Include="Network\PeerCacheSocket.cs" />
+    <Compile Include="Network\PeerCacheUpSocket.cs" />
     <Compile Include="Network\ServerSocket.cs" />
     <Compile Include="Network\Packet.cs" />
     <Compile Include="Network\UDPSocket.cs" />

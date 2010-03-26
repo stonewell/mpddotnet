@@ -582,6 +582,11 @@ namespace Mule.ED2K.Impl
             throw new NotImplementedException();
         }
 
+        public void Process()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

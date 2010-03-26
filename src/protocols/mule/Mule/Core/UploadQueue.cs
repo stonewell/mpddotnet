@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Mule.File;
 
 namespace Mule.Core
 {
@@ -11,11 +12,12 @@ namespace Mule.Core
         void Process();
         void AddClientToQueue(UpDownClient client);
         void AddClientToQueue(UpDownClient client, bool bIgnoreTimelimit);
-        void RemoveFromUploadQueue(UpDownClient client);
-        void RemoveFromUploadQueue(UpDownClient client, string reason);
+        bool RemoveFromUploadQueue(UpDownClient client);
+        bool RemoveFromUploadQueue(UpDownClient client, string reason);
         bool RemoveFromUploadQueue(UpDownClient client, string pszReason,
             bool updatewindow);
-        bool RemoveFromUploadQueue(UpDownClient client, string pszReason, bool updatewindow, bool earlyabort);
+        bool RemoveFromUploadQueue(UpDownClient client, string pszReason, 
+            bool updatewindow, bool earlyabort);
         bool RemoveFromWaitingQueue(UpDownClient client);
         bool RemoveFromWaitingQueue(UpDownClient client, bool updatewindow);
         bool IsOnUploadQueue(UpDownClient client);
@@ -29,8 +31,8 @@ namespace Mule.Core
         int WaitingUserCount { get; }
         int UploadQueueLength { get; }
         uint ActiveUploadsCount { get; }
-        uint GetWaitingUserForFileCount(IList<object> raFiles, bool bOnlyIfChanged);
-        uint GetDatarateForFile(IList<object> raFiles);
+        uint GetWaitingUserForFileCount(List<KnownFile> raFiles, bool bOnlyIfChanged);
+        uint GetDatarateForFile(List<KnownFile> raFiles);
 
         List<UpDownClient> WaitingList { get; }
         List<UpDownClient> UploadingList { get; }
@@ -53,6 +55,6 @@ namespace Mule.Core
         UpDownClient FindBestClientInQueue();
         void ResortUploadSlots();
         void ResortUploadSlots(bool force);
-
+        void UpdateMaxClientScore();
     }
 }

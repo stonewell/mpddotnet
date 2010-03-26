@@ -47,12 +47,12 @@ namespace Mule.Network.Impl
 
             switch (pbyBufIn[0])
             {
-                case MuleConstants.OP_EMULEPROT:
-                case MuleConstants.OP_KADEMLIAPACKEDPROT:
-                case MuleConstants.OP_KADEMLIAHEADER:
-                case MuleConstants.OP_UDPRESERVEDPROT1:
-                case MuleConstants.OP_UDPRESERVEDPROT2:
-                case MuleConstants.OP_PACKEDPROT:
+                case MuleConstants.PROTOCOL_EMULEPROT:
+                case MuleConstants.PROTOCOL_KADEMLIAPACKEDPROT:
+                case MuleConstants.PROTOCOL_KADEMLIAHEADER:
+                case MuleConstants.PROTOCOL_UDPRESERVEDPROT1:
+                case MuleConstants.PROTOCOL_UDPRESERVEDPROT2:
+                case MuleConstants.PROTOCOL_PACKEDPROT:
                     return nResult; // no encrypted packet (see description on top)
             }
 
@@ -276,12 +276,12 @@ namespace Mule.Network.Impl
                 bool bOk = false;
                 switch (bySemiRandomNotProtocolMarker)
                 { // not allowed values
-                    case MuleConstants.OP_EMULEPROT:
-                    case MuleConstants.OP_KADEMLIAPACKEDPROT:
-                    case MuleConstants.OP_KADEMLIAHEADER:
-                    case MuleConstants.OP_UDPRESERVEDPROT1:
-                    case MuleConstants.OP_UDPRESERVEDPROT2:
-                    case MuleConstants.OP_PACKEDPROT:
+                    case MuleConstants.PROTOCOL_EMULEPROT:
+                    case MuleConstants.PROTOCOL_KADEMLIAPACKEDPROT:
+                    case MuleConstants.PROTOCOL_KADEMLIAHEADER:
+                    case MuleConstants.PROTOCOL_UDPRESERVEDPROT1:
+                    case MuleConstants.PROTOCOL_UDPRESERVEDPROT2:
+                    case MuleConstants.PROTOCOL_PACKEDPROT:
                         break;
                     default:
                         bOk = true;
@@ -337,7 +337,7 @@ namespace Mule.Network.Impl
                 dwBaseKey == 0)
                 return nResult;
 
-            if (pbyBufIn[0] == MuleConstants.OP_EDONKEYPROT)
+            if (pbyBufIn[0] == MuleConstants.PROTOCOL_EDONKEYPROT)
                 return nResult; // no encrypted packet (see description on top)
 
             // might be an encrypted packet, try to decrypt
@@ -408,7 +408,7 @@ namespace Mule.Network.Impl
             for (i = 0; i < 128; i++)
             {
                 bySemiRandomNotProtocolMarker = cryptRandomGen_.GenerateByte();
-                if (bySemiRandomNotProtocolMarker != MuleConstants.OP_EDONKEYPROT) // not allowed values
+                if (bySemiRandomNotProtocolMarker != MuleConstants.PROTOCOL_EDONKEYPROT) // not allowed values
                     break;
             }
             if (i >= 128)

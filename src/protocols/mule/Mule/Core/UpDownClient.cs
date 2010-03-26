@@ -42,6 +42,8 @@ namespace Mule.Core
         void SendCancelTransfer(Packet packet);
         bool IsEd2kClient { get; }
         bool Disconnected(string pszReason, bool bFromSocket);
+        bool TryToConnect();
+        bool TryToConnect(bool bIgnoreMaxCon);
         bool TryToConnect(bool bIgnoreMaxCon, bool bNoCallbacks);
         void Connect();
         void ConnectionEstablished();
@@ -362,5 +364,10 @@ namespace Mule.Core
         void SendCancelTransfer();
 
         void SetDownloadState(DownloadStateEnum downloadStateEnum, string p);
+        bool SendPacket(Packet packet, bool bDeletePacket);
+        bool SendPacket(Packet packet, bool bDeletePacket, bool bVerifyConnection);
+
+        void SetLastUpRequest();
+        bool DoesDirectUDPCallbackSupport { get;set;}
     }
 }

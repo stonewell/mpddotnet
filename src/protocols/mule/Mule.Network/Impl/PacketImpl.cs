@@ -70,7 +70,7 @@ namespace Mule.Network.Impl
 
         #region Constructors
         public PacketImpl()
-            : this(MuleConstants.OP_EDONKEYPROT)
+            : this(MuleConstants.PROTOCOL_EDONKEYPROT)
         {
         }
 
@@ -114,7 +114,7 @@ namespace Mule.Network.Impl
 
 
         public PacketImpl(OperationCodeEnum in_opcode, uint in_size) :
-            this(in_opcode, in_size, MuleConstants.OP_EDONKEYPROT, true)
+            this(in_opcode, in_size, MuleConstants.PROTOCOL_EDONKEYPROT, true)
         {
         }
 
@@ -145,7 +145,7 @@ namespace Mule.Network.Impl
         }
 
     	public PacketImpl(SafeMemFile datafile) :
-            this(datafile, MuleConstants.OP_EDONKEYPROT, (OperationCodeEnum)0x00)
+            this(datafile, MuleConstants.PROTOCOL_EDONKEYPROT, (OperationCodeEnum)0x00)
         {
         }
 
@@ -266,10 +266,10 @@ namespace Mule.Network.Impl
                 return;
             }
 
-            if (Protocol == MuleConstants.OP_KADEMLIAHEADER)
-                Protocol = MuleConstants.OP_KADEMLIAPACKEDPROT;
+            if (Protocol == MuleConstants.PROTOCOL_KADEMLIAHEADER)
+                Protocol = MuleConstants.PROTOCOL_KADEMLIAPACKEDPROT;
             else
-                Protocol = MuleConstants.OP_PACKEDPROT;
+                Protocol = MuleConstants.PROTOCOL_PACKEDPROT;
             Array.Copy(output, Buffer, output.Length);
             Size = (uint)output.Length;
             m_bPacked = true;
@@ -282,8 +282,8 @@ namespace Mule.Network.Impl
 
         public bool UnPackPacket(uint uMaxDecompressedSize)
         {
-            Debug.Assert(Protocol == MuleConstants.OP_PACKEDPROT || 
-                Protocol == MuleConstants.OP_KADEMLIAPACKEDPROT);
+            Debug.Assert(Protocol == MuleConstants.PROTOCOL_PACKEDPROT || 
+                Protocol == MuleConstants.PROTOCOL_KADEMLIAPACKEDPROT);
 
             byte[] unpack = null;
 
@@ -294,10 +294,10 @@ namespace Mule.Network.Impl
                 Debug.Assert(Buffer != null);
                 Size = (uint)unpack.Length;
                 Buffer = unpack;
-                if (Protocol == MuleConstants.OP_KADEMLIAPACKEDPROT)
-                    Protocol = MuleConstants.OP_KADEMLIAHEADER;
+                if (Protocol == MuleConstants.PROTOCOL_KADEMLIAPACKEDPROT)
+                    Protocol = MuleConstants.PROTOCOL_KADEMLIAHEADER;
                 else
-                    Protocol = MuleConstants.OP_EMULEPROT;
+                    Protocol = MuleConstants.PROTOCOL_EMULEPROT;
                 
                 m_bPacked = false;
 

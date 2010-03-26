@@ -1957,7 +1957,7 @@ namespace Mule.Core.Impl
                             byOpcode = OperationCodeEnum.OP_GETSOURCES;
 
                         Packet packet = MuleApplication.Instance.NetworkObjectManager.CreatePacket(smPacket,
-                            MuleConstants.OP_EDONKEYPROT, byOpcode);
+                            MuleConstants.PROTOCOL_EDONKEYPROT, byOpcode);
                         dataTcpFrame.Write(packet.Packet, 0, (int)packet.RealPacketSize);
                     }
                 }

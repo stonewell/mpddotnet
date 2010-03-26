@@ -272,14 +272,20 @@ namespace Mpd.Utilities
 
         public static int Md4Cmp(byte[] hash1, byte[] hash2)
         {
-            if (hash1 == hash2) return 0;
+            return Md4Cmp(hash1, 0, hash2, 0);
+        }
+
+        public static int Md4Cmp(byte[] hash1, int offset1, byte[] hash2, int offset2)
+        {
+            if (hash1 == hash2 && offset1 == offset2) return 0;
+
             if (hash1 == null) return 1;
             if (hash2 == null) return 1;
 
-            if (BitConverter.ToUInt32(hash1, 0) == BitConverter.ToUInt32(hash2, 0) &&
-                BitConverter.ToUInt32(hash1, 4) == BitConverter.ToUInt32(hash2, 0) &&
-                BitConverter.ToUInt32(hash1, 8) == BitConverter.ToUInt32(hash2, 0) &&
-                BitConverter.ToUInt32(hash1, 12) == BitConverter.ToUInt32(hash2, 0))
+            if (BitConverter.ToUInt32(hash1, offset1 + 0) == BitConverter.ToUInt32(hash2, offset2 + 0) &&
+                BitConverter.ToUInt32(hash1, offset1 + 4) == BitConverter.ToUInt32(hash2, offset2 + 4) &&
+                BitConverter.ToUInt32(hash1, offset1 + 8) == BitConverter.ToUInt32(hash2, offset2 + 8) &&
+                BitConverter.ToUInt32(hash1, offset1 + 12) == BitConverter.ToUInt32(hash2, offset2 + 12))
             {
                 return 0;
             }
@@ -505,13 +511,18 @@ namespace Mpd.Utilities
 
         public static bool Decompress(byte[] inBuf, uint size, out byte[] output)
         {
+            return Decompress(inBuf, 0, size, out output);
+        }
+
+        public static bool Decompress(byte[] inBuf, uint offset, uint size, out byte[] output)
+        {
             output = null;
             try
             {
                 MemoryStream outMs = new MemoryStream();
 
                 DeflateStream ds =
-                    new DeflateStream(new MemoryStream(inBuf, 0, (int)size),
+                    new DeflateStream(new MemoryStream(inBuf, (int)offset, (int)size),
                         CompressionMode.Decompress);
 
                 int count = 0;

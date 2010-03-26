@@ -25,9 +25,8 @@ namespace Mule.Network.Impl
     class UDPSocketImpl : EncryptedDatagramSocketImpl, UDPSocket
     {
         #region Fields
-        private bool m_bWouldBlock;
-        private List<ServerUDPPacket> controlpacket_queue = new List<ServerUDPPacket>();
-        private object sendLocker = new object();
+        private List<ServerUDPPacket> controlpacketQueue_ = new List<ServerUDPPacket>();
+        private object sendLocker_ = new object();
         #endregion
 
         #region UDPSocket Members
@@ -168,13 +167,14 @@ namespace Mule.Network.Impl
             // ZZ:UploadBandWithThrottler (UDP) -.
             // NOTE: *** This function is invoked from a *different* thread!
             uint sentBytes = 0;
-            lock (sendLocker)
+            lock (sendLocker_)
             {
                 // <-- ZZ:UploadBandWithThrottler (UDP)
-                while (controlpacket_queue.Count > 0 && !IsBusy() && sentBytes < maxNumberOfBytesToSend) // ZZ:UploadBandWithThrottler (UDP)
+                while (controlpacketQueue_.Count > 0 && 
+                    sentBytes < maxNumberOfBytesToSend) // ZZ:UploadBandWithThrottler (UDP)
                 {
-                    ServerUDPPacket packet = controlpacket_queue[0];
-                    int sendSuccess = SendTo(packet.packet, packet.size, packet.dwIP, packet.nPort);
+                    ServerUDPPacket packet = controlpacketQueue_[0];
+                    int sendSuccess = UDPSendTo(packet.packet, packet.size, packet.dwIP, packet.nPort);
                     if (sendSuccess >= 0)
                     {
                         if (sendSuccess > 0)
@@ -182,12 +182,12 @@ namespace Mule.Network.Impl
                             sentBytes += (uint)packet.size; // ZZ:UploadBandWithThrottler (UDP)
                         }
 
-                        controlpacket_queue.RemoveAt(0);
+                        controlpacketQueue_.RemoveAt(0);
                     }
                 }
 
                 // ZZ:UploadBandWithThrottler (UDP) -.
-                if (!IsBusy() && controlpacket_queue.Count > 0)
+                if (controlpacketQueue_.Count > 0)
                 {
                     MuleApplication.Instance.UploadBandwidthThrottler.QueueForSendingControlPacket(this);
                 }
@@ -205,7 +205,7 @@ namespace Mule.Network.Impl
         {
             base.OnClose(nErrorCode);
             MuleApplication.Instance.UploadBandwidthThrottler.RemoveAllFromQueue(this);
-            controlpacket_queue.Clear();
+            controlpacketQueue_.Clear();
         }
 
         protected override void OnReceive(int nErrorCode)
@@ -239,7 +239,7 @@ namespace Mule.Network.Impl
                         BitConverter.ToUInt32(ipEndPoint.Address.GetAddressBytes(), 0));
                 }
 
-                if (pBuffer[0] == MuleConstants.OP_EDONKEYPROT)
+                if (pBuffer[0] == MuleConstants.PROTOCOL_EDONKEYPROT)
                     ProcessPacket(pBuffer, 2, nPayLoadLen - 2, pBuffer[1],
                         BitConverter.ToUInt32(ipEndPoint.Address.GetAddressBytes(), 0),
                         (ushort)IPAddress.NetworkToHostOrder(ipEndPoint.Port));
@@ -269,12 +269,11 @@ namespace Mule.Network.Impl
             {
                 return;
             }
-            m_bWouldBlock = false;
 
             // ZZ:UploadBandWithThrottler (UDP) -.
-            lock (sendLocker)
+            lock (sendLocker_)
             {
-                if (controlpacket_queue.Count > 0)
+                if (controlpacketQueue_.Count > 0)
                 {
                     MuleApplication.Instance.UploadBandwidthThrottler.QueueForSendingControlPacket(this);
                 }
@@ -292,9 +291,9 @@ namespace Mule.Network.Impl
             newpending.nPort = nPort;
             newpending.packet = pPacket;
             newpending.size = (int)uSize;
-            lock (sendLocker)
+            lock (sendLocker_)
             {
-                controlpacket_queue.Add(newpending);
+                controlpacketQueue_.Add(newpending);
             }// sendLocker.Unlock();
             MuleApplication.Instance.UploadBandwidthThrottler.QueueForSendingControlPacket(this);
             // <-- ZZ:UploadBandWithThrottler (UDP)
@@ -328,7 +327,7 @@ namespace Mule.Network.Impl
                                 {
                                     byte protocol = data.ReadUInt8();
                                     iLeft--;
-                                    if (protocol != MuleConstants.OP_EDONKEYPROT)
+                                    if (protocol != MuleConstants.PROTOCOL_EDONKEYPROT)
                                     {
                                         data.Seek(-1, System.IO.SeekOrigin.Current);
                                         iLeft += 1;
@@ -373,7 +372,7 @@ namespace Mule.Network.Impl
                                 {
                                     byte protocol = data.ReadUInt8();
                                     iLeft--;
-                                    if (protocol != MuleConstants.OP_EDONKEYPROT)
+                                    if (protocol != MuleConstants.PROTOCOL_EDONKEYPROT)
                                     {
                                         data.Seek(-1, System.IO.SeekOrigin.Current);
                                         iLeft += 1;
@@ -594,9 +593,7 @@ namespace Mule.Network.Impl
             MpdUtilities.IP2String(nIP), nUDPPort, strName, opcode, size, ex.Message), ex);
         }
 
-        private bool IsBusy() { return m_bWouldBlock; }
-
-        private int SendTo(byte[] lpBuf, int nBufLen, uint dwIP, ushort nPort)
+        private int UDPSendTo(byte[] lpBuf, int nBufLen, uint dwIP, ushort nPort)
         {
             // NOTE: *** This function is invoked from a *different* thread!
             int iResult = base.SendTo(lpBuf, nBufLen,

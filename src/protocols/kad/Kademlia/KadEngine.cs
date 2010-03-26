@@ -201,11 +201,27 @@ namespace Kademlia
         {
             throw new NotImplementedException();
         }
-        public void ProcessPacket(byte[] pbyData,
+
+        public void ProcessPacket(byte[] pbyData, uint offset, uint size,
             uint uIP, ushort uPort, bool bValidReceiverKey, KadUDPKey senderUDPKey)
         {
             throw new NotImplementedException();
         }
+
+        public void ProcessPacket(byte[] pbyData, uint size,
+            uint uIP, ushort uPort, bool bValidReceiverKey, KadUDPKey senderUDPKey)
+        {
+            ProcessPacket(pbyData, 0, size,
+                uIP, uPort, bValidReceiverKey, senderUDPKey);
+        }
+
+        public void ProcessPacket(byte[] pbyData,
+            uint uIP, ushort uPort, bool bValidReceiverKey, KadUDPKey senderUDPKey)
+        {
+            ProcessPacket(pbyData, 0, (uint)pbyData.Length,
+                uIP, uPort, bValidReceiverKey, senderUDPKey);
+        }
+
         public void AddEvent(KadRoutingZone pZone)
         {
             throw new NotImplementedException();

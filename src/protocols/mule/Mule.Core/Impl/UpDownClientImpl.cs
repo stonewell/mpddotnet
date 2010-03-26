@@ -2432,5 +2432,47 @@ namespace Mule.Core.Impl
         }
 
         #endregion
+
+        #region UpDownClient Members
+
+
+        public bool TryToConnect()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryToConnect(bool bIgnoreMaxCon)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool SendPacket(Packet packet, bool bDeletePacket)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool SendPacket(Packet packet, bool bDeletePacket, bool bVerifyConnection)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetLastUpRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DoesDirectUDPCallbackSupport
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        #endregion
     }
 }

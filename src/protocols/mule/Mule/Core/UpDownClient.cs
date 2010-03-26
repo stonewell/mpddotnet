@@ -41,6 +41,7 @@ namespace Mule.Core
         void CheckDownloadTimeout();
         void SendCancelTransfer(Packet packet);
         bool IsEd2kClient { get; }
+        bool Disconnected(string pszReason);
         bool Disconnected(string pszReason, bool bFromSocket);
         bool TryToConnect();
         bool TryToConnect(bool bIgnoreMaxCon);
@@ -106,6 +107,7 @@ namespace Mule.Core
         void ProcessEmuleQueueRank(byte[] packet, uint size);
         void ProcessEdonkeyQueueRank(byte[] packet, uint size);
         void CheckQueueRankFlood();
+        bool Compare(UpDownClient tocomp);
         bool Compare(UpDownClient tocomp, bool bIgnoreUserhash);
         void ResetFileStatusInfo();
         uint LastSrcReqTime { get; set;}
@@ -168,9 +170,12 @@ namespace Mule.Core
         bool HasBlocks { get; }
         uint NumberOfRequestedBlocksInQueue { get; }
         uint DataRate { get; }
+        uint GetScore(bool sysvalue);
+        uint GetScore(bool sysvalue, bool isdownloading);
         uint GetScore(bool sysvalue, bool isdownloading, bool onlybasevalue);
         void AddReqBlock(RequestedBlock reqblock);
         void CreateNextBlockPackage();
+        void CreateNextBlockPackage(bool bBigBuffer);
         uint UpStartTimeDelay { get; }
         void SetUpStartTime();
         void SendHashsetPacket(byte[] fileid);
@@ -351,10 +356,11 @@ namespace Mule.Core
         PartFileList OtherRequestsList { get;}
         PartFileList OtherNoNeededList { get;}
         ushort LastPartAsked { get; set; }
-        bool DoesAddNextConnect { get;}
+        bool DoesAddNextConnect { get; set; }
 
 
         uint SlotNumber { get; set;}
+        EMSocket GetFileUploadSocket();
         EMSocket GetFileUploadSocket(bool log);
 
         void SendHashsetPacket(byte[] packet, int p, bool p_3);
@@ -369,5 +375,10 @@ namespace Mule.Core
 
         void SetLastUpRequest();
         bool DoesDirectUDPCallbackSupport { get;set;}
+
+        PeerCacheDownSocket PeerCacheDownSocket { get; set; }
+        PeerCacheUpSocket PeerCacheUpSocket { get; set; }
+
+        byte[] ReqUpFileId { get; set; }
     }
 }

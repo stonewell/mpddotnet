@@ -50,5 +50,7 @@ namespace Mule.ED2K
         void CheckForExpiredUDPKeys();
 
         void GetUserSortedServers();
+
+        void Process();
     }
 }

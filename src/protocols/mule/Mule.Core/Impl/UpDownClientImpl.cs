@@ -2474,5 +2474,118 @@ namespace Mule.Core.Impl
         }
 
         #endregion
+
+        #region UpDownClient Members
+
+
+        public uint GetScore(bool sysvalue)
+        {
+            throw new NotImplementedException();
+        }
+
+        public uint GetScore(bool sysvalue, bool isdownloading)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool UpDownClient.DoesAddNextConnect
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        #endregion
+
+        #region UpDownClient Members
+
+
+        public EMSocket GetFileUploadSocket()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region UpDownClient Members
+
+
+        public bool Disconnected(string pszReason)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region UpDownClient Members
+
+
+        public bool Compare(UpDownClient tocomp)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region UpDownClient Members
+
+
+        public PeerCacheDownSocket PeerCacheDownSocket
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public PeerCacheUpSocket PeerCacheUpSocket
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        #endregion
+
+        #region UpDownClient Members
+
+
+        public byte[] ReqUpFileId
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        #endregion
+
+        #region UpDownClient Members
+
+
+        public void CreateNextBlockPackage(bool bBigBuffer)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

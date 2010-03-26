@@ -504,5 +504,15 @@ namespace Mule.Preference.Impl
         }
 
         #endregion
+
+        #region MuleStatistics Members
+
+
+        public void Save()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

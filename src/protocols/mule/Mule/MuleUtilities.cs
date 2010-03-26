@@ -57,7 +57,7 @@ namespace Mule
                 MpdUtilities.SwapByte(ref pabyState[i], ref pabyState[index2]);
                 index1 = (byte)((index1 + 1) % nLen);
             }
-            
+
             if (!bSkipDiscard)
                 RC4Crypt(null, null, 1024, key);
 
@@ -92,6 +92,14 @@ namespace Mule
             }
             key.byX = byX;
             key.byY = byY;
+        }
+
+        public const string COLLECTION_FILEEXTENSION = ".emulecollection";
+        public static bool HasCollectionExtention(string sFileName)
+        {
+            if (sFileName.EndsWith(COLLECTION_FILEEXTENSION))
+                return true;
+            return false;
         }
     }
 }

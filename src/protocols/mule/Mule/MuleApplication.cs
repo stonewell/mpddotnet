@@ -405,5 +405,34 @@ namespace Mule
 
         public ClientUDPSocket ClientUDP { get; private set; }
         public SearchList SearchList { get; private set; }
+
+        public void HandleDebugLogQueue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleLogQueue()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SearchClipboard()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ShowPing()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnlineSig()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ClientCreditsList ClientCredits { get; private set; }
+        public KnownFileList KnownFiles { get; private set; }
+        public FriendList FriendList { get; private set; }
     }
 }

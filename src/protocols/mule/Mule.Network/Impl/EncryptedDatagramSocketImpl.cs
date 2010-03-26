@@ -26,8 +26,7 @@ namespace Mule.Network.Impl
         #endregion
 
         #region Constructors
-        public EncryptedDatagramSocketImpl() :
-            base(new IPEndPoint(IPAddress.Any, 0).AddressFamily, SocketType.Dgram, ProtocolType.Udp)
+        public EncryptedDatagramSocketImpl()
         {
         }
         #endregion

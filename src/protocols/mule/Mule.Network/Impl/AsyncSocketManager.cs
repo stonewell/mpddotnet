@@ -16,20 +16,37 @@ namespace Mule.Network.Impl
             private Dictionary<Socket, AsyncSocketImpl> sockets_ =
                 new Dictionary<Socket, AsyncSocketImpl>();
             private Thread runningThread_ = null;
+            private bool shutDown_ = false;
 
             public AsyncSocketManager()
             {
+                MuleApplication.Instance.ShutDownMuleApplication += new EventHandler(Instance_ShutDownMuleApplication);
                 runningThread_ =
                     new Thread(new ThreadStart(SocketManagerThreadFunc));
 
+                shutDown_ = false;
+
                 runningThread_.Start();
+            }
+
+            private void Instance_ShutDownMuleApplication(object sender, EventArgs e)
+            {
+                try
+                {
+                    shutDown_ = true;
+
+                    runningThread_.Join();
+                }
+                catch
+                {
+                }
             }
 
             private const int TIMEOUT = 1000;
 
             private void SocketManagerThreadFunc()
             {
-                while (true)
+                while (!shutDown_)
                 {
                     List<Socket> readSockets = new List<Socket>();
                     List<Socket> writeSockets = new List<Socket>();
@@ -55,6 +72,9 @@ namespace Mule.Network.Impl
                     {
                         Socket.Select(readSockets, writeSockets, errorSockets, TIMEOUT * 1000);
 
+                        if (shutDown_)
+                            return;
+
                         lock (locker_)
                         {
                             readSockets.ForEach(s =>
@@ -63,7 +83,7 @@ namespace Mule.Network.Impl
 
                                     AsyncSocketImpl socket = sockets_[s];
 
-                                    if (socket.listen_called)
+                                    if (socket.listen_called_)
                                         socket.FireOnAcceptEvent();
                                     else
                                         socket.FireOnReceiveEvent();
@@ -75,13 +95,13 @@ namespace Mule.Network.Impl
 
                                     AsyncSocketImpl socket = sockets_[s];
 
-                                    if (socket.Connected && socket.connect_event_fired)
+                                    if (socket.Connected && socket.connect_event_fired_)
                                     {
                                         socket.FireOnSendEvent();
                                     }
                                     else
                                     {
-                                        socket.connect_event_fired = true;
+                                        socket.connect_event_fired_ = true;
                                         socket.FireOnConnectEvent();
                                     }
                                 });

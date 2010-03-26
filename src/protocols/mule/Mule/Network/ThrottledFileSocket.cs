@@ -33,5 +33,6 @@ namespace Mule.Network
         uint NeededBytes { get; }
         bool IsBusy { get; }
         bool HasQueues { get; }
+        bool UseBigSendBuffer();
     }
 }

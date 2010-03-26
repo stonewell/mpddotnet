@@ -148,6 +148,11 @@ namespace Mule.Network.Impl
 
         public bool Create()
         {
+            if (!base.CreateSocket(new IPEndPoint(IPAddress.Any, 0).AddressFamily, 
+                SocketType.Dgram, 
+                ProtocolType.Udp))
+                return false;
+
             if (MuleApplication.Instance.Preference.ServerUDPPort != 0)
             {
                 Bind(new IPEndPoint(IPAddress.Parse(MuleApplication.Instance.Preference.BindAddr),
@@ -156,6 +161,7 @@ namespace Mule.Network.Impl
 
                 return true;
             }
+
             return false;
         }
         #endregion
@@ -204,7 +210,7 @@ namespace Mule.Network.Impl
         protected override void OnClose(int nErrorCode)
         {
             base.OnClose(nErrorCode);
-            MuleApplication.Instance.UploadBandwidthThrottler.RemoveAllFromQueue(this);
+            MuleApplication.Instance.UploadBandwidthThrottler.RemoveFromAllQueues(this);
             controlpacketQueue_.Clear();
         }
 

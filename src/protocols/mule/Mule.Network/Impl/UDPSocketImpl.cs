@@ -156,7 +156,7 @@ namespace Mule.Network.Impl
             if (MuleApplication.Instance.Preference.ServerUDPPort != 0)
             {
                 Bind(new IPEndPoint(IPAddress.Parse(MuleApplication.Instance.Preference.BindAddr),
-                    MuleApplication.Instance.Preference.ServerUDPPort == 0xFFFF ? 0 :
+                    MuleApplication.Instance.Preference.ServerUDPPort == (ushort)0xFFFF ? (ushort)0 :
                         MuleApplication.Instance.Preference.ServerUDPPort));
 
                 return true;

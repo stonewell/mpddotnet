@@ -11,7 +11,7 @@ namespace Mule.Core.Impl
     {
         public const uint DEFAULT_TTL = 64;
 
-        public const IPStatus IP_SUCCESS = (uint)IPStatus.Success;
+        public const IPStatus IP_SUCCESS = IPStatus.Success;
         public const IPStatus IP_DEST_NET_UNREACHABLE = IPStatus.DestinationNetworkUnreachable;
         public const IPStatus IP_DEST_HOST_UNREACHABLE = IPStatus.DestinationHostUnreachable;
         public const IPStatus IP_DEST_PROT_UNREACHABLE = IPStatus.DestinationProtocolUnreachable;

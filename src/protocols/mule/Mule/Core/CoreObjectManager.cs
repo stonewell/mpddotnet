@@ -29,5 +29,7 @@ namespace Mule.Core
         IPFilter CreateIPFilter();
 
         DeadSourceList CreateDeadSourceList();
+
+        ClientCreditList CreateClientCredits();
     }
 }

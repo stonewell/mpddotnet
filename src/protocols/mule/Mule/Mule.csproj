@@ -57,7 +57,7 @@
     <Compile Include="Core\CBBRecord.cs" />
     <Compile Include="Core\Chunk.cs" />
     <Compile Include="Core\ClientCredits.cs" />
-    <Compile Include="Core\ClientCreditsList.cs" />
+    <Compile Include="Core\ClientCreditList.cs" />
     <Compile Include="Core\ClientList.cs" />
     <Compile Include="Core\CoreObjectManager.cs" />
     <Compile Include="Core\CorruptionBlackBox.cs" />

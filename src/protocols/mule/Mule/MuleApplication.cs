@@ -57,6 +57,7 @@ namespace Mule
             ServerList = ED2KObjectManager.CreateED2KServerList();
             DownloadQueue = CoreObjectManager.CreateDownloadQueue();
             IPFilter = CoreObjectManager.CreateIPFilter();
+            ClientCredits = CoreObjectManager.CreateClientCredits();
 
             ListenSocket = NetworkObjectManager.CreateListenSocket();
             ClientUDP = NetworkObjectManager.CreateClientUDPSocket();
@@ -411,7 +412,7 @@ namespace Mule
             //TODO:Save Online Sig
         }
 
-        public ClientCreditsList ClientCredits { get; private set; }
+        public ClientCreditList ClientCredits { get; private set; }
         public KnownFileList KnownFiles { get; private set; }
         public FriendList FriendList { get; private set; }
     }

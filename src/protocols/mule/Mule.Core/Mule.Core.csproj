@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoreFunctions.cs" />
+    <Compile Include="Impl\ClientCreditListImpl.cs" />
     <Compile Include="Impl\ClientListImpl.cs" />
     <Compile Include="Impl\DeadSourceListImpl.cs" />
     <Compile Include="Impl\DownloadQueueImpl.cs" />

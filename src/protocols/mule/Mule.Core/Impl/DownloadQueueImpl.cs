@@ -746,7 +746,7 @@ namespace Mule.Core.Impl
             //our new source is real new but maybe it is already uploading to us?
             //if yes the known client will be attached to the var "source"
             //and the old sourceclient will be deleted
-            if (MuleApplication.Instance.ClientList.AttachToAlreadyKnown(out source, null))
+            if (MuleApplication.Instance.ClientList.AttachToAlreadyKnown(ref source, null))
             {
                 source.RequestFile = sender;
             }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mule.Core
 {
-    public interface ClientCreditsList
+    public interface ClientCreditList
     {
         void Process();
     }

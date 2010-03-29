@@ -97,6 +97,11 @@ namespace Mule.Core.Impl
             return new DeadSourceListImpl();
         }
 
+        public ClientCreditList CreateClientCredits()
+        {
+            return new ClientCreditListImpl();
+        }
+
         #endregion
     }
 }

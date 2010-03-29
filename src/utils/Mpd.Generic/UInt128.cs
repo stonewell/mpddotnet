@@ -30,7 +30,7 @@ namespace Mpd.Generic
     {
     }
 
-    public struct UInt128
+    public class UInt128
     {
         public ulong HIPart { get; set; }
         public ulong LowPart { get; set; }
@@ -39,5 +39,10 @@ namespace Mpd.Generic
 
         public string HexString { get; set; }
         public string BinString { get; set; }
+
+        public UInt128 Xor(UInt128 uInt128)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

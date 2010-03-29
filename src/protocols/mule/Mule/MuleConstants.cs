@@ -339,5 +339,7 @@ namespace Mule
         public const byte PROTOCOL_UDPRESERVEDPROT1 = 0xA3;	// reserved for later UDP headers (important for EncryptedDatagramSocket)
         public const byte PROTOCOL_UDPRESERVEDPROT2 = 0xB2;	// reserved for later UDP headers (important for EncryptedDatagramSocket)
         public const byte PROTOCOL_MLDONKEYPROT = 0x00;
+        public const uint NUM_CLIENTLIST_STATS	= 19;
+        public const uint BAN_CLEANUP_TIME = 20 * ONE_MIN_MS;
     }
 }

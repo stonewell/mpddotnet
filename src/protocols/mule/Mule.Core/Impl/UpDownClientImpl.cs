@@ -2597,5 +2597,25 @@ namespace Mule.Core.Impl
         }
 
         #endregion
+
+        #region UpDownClient Members
+
+
+        public bool SafeConnectAndSendPacket(Packet pPacket)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region UpDownClient Members
+
+
+        public void CleanUp()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

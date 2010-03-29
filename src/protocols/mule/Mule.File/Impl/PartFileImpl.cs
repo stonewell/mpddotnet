@@ -2313,7 +2313,8 @@ namespace Mule.File.Impl
                         if (KadFileSearchID == 0)
                         {
                             KadSearch pSearch =
-                                MuleApplication.Instance.KadEngine.SearchManager.PrepareLookup(Convert.ToUInt32(KadSearchTypeEnum.FILE),
+                                MuleApplication.Instance.KadEngine.SearchManager.PrepareLookup(
+                                    KadSearchTypeEnum.FILE,
                                     true,
                                     MuleApplication.Instance.KadEngine.ObjectManager.CreateUInt128(FileHash));
                             if (pSearch != null)

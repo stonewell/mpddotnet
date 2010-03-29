@@ -23,10 +23,28 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Generic;
+using Mpd.Generic.IO;
 
 namespace Kademlia
 {
     public interface KadUDPListener : KadPacketTracking
     {
+        void Bootstrap(string uIP, ushort uUDPPort);
+        void Bootstrap(uint uIP, ushort uUDPPort);
+        void Bootstrap(uint uIP, ushort uUDPPort, byte byKadVersion);
+        void Bootstrap(uint uIP, ushort uUDPPort, byte byKadVersion, ref UInt128 uCryptTargetID);
+        void FirewalledCheck(uint uIP, ushort uUDPPort, KadUDPKey senderUDPKey, byte byKadVersion);
+        void SendMyDetails(byte byOpcode, uint uIP, ushort uUDPPort, byte byKadVersion, KadUDPKey targetUDPKey, ref UInt128 uCryptTargetID, bool bRequestAckPackage);
+        void SendPublishSourcePacket(KadContact pContact, ref UInt128 uTargetID, ref UInt128 uContactID, TagList tags);
+        void SendNullPacket(KadOperationCodeEnum byOpcode, uint uIP, ushort uUDPPort, KadUDPKey targetUDPKey, UInt128 uCryptTargetID);
+        void ProcessPacket(byte[] pbyData, uint uLenData, uint uIP, ushort uUDPPort, bool bValidReceiverKey, KadUDPKey senderUDPKey);
+        void SendPacket(byte[] pbyData, uint uLenData, uint uDestinationHost, ushort uDestinationPort, KadUDPKey targetUDPKey, ref UInt128 uCryptTargetID);
+        void SendPacket(byte[] pbyData, uint uLenData, byte byOpcode, uint uDestinationHost, ushort uDestinationPort, KadUDPKey targetUDPKey, ref UInt128 uCryptTargetID);
+        void SendPacket(SafeMemFile pfileData, byte byOpcode, uint uDestinationHost, ushort uDestinationPort, KadUDPKey targetUDPKey, ref UInt128 uCryptTargetID);
+
+        bool FindNodeIDByIP(KadClientSearcher pRequester, uint dwIP, ushort nTCPPort, ushort nUDPPort);
+        void ExpireClientSearch();
+        void ExpireClientSearch(KadClientSearcher pExpireImmediately);
     }
 }

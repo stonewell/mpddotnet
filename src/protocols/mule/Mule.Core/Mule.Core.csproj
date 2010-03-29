@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="CoreFunctions.cs" />
     <Compile Include="Impl\ClientListImpl.cs" />
+    <Compile Include="Impl\DeadSourceListImpl.cs" />
     <Compile Include="Impl\DownloadQueueImpl.cs" />
     <Compile Include="Impl\IPFilterImpl.cs" />
     <Compile Include="Impl\LastCommonRouteFinderImpl.cs" />

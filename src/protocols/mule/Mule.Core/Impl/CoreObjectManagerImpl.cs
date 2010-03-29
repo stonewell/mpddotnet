@@ -92,6 +92,11 @@ namespace Mule.Core.Impl
             return new IPFilterImpl();
         }
 
+        public DeadSourceList CreateDeadSourceList()
+        {
+            return new DeadSourceListImpl();
+        }
+
         #endregion
     }
 }

@@ -32,7 +32,7 @@ namespace Kademlia
         bool IsSearching(uint uSearchID);
         void StopSearch(uint uSearchID, bool bDelayDelete);
         void StopAllSearches();
-        KadSearch PrepareLookup(uint uType, bool bStart, UInt128 uID);
+        KadSearch PrepareLookup(KadSearchTypeEnum uType, bool bStart, UInt128 uID);
         KadSearch PrepareFindKeywords(bool bUnicode, string szKeyword, uint uSearchTermsSize, byte[] pucSearchTermsData);
         bool StartSearch(KadSearch pSearch);
         void ProcessResponse(UInt128 uTarget, uint uFromIP, ushort uFromPort, KadContactList plistResults);

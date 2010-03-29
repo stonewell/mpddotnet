@@ -187,6 +187,7 @@ namespace Mule.Core
         void SendCommentInfo(KnownFile file);
         void AddRequestCount(byte[] fileid);
         void UnBan();
+        void Ban();
         void Ban(string pszReason);
         uint AskedCount { get;set; }
         void AddAskedCount();

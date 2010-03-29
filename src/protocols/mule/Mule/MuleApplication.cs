@@ -408,7 +408,7 @@ namespace Mule
 
         public void OnlineSig()
         {
-            throw new NotImplementedException();
+            //TODO:Save Online Sig
         }
 
         public ClientCreditsList ClientCredits { get; private set; }

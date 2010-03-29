@@ -1026,17 +1026,14 @@ namespace Mule.Core.Impl
                 if (!MuleApplication.Instance.IsRunning)
                     return;
 
-                MuleApplication.Instance.HandleDebugLogQueue();
-                MuleApplication.Instance.HandleLogQueue();
-
                 // ZZ:UploadSpeedSense -.
                 MuleApplication.Instance.LastCommonRouteFinder.SetPrefs(
                     MuleApplication.Instance.Preference.IsDynamicUploadEnabled,
                     MuleApplication.Instance.UploadQueue.DataRate,
                     (uint)MuleApplication.Instance.Preference.MinUpload * 1024,
-                    (uint)((MuleApplication.Instance.Preference.MaxUpload != 0) ?
-                    MuleApplication.Instance.Preference.MaxUpload * 1024 :
-                    MuleApplication.Instance.Preference.GetMaxGraphUploadRate(false) * 1024),
+                    (MuleApplication.Instance.Preference.MaxUpload != 0) ?
+                    (uint)MuleApplication.Instance.Preference.MaxUpload * 1024 :
+                    MuleApplication.Instance.Preference.GetMaxGraphUploadRate(false) * 1024,
                     MuleApplication.Instance.Preference.IsDynUpUseMillisecondPingTolerance,
                     (MuleApplication.Instance.Preference.DynUpPingTolerance > 100) ?
                     ((MuleApplication.Instance.Preference.DynUpPingTolerance - 100) / 100.0f) : 0,
@@ -1086,7 +1083,6 @@ namespace Mule.Core.Impl
                     {
                         // TODO: Remove this from here. This has to be done with a clipboard chain
                         // and *not* with a timer!!
-                        MuleApplication.Instance.SearchClipboard();
                     }
 
                     if (MuleApplication.Instance.ServerConnect.IsConnecting)
@@ -1119,7 +1115,7 @@ namespace Mule.Core.Impl
                     //save rates every second
                     MuleApplication.Instance.Statistics.RecordRate();
 
-                    bool gotEnoughHosts = MuleApplication.Instance.ClientList.GiveClientsForTraceRoute;
+                    bool gotEnoughHosts = MuleApplication.Instance.ClientList.GiveClientsForTraceRoute();
                     if (gotEnoughHosts == false)
                     {
                         MuleApplication.Instance.ServerList.GiveServersForTraceRoute();
@@ -1133,7 +1129,7 @@ namespace Mule.Core.Impl
                         MuleApplication.Instance.ListenSocket.Process();
                         MuleApplication.Instance.OnlineSig(); // Added By Bouc7 
 
-                        MuleApplication.Instance.Preference.EstimateMaxUploadCap(MuleApplication.Instance.UploadQueue.DataRate / 1024);
+                        MuleApplication.Instance.Preference.EstimateMaxUploadCapability(MuleApplication.Instance.UploadQueue.DataRate / 1024);
 
                         if (!MuleApplication.Instance.Preference.DoesTransferFullChunks)
                             MuleApplication.Instance.UploadQueue.UpdateMaxClientScore();

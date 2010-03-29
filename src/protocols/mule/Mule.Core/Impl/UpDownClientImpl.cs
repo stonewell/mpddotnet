@@ -2587,5 +2587,15 @@ namespace Mule.Core.Impl
         }
 
         #endregion
+
+        #region UpDownClient Members
+
+
+        public void Ban()
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

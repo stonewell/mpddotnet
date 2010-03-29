@@ -27,5 +27,7 @@ namespace Mule.Core
         LastCommonRouteFinder CreateLastCommonRouteFinder();
 
         IPFilter CreateIPFilter();
+
+        DeadSourceList CreateDeadSourceList();
     }
 }

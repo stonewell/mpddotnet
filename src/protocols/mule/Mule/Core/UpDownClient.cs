@@ -381,5 +381,9 @@ namespace Mule.Core
         PeerCacheUpSocket PeerCacheUpSocket { get; set; }
 
         byte[] ReqUpFileId { get; set; }
+
+        bool SafeConnectAndSendPacket(Packet pPacket);
+
+        void CleanUp();
     }
 }

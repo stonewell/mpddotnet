@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Mpd.Utilities;
+using System.Net;
+using System.Diagnostics;
+using Mule.Network;
+using Kademlia;
 
 namespace Mule.Core.Impl
 {
-    struct PORTANDHASH
+    class PORTANDHASH
     {
         public PORTANDHASH(ushort nPort, object hash)
         {
@@ -20,12 +24,23 @@ namespace Mule.Core.Impl
 
     struct IPANDTICS
     {
+        public IPANDTICS(uint dwIP, uint dwInserted)
+        {
+            this.dwInserted = dwInserted;
+            this.dwIP = dwIP;
+        }
+
         public uint dwIP;
         public uint dwInserted;
     };
 
     struct CONNECTINGCLIENT
     {
+        public CONNECTINGCLIENT(UpDownClient c, uint t)
+        {
+            pClient = c;
+            dwInserted = t;
+        }
         public UpDownClient pClient;
         public uint dwInserted;
     };
@@ -44,13 +59,6 @@ namespace Mule.Core.Impl
         public List<PORTANDHASH> m_ItemsList = new List<PORTANDHASH>();
         public uint m_dwInserted;
         public uint m_cBadRequest;
-    };
-
-    enum BuddyStateEnum
-    {
-        Disconnected,
-        Connecting,
-        Connected
     };
 
     class ClientListImpl : ClientList
@@ -77,6 +85,7 @@ namespace Mule.Core.Impl
             m_dwLastTrackedCleanUp = 0;
             m_dwLastClientCleanUp = 0;
             m_nBuddyStatus = BuddyStateEnum.Disconnected;
+            DeadSourceList = MuleApplication.Instance.CoreObjectManager.CreateDeadSourceList();
             DeadSourceList.Init(true);
             m_pBuddy = null;
         }
@@ -112,7 +121,7 @@ namespace Mule.Core.Impl
             if (list.Contains(toremove))
             {
                 MuleApplication.Instance.UploadQueue.RemoveFromUploadQueue(toremove,
-                    string.Format("CClientList::RemoveClient: {0}" , pszReason));
+                    string.Format("CClientList::RemoveClient: {0}", pszReason));
                 MuleApplication.Instance.UploadQueue.RemoveFromWaitingQueue(toremove);
                 MuleApplication.Instance.DownloadQueue.RemoveSource(toremove);
                 list.Remove(toremove);
@@ -220,9 +229,9 @@ namespace Mule.Core.Impl
             }
         }
 
-        public uint GetClientCount
+        public uint ClientCount
         {
-            get { throw new NotImplementedException(); }
+            get { return (uint)list.Count; }
         }
 
         public void DeleteAll()
@@ -237,7 +246,7 @@ namespace Mule.Core.Impl
             UpDownClient tocheck = client;
             UpDownClient found_client = null;
             UpDownClient found_client2 = null;
-            foreach(UpDownClient cur_client in list)
+            foreach (UpDownClient cur_client in list)
             {
                 if (tocheck.Compare(cur_client, false))
                 { //matching userhash
@@ -264,11 +273,11 @@ namespace Mule.Core.Impl
                     if (found_client.ClientSocket != null)
                     {
                         if (found_client.ClientSocket.IsConnected
-                            && (found_client.IP != tocheck.IP || 
+                            && (found_client.IP != tocheck.IP ||
                             found_client.UserPort != tocheck.UserPort))
                         {
                             // if found_client is connected and has the IS_IDENTIFIED, it's safe to say that the other one is a bad guy
-                            if (found_client.Credits != null && 
+                            if (found_client.Credits != null &&
                                 found_client.Credits.GetCurrentIdentState(found_client.IP) == IdentStateEnum.IS_IDENTIFIED)
                             {
                                 tocheck.Ban();
@@ -278,7 +287,6 @@ namespace Mule.Core.Impl
                             //IDS_CLIENTCOL Warning: Found matching client, to a currently connected client: %s (%s) and %s (%s)
                             return false;
                         }
-                        found_client.ClientSocket.Client = null;
                         found_client.ClientSocket.Close();
                     }
                     found_client.ClientSocket = sender;
@@ -293,182 +301,665 @@ namespace Mule.Core.Impl
 
         public UpDownClient FindClientByIP(uint clientip, uint port)
         {
-            throw new NotImplementedException();
+            foreach (UpDownClient cur_client in list)
+            {
+                if (cur_client.IP == clientip && cur_client.UserPort == port)
+                    return cur_client;
+            }
+            return null;
         }
 
         public UpDownClient FindClientByUserHash(byte[] clienthash, uint dwIP, ushort nTCPPort)
         {
-            throw new NotImplementedException();
+            UpDownClient pFound = null;
+            foreach (UpDownClient cur_client in list)
+            {
+                if (MpdUtilities.Md4Cmp(cur_client.UserHash, clienthash) == 0)
+                {
+                    if ((dwIP == 0 || dwIP == cur_client.IP) &&
+                        (nTCPPort == 0 || nTCPPort == cur_client.UserPort))
+                        return cur_client;
+                    else
+                        pFound = pFound != null ? pFound : cur_client;
+                }
+            }
+            return pFound;
         }
 
         public UpDownClient FindClientByIP(uint clientip)
         {
-            throw new NotImplementedException();
+            foreach (UpDownClient cur_client in list)
+            {
+                if (cur_client.IP == clientip)
+                    return cur_client;
+            }
+            return null;
         }
 
         public UpDownClient FindClientByIP_UDP(uint clientip, uint nUDPport)
         {
-            throw new NotImplementedException();
+            foreach (UpDownClient cur_client in list)
+            {
+                if (cur_client.IP == clientip && cur_client.UDPPort == nUDPport)
+                    return cur_client;
+            }
+            return null;
         }
 
         public UpDownClient FindClientByServerID(uint uServerIP, uint uUserID)
         {
-            throw new NotImplementedException();
+            uint uHybridUserID = (uint)IPAddress.NetworkToHostOrder(uUserID);
+            foreach (UpDownClient cur_client in list)
+            {
+                if (cur_client.ServerIP == uServerIP &&
+                    cur_client.UserIDHybrid == uHybridUserID)
+                    return cur_client;
+            }
+            return null;
         }
 
         public UpDownClient FindClientByUserID_KadPort(uint clientID, ushort kadPort)
         {
-            throw new NotImplementedException();
+            foreach (UpDownClient cur_client in list)
+            {
+                if (cur_client.UserIDHybrid == clientID && cur_client.KadPort == kadPort)
+                    return cur_client;
+            }
+            return null;
         }
 
         public UpDownClient FindClientByIP_KadPort(uint ip, ushort port)
         {
-            throw new NotImplementedException();
+            foreach (UpDownClient cur_client in list)
+            {
+                if (cur_client.IP == ip && cur_client.KadPort == port)
+                    return cur_client;
+            }
+            return null;
         }
 
         public void AddBannedClient(uint dwIP)
         {
-            throw new NotImplementedException();
+            m_bannedList[dwIP] = MpdUtilities.GetTickCount();
         }
 
         public bool IsBannedClient(uint dwIP)
         {
-            throw new NotImplementedException();
+            if (m_bannedList.ContainsKey(dwIP))
+            {
+                uint dwBantime = m_bannedList[dwIP];
+                if (dwBantime + MuleConstants.CLIENTBANTIME > MpdUtilities.GetTickCount())
+                    return true;
+            }
+            return false;
         }
 
         public void RemoveBannedClient(uint dwIP)
         {
-            throw new NotImplementedException();
+            if (m_bannedList.ContainsKey(dwIP))
+                m_bannedList.Remove(dwIP);
         }
 
         public uint BannedCount
         {
-            get { throw new NotImplementedException(); }
+            get { return (uint)m_bannedList.Count; }
         }
 
         public void RemoveAllBannedClients()
         {
-            throw new NotImplementedException();
+            m_bannedList.Clear();
         }
 
         public void AddTrackClient(UpDownClient toadd)
         {
-            throw new NotImplementedException();
+            DeletedClient pResult = null;
+            if (m_trackedClientsList.ContainsKey(toadd.IP))
+            {
+                pResult = m_trackedClientsList[toadd.IP];
+                pResult.m_dwInserted = MpdUtilities.GetTickCount();
+                for (int i = 0; i != pResult.m_ItemsList.Count; i++)
+                {
+                    if (pResult.m_ItemsList[i].nPort == toadd.UserPort)
+                    {
+                        // already tracked, update
+                        pResult.m_ItemsList[i].pHash = toadd.Credits;
+                        return;
+                    }
+                }
+                PORTANDHASH porthash = new PORTANDHASH(toadd.UserPort, toadd.Credits);
+                pResult.m_ItemsList.Add(porthash);
+            }
+            else
+            {
+                m_trackedClientsList[toadd.IP] = new DeletedClient(toadd);
+            }
         }
 
         public bool ComparePriorUserhash(uint dwIP, ushort nPort, byte[] pNewHash)
         {
-            throw new NotImplementedException();
+            DeletedClient pResult = null;
+            if (m_trackedClientsList.ContainsKey(dwIP))
+            {
+                pResult = m_trackedClientsList[dwIP];
+                for (int i = 0; i != pResult.m_ItemsList.Count; i++)
+                {
+                    if (pResult.m_ItemsList[i].nPort == nPort)
+                    {
+                        if (pResult.m_ItemsList[i].pHash != pNewHash)
+                            return false;
+                        else
+                            break;
+                    }
+                }
+            }
+            return true;
         }
 
         public uint GetClientsFromIP(uint dwIP)
         {
-            throw new NotImplementedException();
+            DeletedClient pResult;
+            if (m_trackedClientsList.ContainsKey(dwIP))
+            {
+                pResult = m_trackedClientsList[dwIP];
+                return (uint)pResult.m_ItemsList.Count;
+            }
+            return 0;
         }
 
         public void TrackBadRequest(UpDownClient upcClient, int nIncreaseCounter)
         {
-            throw new NotImplementedException();
+            DeletedClient pResult = null;
+            if (upcClient.IP == 0)
+            {
+                Debug.Assert(false);
+                return;
+            }
+            if (m_trackedClientsList.ContainsKey(upcClient.IP))
+            {
+                pResult = m_trackedClientsList[upcClient.IP];
+                pResult.m_dwInserted = MpdUtilities.GetTickCount();
+                pResult.m_cBadRequest += (uint)nIncreaseCounter;
+            }
+            else
+            {
+                DeletedClient ccToAdd = new DeletedClient(upcClient);
+                ccToAdd.m_cBadRequest = (uint)nIncreaseCounter;
+                m_trackedClientsList[upcClient.IP] = ccToAdd;
+            }
         }
 
         public uint GetBadRequests(UpDownClient upcClient)
         {
-            throw new NotImplementedException();
+            DeletedClient pResult = null;
+            if (upcClient.IP == 0)
+            {
+                return 0;
+            }
+            if (m_trackedClientsList.ContainsKey(upcClient.IP))
+            {
+                pResult = m_trackedClientsList[upcClient.IP];
+                return pResult.m_cBadRequest;
+            }
+            else
+                return 0;
         }
 
         public uint TrackedCount
         {
-            get { throw new NotImplementedException(); }
+            get { return (uint)m_trackedClientsList.Count; }
         }
 
         public void RemoveAllTrackedClients()
         {
-            throw new NotImplementedException();
+            m_trackedClientsList.Clear();
         }
 
         public bool RequestTCP(Kademlia.KadContact contact, byte byConnectOptions)
         {
-            throw new NotImplementedException();
+            uint nContactIP = (uint)IPAddress.NetworkToHostOrder(contact.IPAddress);
+            // don't connect ourself
+            if (MuleApplication.Instance.ServerConnect.LocalIP == nContactIP &&
+                MuleApplication.Instance.Preference.Port == contact.TCPPort)
+                return false;
+
+            UpDownClient pNewClient = FindClientByIP(nContactIP, contact.TCPPort);
+
+            if (pNewClient == null)
+                pNewClient = MuleApplication.Instance.CoreObjectManager.CreateUpDownClient(0, contact.TCPPort, contact.IPAddress, 0, 0, false);
+            else if (pNewClient.KadState != KadStateEnum.KS_NONE)
+                return false; // already busy with this client in some way (probably buddy stuff), don't mess with it
+
+            //Add client to the lists to be processed.
+            pNewClient.KadPort = contact.UDPPort;
+            pNewClient.KadState = KadStateEnum.KS_QUEUED_FWCHECK;
+            if (contact.ClientID != null)
+            {
+                pNewClient.UserHash = contact.ClientID.Bytes;
+                pNewClient.SetConnectOptions(byConnectOptions, true, false);
+            }
+            m_KadList.Add(pNewClient);
+            //This method checks if this is a dup already.
+            AddClient(pNewClient);
+            return true;
         }
 
         public void RequestBuddy(Kademlia.KadContact contact, byte byConnectOptions)
         {
-            throw new NotImplementedException();
+            uint nContactIP = (uint)IPAddress.NetworkToHostOrder(contact.IPAddress);
+            // don't connect ourself
+            if (MuleApplication.Instance.ServerConnect.LocalIP == nContactIP &&
+                MuleApplication.Instance.Preference.Port == contact.TCPPort)
+                return;
+            UpDownClient pNewClient = FindClientByIP(nContactIP, contact.TCPPort);
+            if (pNewClient == null)
+                pNewClient =
+                    MuleApplication.Instance.CoreObjectManager.CreateUpDownClient(0,
+                    contact.TCPPort, contact.IPAddress, 0, 0, false);
+            else if (pNewClient.KadState != KadStateEnum.KS_NONE)
+                return; // already busy with this client in some way (probably fw stuff), don't mess with it
+            else if (IsKadFirewallCheckIP(nContactIP))
+            { // doing a kad firewall check with this IP, abort 
+                return;
+            }
+            //Add client to the lists to be processed.
+            pNewClient.KadPort = contact.UDPPort;
+            pNewClient.KadState = KadStateEnum.KS_QUEUED_BUDDY;
+            pNewClient.UserHash = contact.ClientID.Bytes;
+            pNewClient.SetConnectOptions(byConnectOptions, true, false);
+            AddToKadList(pNewClient);
+            //This method checks if this is a dup already.
+            AddClient(pNewClient);
         }
 
         public bool IncomingBuddy(Kademlia.KadContact contact, Mpd.Generic.UInt128 buddyID)
         {
-            throw new NotImplementedException();
+            uint nContactIP = (uint)IPAddress.NetworkToHostOrder(contact.IPAddress);
+            //If eMule already knows this client, abort this.. It could cause conflicts.
+            //Although the odds of this happening is very small, it could still happen.
+            if (FindClientByIP(nContactIP, contact.TCPPort) != null)
+                return false;
+            else if (IsKadFirewallCheckIP(nContactIP))
+            { // doing a kad firewall check with this IP, abort 
+                return false;
+            }
+            else if (MuleApplication.Instance.ServerConnect.LocalIP == nContactIP &&
+                MuleApplication.Instance.Preference.Port == contact.TCPPort)
+                return false; // don't connect ourself
+
+            //Add client to the lists to be processed.
+            UpDownClient pNewClient = MuleApplication.Instance.CoreObjectManager.CreateUpDownClient(0,
+                contact.TCPPort, contact.IPAddress, 0, 0, false);
+            pNewClient.KadPort = contact.UDPPort;
+            pNewClient.KadState = KadStateEnum.KS_INCOMING_BUDDY;
+            pNewClient.UserHash = contact.ClientID.Bytes;
+            pNewClient.BuddyID = buddyID.Bytes;
+            AddToKadList(pNewClient);
+            AddClient(pNewClient);
+            return true;
         }
 
         public void RemoveFromKadList(UpDownClient torem)
         {
-            throw new NotImplementedException();
+            if (m_KadList.Contains(torem))
+            {
+                if (torem == m_pBuddy)
+                {
+                    m_pBuddy = null;
+                }
+                m_KadList.Remove(torem);
+            }
         }
 
         public void AddToKadList(UpDownClient toadd)
         {
-            throw new NotImplementedException();
+            if (toadd == null)
+                return;
+
+            if (m_KadList.Contains(toadd))
+            {
+                return;
+            }
+            m_KadList.Add(toadd);
         }
 
         public bool DoRequestFirewallCheckUDP(Kademlia.KadContact contact)
         {
-            throw new NotImplementedException();
+            // first make sure we don't know this IP already from somewhere
+            if (FindClientByIP((uint)IPAddress.NetworkToHostOrder(contact.IPAddress)) != null)
+                return false;
+            // fine, justcreate the client object, set the state and wait
+            // TODO: We don't know the clients usershash, this means we cannot build an obfuscated connection, which 
+            // again mean that the whole check won't work on "Require Obfuscation" setting, which is not a huge problem,
+            // but certainly not nice. Only somewhat acceptable way to solve this is to use the KadID instead.
+            UpDownClient pNewClient =
+                MuleApplication.Instance.CoreObjectManager.CreateUpDownClient(0,
+                contact.TCPPort, contact.IPAddress, 0, 0, false);
+            pNewClient.KadState = KadStateEnum.KS_QUEUED_FWCHECK_UDP;
+            AddToKadList(pNewClient);
+            AddClient(pNewClient);
+            return true;
         }
 
-        public byte BuddyStatus
+        public BuddyStateEnum BuddyStatus
         {
-            get { throw new NotImplementedException(); }
+            get { return m_nBuddyStatus; }
         }
 
         public UpDownClient Buddy
         {
-            get { throw new NotImplementedException(); }
+            get { return m_pBuddy; }
         }
 
         public void AddKadFirewallRequest(uint dwIP)
         {
-            throw new NotImplementedException();
+            IPANDTICS add = new IPANDTICS(dwIP, MpdUtilities.GetTickCount());
+            listFirewallCheckRequests.Insert(0, add);
+            while (listFirewallCheckRequests.Count > 0)
+            {
+                if (MpdUtilities.GetTickCount() - listFirewallCheckRequests.Last().dwInserted > MuleConstants.ONE_SEC_MS * 180)
+                    listFirewallCheckRequests.Remove(listFirewallCheckRequests.Last());
+                else
+                    break;
+            }
         }
 
         public bool IsKadFirewallCheckIP(uint dwIP)
         {
-            throw new NotImplementedException();
+            foreach (IPANDTICS v in listFirewallCheckRequests)
+            {
+                if (v.dwIP == dwIP && MpdUtilities.GetTickCount() - v.dwInserted < MuleConstants.ONE_SEC_MS * 180)
+                    return true;
+            }
+            return false;
         }
 
         public void AddTrackCallbackRequests(uint dwIP)
         {
-            throw new NotImplementedException();
+            IPANDTICS add = new IPANDTICS(dwIP, MpdUtilities.GetTickCount());
+            listDirectCallbackRequests.Insert(0, add);
+            while (listDirectCallbackRequests.Count > 0)
+            {
+                if (MpdUtilities.GetTickCount() - listDirectCallbackRequests.Last().dwInserted > MuleConstants.ONE_MIN_MS * 3)
+                    listDirectCallbackRequests.Remove(listDirectCallbackRequests.Last());
+                else
+                    break;
+            }
         }
 
         public bool AllowCalbackRequest(uint dwIP)
         {
-            throw new NotImplementedException();
+            foreach (IPANDTICS c in listDirectCallbackRequests)
+            {
+                if (c.dwIP == dwIP && MpdUtilities.GetTickCount() - c.dwInserted < MuleConstants.ONE_MIN_MS * 3)
+                    return false;
+            }
+            return true;
         }
 
         public void AddConnectingClient(UpDownClient pToAdd)
         {
-            throw new NotImplementedException();
+            foreach (CONNECTINGCLIENT client in m_liConnectingClients)
+            {
+                if (client.pClient == pToAdd)
+                {
+                    return;
+                }
+            }
+            CONNECTINGCLIENT cc = new CONNECTINGCLIENT(pToAdd, MpdUtilities.GetTickCount());
+            m_liConnectingClients.Add(cc);
         }
 
         public void RemoveConnectingClient(UpDownClient pToRemove)
         {
-            throw new NotImplementedException();
+            foreach (CONNECTINGCLIENT client in m_liConnectingClients)
+            {
+                if (client.pClient == pToRemove)
+                {
+                    m_liConnectingClients.Remove(client);
+                    return;
+                }
+            }
         }
 
         public void Process()
         {
-            throw new NotImplementedException();
+            ///////////////////////////////////////////////////////////////////////////
+            // Cleanup banned client list
+            //
+            uint cur_tick = MpdUtilities.GetTickCount();
+            if (m_dwLastBannCleanUp + MuleConstants.BAN_CLEANUP_TIME < cur_tick)
+            {
+                m_dwLastBannCleanUp = cur_tick;
+
+                Dictionary<uint, uint>.Enumerator pos = m_bannedList.GetEnumerator();
+                while (pos.MoveNext())
+                {
+                    if (pos.Current.Value + MuleConstants.CLIENTBANTIME < cur_tick)
+                        RemoveBannedClient(pos.Current.Key);
+                }
+            }
+
+            ///////////////////////////////////////////////////////////////////////////
+            // Cleanup tracked client list
+            //
+            if (m_dwLastTrackedCleanUp + MuleConstants.TRACKED_CLEANUP_TIME < cur_tick)
+            {
+                m_dwLastTrackedCleanUp = cur_tick;
+                Dictionary<uint, DeletedClient>.Enumerator pos = m_trackedClientsList.GetEnumerator();
+                while (pos.MoveNext())
+                {
+                    if (pos.Current.Value.m_dwInserted + MuleConstants.KEEPTRACK_TIME < cur_tick)
+                    {
+                        m_trackedClientsList.Remove(pos.Current.Key);
+                    }
+                }
+            }
+
+            ///////////////////////////////////////////////////////////////////////////
+            // Process Kad client list
+            //
+            //We need to try to connect to the clients in m_KadList
+            //If connected, remove them from the list and send a message back to Kad so we can send a ACK.
+            //If we don't connect, we need to remove the client..
+            //The sockets timeout should delete this object.
+            // buddy is just a flag that is used to make sure we are still connected or connecting to a buddy.
+            BuddyStateEnum buddy = BuddyStateEnum.Disconnected;
+
+            for (int pos1 = 0; pos1 < m_KadList.Count; pos1++)
+            {
+                UpDownClient cur_client = m_KadList[pos1];
+                if (!MuleApplication.Instance.KadEngine.IsRunning)
+                {
+                    //Clear out this list if we stop running Kad.
+                    //Setting the Kad state to KS_NONE causes it to be removed in the switch below.
+                    cur_client.KadState = KadStateEnum.KS_NONE;
+                }
+                switch (cur_client.KadState)
+                {
+                    case KadStateEnum.KS_QUEUED_FWCHECK:
+                    case KadStateEnum.KS_QUEUED_FWCHECK_UDP:
+                        //Another client asked us to try to connect to them to check their firewalled status.
+                        cur_client.TryToConnect(true, true);
+                        break;
+                    case KadStateEnum.KS_CONNECTING_FWCHECK:
+                        //Ignore this state as we are just waiting for results.
+                        break;
+                    case KadStateEnum.KS_FWCHECK_UDP:
+                    case KadStateEnum.KS_CONNECTING_FWCHECK_UDP:
+                        // we want a UDP firewallcheck from this client and are just waiting to get connected to send the request
+                        break;
+                    case KadStateEnum.KS_CONNECTED_FWCHECK:
+                        //We successfully connected to the client.
+                        //We now send a ack to let them know.
+                        if (cur_client.KadVersion >= (byte)VersionsEnum.KADEMLIA_VERSION7_49a)
+                        {
+                            // the result is now sent per TCP instead of UDP, because this will fail if our intern UDP port is unreachable.
+                            // But we want the TCP testresult regardless if UDP is firewalled, the new UDP state and test takes care of the rest					
+                            Packet pPacket =
+                                MuleApplication.Instance.NetworkObjectManager.CreatePacket(OperationCodeEnum.OP_KAD_FWTCPCHECK_ACK,
+                                    0, MuleConstants.PROTOCOL_EMULEPROT);
+                            if (!cur_client.SafeConnectAndSendPacket(pPacket))
+                                cur_client = null;
+                        }
+                        else
+                        {
+                            MuleApplication.Instance.KadEngine.UDPListener.SendNullPacket(KadOperationCodeEnum.KADEMLIA_FIREWALLED_ACK_RES,
+                                (uint)IPAddress.NetworkToHostOrder(cur_client.IP),
+                                cur_client.KadPort, null, null);
+                        }
+                        //We are done with this client. Set Kad status to KS_NONE and it will be removed in the next cycle.
+                        if (cur_client != null)
+                            cur_client.KadState = KadStateEnum.KS_NONE;
+                        break;
+
+                    case KadStateEnum.KS_INCOMING_BUDDY:
+                        //A firewalled client wants us to be his buddy.
+                        //If we already have a buddy, we set Kad state to KS_NONE and it's removed in the next cycle.
+                        //If not, this client will change to KS_CONNECTED_BUDDY when it connects.
+                        if (m_nBuddyStatus == BuddyStateEnum.Connected)
+                            cur_client.KadState = KadStateEnum.KS_NONE;
+                        break;
+
+                    case KadStateEnum.KS_QUEUED_BUDDY:
+                        //We are firewalled and want to request this client to be a buddy.
+                        //But first we check to make sure we are not already trying another client.
+                        //If we are not already trying. We try to connect to this client.
+                        //If we are already connected to a buddy, we set this client to KS_NONE and it's removed next cycle.
+                        //If we are trying to connect to a buddy, we just ignore as the one we are trying may fail and we can then try this one.
+                        if (m_nBuddyStatus == BuddyStateEnum.Disconnected)
+                        {
+                            buddy = BuddyStateEnum.Connecting;
+                            m_nBuddyStatus = BuddyStateEnum.Connecting;
+                            cur_client.KadState = KadStateEnum.KS_CONNECTING_BUDDY;
+                            cur_client.TryToConnect(true, true);
+                        }
+                        else if (m_nBuddyStatus == BuddyStateEnum.Connected)
+                            cur_client.KadState = KadStateEnum.KS_NONE;
+                        break;
+
+                    case KadStateEnum.KS_CONNECTING_BUDDY:
+                        //We are trying to connect to this client.
+                        //Although it should NOT happen, we make sure we are not already connected to a buddy.
+                        //If we are we set to KS_NONE and it's removed next cycle.
+                        //But if we are not already connected, make sure we set the flag to connecting so we know 
+                        //things are working correctly.
+                        if (m_nBuddyStatus == BuddyStateEnum.Connected)
+                            cur_client.KadState = KadStateEnum.KS_NONE;
+                        else
+                        {
+                            buddy = BuddyStateEnum.Connecting;
+                        }
+                        break;
+
+                    case KadStateEnum.KS_CONNECTED_BUDDY:
+                        //A potential connected buddy client wanting to me in the Kad network
+                        //We set our flag to connected to make sure things are still working correctly.
+                        buddy = BuddyStateEnum.Connected;
+
+                        //If m_nBuddyStatus is not connected already, we set this client as our buddy!
+                        if (m_nBuddyStatus != BuddyStateEnum.Connected)
+                        {
+                            m_pBuddy = cur_client;
+                            m_nBuddyStatus = BuddyStateEnum.Connected;
+                        }
+                        if (m_pBuddy == cur_client &&
+                            MuleApplication.Instance.IsFirewalled &&
+                            cur_client.SendBuddyPingPong)
+                        {
+                            Packet buddyPing =
+                                MuleApplication.Instance.NetworkObjectManager.CreatePacket(OperationCodeEnum.OP_BUDDYPING, 0,
+                                MuleConstants.PROTOCOL_EMULEPROT);
+                            MuleApplication.Instance.Statistics.AddUpDataOverheadOther(buddyPing.Size);
+                            cur_client.SetLastBuddyPingPongTime();
+                        }
+                        break;
+
+                    default:
+                        RemoveFromKadList(cur_client);
+                        pos1--;
+                        break;
+                }
+            }
+
+            //We either never had a buddy, or lost our buddy..
+            if (buddy == BuddyStateEnum.Disconnected)
+            {
+                if (m_nBuddyStatus != BuddyStateEnum.Disconnected || m_pBuddy != null)
+                {
+                    if (MuleApplication.Instance.KadEngine.IsRunning &&
+                        MuleApplication.Instance.IsFirewalled &&
+                        MuleApplication.Instance.KadEngine.UDPFirewallTester.IsFirewalledUDP(true))
+                    {
+                        //We are a lowID client and we just lost our buddy.
+                        //Go ahead and instantly try to find a new buddy.
+                        MuleApplication.Instance.KadEngine.Preference.SetFindBuddy();
+                    }
+                    m_pBuddy = null;
+                    m_nBuddyStatus = BuddyStateEnum.Disconnected;
+                }
+            }
+
+            if (MuleApplication.Instance.KadEngine.IsConnected)
+            {
+                //we only need a buddy if direct callback is not available
+                if (MuleApplication.Instance.KadEngine.IsFirewalled && MuleApplication.Instance.KadEngine.UDPFirewallTester.IsFirewalledUDP(true))
+                {
+                    //TODO 0.49b: Kad buddies won'T work with RequireCrypt, so it is disabled for now but should (and will)
+                    //be fixed in later version
+                    // Update: Buddy connections itself support obfuscation properly since 0.49a (this makes it work fine if our buddy uses require crypt)
+                    // ,however callback requests don't support it yet so we wouldn't be able to answer callback requests with RequireCrypt, protocolchange intended for the next version
+                    if (m_nBuddyStatus == BuddyStateEnum.Disconnected &&
+                        MuleApplication.Instance.KadEngine.Preference.FindBuddy &&
+                        !MuleApplication.Instance.Preference.IsClientCryptLayerRequired)
+                    {
+                        //We are a firewalled client with no buddy. We have also waited a set time 
+                        //to try to avoid a false firewalled status.. So lets look for a buddy..
+                        if (null == MuleApplication.Instance.KadEngine.SearchManager.PrepareLookup(KadSearchTypeEnum.FINDBUDDY, true,
+                            MuleApplication.Instance.KadObjectManager.CreateUInt128(true).Xor(MuleApplication.Instance.KadEngine.Preference.KadID)))
+                        {
+                            //This search ID was already going. Most likely reason is that
+                            //we found and lost our buddy very quickly and the last search hadn't
+                            //had time to be removed yet. Go ahead and set this to happen again
+                            //next time around.
+                            MuleApplication.Instance.KadEngine.Preference.SetFindBuddy();
+                        }
+                    }
+                }
+                else
+                {
+                    if (m_pBuddy != null)
+                    {
+                        //Lets make sure that if we have a buddy, they are firewalled!
+                        //If they are also not firewalled, then someone must have fixed their firewall or stopped saturating their line.. 
+                        //We just set the state of this buddy to KS_NONE and things will be cleared up with the next cycle.
+                        if (!m_pBuddy.HasLowID)
+                            m_pBuddy.KadState = KadStateEnum.KS_NONE;
+                    }
+                }
+            }
+            else
+            {
+                if (m_pBuddy != null)
+                {
+                    //We are not connected anymore. Just set this buddy to KS_NONE and things will be cleared out on next cycle.
+                    m_pBuddy.KadState = KadStateEnum.KS_NONE;
+                }
+            }
+
+            ///////////////////////////////////////////////////////////////////////////
+            // Cleanup client list
+            //
+            CleanUpClientList();
+
+            ///////////////////////////////////////////////////////////////////////////
+            // Process Direct Callbacks for Timeouts
+            //
+            ProcessConnectingClientsList();
         }
 
         public bool IsValidClient(UpDownClient tocheck)
         {
-            throw new NotImplementedException();
-        }
-
-        public void Debug_SocketDeleted(Mule.Network.ClientReqSocket deleted)
-        {
-            throw new NotImplementedException();
+            return list.Contains(tocheck);
         }
 
         public bool GiveClientsForTraceRoute()
@@ -478,19 +969,30 @@ namespace Mule.Core.Impl
 
         public void ProcessA4AFClients()
         {
-            throw new NotImplementedException();
+            //if(thePrefs.GetLogA4AF()) AddDebugLogLine(false, _T(">>> Starting A4AF check"));
+            int pos = 0;
+            while (pos < list.Count)
+            {
+                UpDownClient cur_client = list[pos];
+
+                int count = list.Count;
+
+                if (cur_client.DownloadState != DownloadStateEnum.DS_DOWNLOADING &&
+                   cur_client.DownloadState != DownloadStateEnum.DS_CONNECTED &&
+                   (cur_client.OtherRequestsList.Count > 0 || cur_client.OtherNoNeededList.Count > 0))
+                {
+                    cur_client.SwapToAnotherFile("Periodic A4AF check CClientList::ProcessA4AFClients()", false, false, false, null, true, false);
+                }
+
+                if (count == list.Count)
+                    pos++;
+            }
         }
 
         public DeadSourceList DeadSourceList
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get;
+            set;
         }
 
         #endregion
@@ -498,10 +1000,61 @@ namespace Mule.Core.Impl
         #region Protected
         protected void CleanUpClientList()
         {
+            // we remove clients which are not needed any more by time
+            // this check is also done on CUpDownClient::Disconnected, however it will not catch all
+            // cases (if a client changes the state without beeing connected
+            //
+            // Adding this check directly to every point where any state changes would be more effective,
+            // is however not compatible with the current code, because there are points where a client has
+            // no state for some code lines and the code is also not prepared that a client object gets
+            // invalid while working with it (aka setting a new state)
+            // so this way is just the easy and safe one to go (as long as emule is basically single threaded)
+            uint cur_tick = MpdUtilities.GetTickCount();
+            if (m_dwLastClientCleanUp + MuleConstants.CLIENTLIST_CLEANUP_TIME < cur_tick)
+            {
+                m_dwLastClientCleanUp = cur_tick;
+                int pos = 0;
+
+                while (pos < list.Count)
+                {
+                    UpDownClient pCurClient = list[pos];
+                    if ((pCurClient.UploadState == UploadStateEnum.US_NONE ||
+                        pCurClient.UploadState == UploadStateEnum.US_BANNED &&
+                        !pCurClient.IsBanned)
+                        && pCurClient.DownloadState == DownloadStateEnum.DS_NONE
+                        && pCurClient.ChatState == ChatStateEnum.MS_NONE
+                        && pCurClient.KadState == KadStateEnum.KS_NONE
+                        && pCurClient.ClientSocket == null)
+                    {
+                        pCurClient.CleanUp();
+                    }
+                    else
+                    {
+                        pos++;
+                    }
+                }
+            }
         }
 
         protected void ProcessConnectingClientsList()
         {
+            // we do check if any connects have timed out by now
+            uint cur_tick = MpdUtilities.GetTickCount();
+            int pos1 = 0;
+            while (pos1 < m_liConnectingClients.Count)
+            {
+                CONNECTINGCLIENT cc = m_liConnectingClients[pos1];
+                if (cc.dwInserted + MuleConstants.ONE_SEC_MS * 45 < cur_tick)
+                {
+                    m_liConnectingClients.RemoveAt(pos1);
+                    if (cc.pClient.Disconnected("Connectiontry Timeout"))
+                        cc.pClient.CleanUp();
+                }
+                else
+                {
+                    pos1++;
+                }
+            }
         }
         #endregion
     }

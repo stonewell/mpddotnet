@@ -29,6 +29,14 @@ using Mule.Network;
 
 namespace Mule.Core
 {
+    public enum BuddyStateEnum
+    {
+        Disconnected,
+        Connecting,
+        Connected
+    };
+
+
     public interface ClientList
     {
         // Clients
@@ -41,7 +49,7 @@ namespace Mule.Core
                               Dictionary<uint, uint> clientVersionEDonkeyHybrid,
                               Dictionary<uint, uint> clientVersionEMule,
                               Dictionary<uint, uint> clientVersionAMule);
-        uint GetClientCount { get; }
+        uint ClientCount { get; }
         void DeleteAll();
         bool AttachToAlreadyKnown(ref UpDownClient client, ClientReqSocket sender);
         UpDownClient FindClientByIP(uint clientip, uint port);
@@ -75,7 +83,7 @@ namespace Mule.Core
         void RemoveFromKadList(UpDownClient torem);
         void AddToKadList(UpDownClient toadd);
         bool DoRequestFirewallCheckUDP(KadContact contact);
-        byte BuddyStatus { get; }
+        BuddyStateEnum BuddyStatus { get; }
         UpDownClient Buddy { get; }
 
         void AddKadFirewallRequest(uint dwIP);
@@ -91,7 +99,6 @@ namespace Mule.Core
 
         void Process();
         bool IsValidClient(UpDownClient tocheck);
-        void Debug_SocketDeleted(ClientReqSocket deleted);
 
         bool GiveClientsForTraceRoute();
 

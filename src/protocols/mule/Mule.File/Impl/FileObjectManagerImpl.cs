@@ -27,7 +27,7 @@ namespace Mule.File.Impl
 
         public FileIdentifier CreateFileIdentifier(params object[] args)
         {
-            throw new NotImplementedException();
+            return MpdObjectManager.CreateObject(typeof(FileIdentifierImpl), args) as FileIdentifier;
         }
 
         public KnownFileList CreateKnownFileList()

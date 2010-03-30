@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Impl\FileIdentifierBaseImpl.cs" />
+    <Compile Include="Impl\FileIdentifierImpl.cs" />
     <Compile Include="Impl\FileObjectManagerImpl.cs" />
     <Compile Include="Impl\AbstractFileImpl.cs" />
     <Compile Include="Impl\CollectionFileImpl.cs" />

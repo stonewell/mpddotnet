@@ -31,7 +31,7 @@ namespace Mpd.Generic.IO.Impl
     {
         #region Constructors
         public SafeMemFileImpl(int size)
-            : this(new byte[size])
+            : base(new MemoryStream(size), false)
         {
         }
 
@@ -43,7 +43,7 @@ namespace Mpd.Generic.IO.Impl
 
         public SafeMemFileImpl(byte[] buffer, int offset, int length)
             :
-            base(new MemoryStream(buffer, offset, length))
+            base(new MemoryStream(buffer, offset, length), true)
         {
         }
         #endregion

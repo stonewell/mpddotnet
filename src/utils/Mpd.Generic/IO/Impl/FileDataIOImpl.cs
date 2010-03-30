@@ -39,7 +39,12 @@ namespace Mpd.Generic.IO.Impl
         #endregion
 
         #region Constructors
-        public FileDataIOImpl(Stream st)
+        public FileDataIOImpl(Stream st) :
+            this(st, false)
+        {
+        }
+
+        public FileDataIOImpl(Stream st, bool isReadOnly)
         {
             stream_ = st;
 
@@ -47,7 +52,9 @@ namespace Mpd.Generic.IO.Impl
                 throw new ArgumentNullException("st", "must provide an valid stream");
 
             binary_reader_ = new BinaryReader(stream_);
-            binary_writer_ = new BinaryWriter(stream_);
+
+            if (!isReadOnly)
+                binary_writer_ = new BinaryWriter(stream_);
         }
         #endregion
 

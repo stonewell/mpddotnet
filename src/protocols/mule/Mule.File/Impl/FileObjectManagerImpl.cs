@@ -12,7 +12,7 @@ namespace Mule.File.Impl
         #region FileObjectManager Members
         public StatisticFile CreateStatisticFile()
         {
-            throw new NotImplementedException();
+            return new StatisticFileImpl();
         }
 
         public PartFile CreatePartFile(params object[] parameters)

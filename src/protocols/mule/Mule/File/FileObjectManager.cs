@@ -11,5 +11,7 @@ namespace Mule.File
         PartFile CreatePartFile(params object[] parameters);
         KnownFile CreateKnownFile();
         FileIdentifier CreateFileIdentifier(params object[] args);
+
+        KnownFileList CreateKnownFileList();
     }
 }

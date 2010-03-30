@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace Mule.Core
 {
@@ -49,7 +50,11 @@ namespace Mule.Core
         public CreditStruct()
         {
             abyKey = new byte[16];
+            Array.Clear(abyKey, 0, abyKey.Length);
             abySecureIdent = new byte[MAXPUBKEYSIZE];
+            Array.Clear(abySecureIdent, 0, abySecureIdent.Length);
+            nUploadedLo = nDownloadedLo = nUploadedHi = nDownloadedHi = 0;
+            nKeySize = 0; nLastSeen = 0;
         }
 
         public byte[] abyKey;
@@ -74,8 +79,8 @@ namespace Mule.Core
 
     public interface ClientCredits
     {
-        char[] Key { get; }
-        char[] SecureIdent { get; }
+        byte[] Key { get; }
+        byte[] SecureIdent { get; }
         byte SecIDKeyLen { get;}
         CreditStruct DataStruct { get; }
         void ClearWaitStartTime();
@@ -85,14 +90,12 @@ namespace Mule.Core
         ulong GetDownloadedTotal();
         float GetScoreRatio(uint dwForIP);
         void SetLastSeen();
-        // Public key cannot change, use only if there is not public key yet
-        bool SetSecureIdent(char[] pachIdent, byte nIdentLen);
-        // can be != IdentState
+        bool SetSecureIdent(byte[] pachIdent, byte nIdentLen);
         IdentStateEnum GetCurrentIdentState(uint dwForIP);
         uint GetSecureWaitStartTime(uint dwForIP);
         void SetSecWaitStartTime(uint dwForIP);
 
-        void Verified(uint dwForIP);
-        void InitalizeIdent();
+        uint CryptRndChallengeFor { get;set;}
+        uint CryptRndChallengeFrom { get; set; }
     }
 }

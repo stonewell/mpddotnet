@@ -58,10 +58,6 @@
       <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
       <Name>Mpd.Generic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
-      <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
-      <Name>Mpd.Utilities</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\kad\Kademlia\Kademlia.csproj">
       <Project>{8B4779AF-0803-4F5A-85FD-4D3CD32E6B91}</Project>
       <Name>Kademlia</Name>

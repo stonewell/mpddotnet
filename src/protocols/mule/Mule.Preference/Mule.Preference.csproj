@@ -64,10 +64,6 @@
       <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
       <Name>Mpd.Generic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
-      <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
-      <Name>Mpd.Utilities</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Mule\Mule.csproj">
       <Project>{0D8AB11F-6731-4EE2-B4F8-338DE37E44B1}</Project>
       <Name>Mule %28protocols\mule\Mule%29</Name>

@@ -279,7 +279,7 @@ namespace Mpd.Xml.Serialization {
 				case "date": return DateTime.ParseExact (value, "yyyy-MM-dd", null);
 				case "time": return DateTime.ParseExact (value, "HH:mm:ss.fffffffzzz", null);
 #endif
-				case "decimal": return XmlConvert.ToDecimal (value);
+				case "BigInteger": return XmlConvert.ToDecimal (value);
 				case "double": return XmlConvert.ToDouble (value);
 				case "short": return XmlConvert.ToInt16 (value);
 				case "int": return XmlConvert.ToInt32 (value);
@@ -328,7 +328,7 @@ namespace Mpd.Xml.Serialization {
 				case "date": return value + ".ToString(\"yyyy-MM-dd\", CultureInfo.InvariantCulture)";
 				case "time": return value + ".ToString(\"HH:mm:ss.fffffffzzz\", CultureInfo.InvariantCulture)";
 #endif
-				case "decimal": return "XmlConvert.ToString (" + value + ")";
+				case "BigInteger": return "XmlConvert.ToString (" + value + ")";
 				case "double": return "XmlConvert.ToString (" + value + ")";
 				case "short": return value + ".ToString(CultureInfo.InvariantCulture)";
 				case "int": return value + ".ToString(CultureInfo.InvariantCulture)";
@@ -382,7 +382,7 @@ namespace Mpd.Xml.Serialization {
 				case "date": return "DateTime.ParseExact (" + value + ", \"yyyy-MM-dd\", CultureInfo.InvariantCulture)";
 				case "time": return "DateTime.ParseExact (" + value + ", \"HH:mm:ss.fffffffzzz\", CultureInfo.InvariantCulture)";
 #endif
-				case "decimal": return "Decimal.Parse (" + value + ", CultureInfo.InvariantCulture)";
+				case "BigInteger": return "Decimal.Parse (" + value + ", CultureInfo.InvariantCulture)";
 				case "double": return "XmlConvert.ToDouble (" + value + ")";
 				case "short": return "Int16.Parse (" + value + ", CultureInfo.InvariantCulture)";
 				case "int": return "Int32.Parse (" + value + ", CultureInfo.InvariantCulture)";

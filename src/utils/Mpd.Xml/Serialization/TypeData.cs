@@ -411,7 +411,7 @@ namespace Mpd.Xml.Serialization
 			"sizeof","while","lock","stackalloc","else","static","enum",
 			"namespace",
 			"object","bool","byte","float","uint","char","ulong","ushort",
-			"decimal","int","sbyte","short","double","long","string","void",
+			"BigInteger","int","sbyte","short","double","long","string","void",
 #if NET_2_0
 			"partial", "yield", "where"
 #endif

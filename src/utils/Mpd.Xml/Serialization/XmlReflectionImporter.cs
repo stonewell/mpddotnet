@@ -1125,12 +1125,12 @@ namespace Mpd.Xml.Serialization {
 
 			// get string representation of enum value
 			string namedValue = Enum.Format (typeData.Type, defaultValue, "g");
-			// get decimal representation of enum value
+			// get BigInteger representation of enum value
 			string decimalValue = Enum.Format (typeData.Type, defaultValue, "d");
 
-			// if decimal representation matches string representation, then
+			// if BigInteger representation matches string representation, then
 			// the value is not defined in the enum type (as the "g" format
-			// will return the decimal equivalent of the value if the value
+			// will return the BigInteger equivalent of the value if the value
 			// is not equal to a combination of named enumerated constants
 			if (namedValue == decimalValue) {
 				string msg = string.Format (CultureInfo.InvariantCulture,

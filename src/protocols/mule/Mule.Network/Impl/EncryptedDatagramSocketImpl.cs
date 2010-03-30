@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using Mpd.Utilities;
 using System.Diagnostics;
 using System.Security.Cryptography;
-using CryptoPP;
 
 namespace Mule.Network.Impl
 {
@@ -21,8 +20,6 @@ namespace Mule.Network.Impl
         private const byte MAGICVALUE_UDP_SERVERCLIENT = 0xA5;
         private const byte MAGICVALUE_UDP_CLIENTSERVER = 0x6B;
 
-        private static readonly AutoSeededRandomPool cryptRandomGen_ =
-            new AutoSeededRandomPool();
         #endregion
 
         #region Constructors
@@ -210,7 +207,7 @@ namespace Mule.Network.Impl
             byte[] pachCryptedBuffer = new byte[nCryptedLen];
             bool bKadRecKeyUsed = false;
 
-            ushort nRandomKeyPart = (ushort)cryptRandomGen_.GenerateWord32(0x0000, 0xFFFF);
+            ushort nRandomKeyPart = MpdUtilities.GetRandomUInt16();
             MD5 md5 = MD5.Create();
             byte[] rawHash = null;
             if (bKad)
@@ -261,7 +258,7 @@ namespace Mule.Network.Impl
             int i;
             for (i = 0; i < 128; i++)
             {
-                bySemiRandomNotProtocolMarker = cryptRandomGen_.GenerateByte();
+                bySemiRandomNotProtocolMarker = MpdUtilities.GetRandomUInt8();
                 bySemiRandomNotProtocolMarker =
                     (byte)(bKad ? (bySemiRandomNotProtocolMarker & 0xFE) :
                     (bySemiRandomNotProtocolMarker | 0x01)); // set the ed2k/kad marker bit
@@ -390,7 +387,7 @@ namespace Mule.Network.Impl
             int nCryptedLen = nBufLen + byPadLen + CRYPT_HEADER_WITHOUTPADDING;
             byte[] pachCryptedBuffer = new byte[nCryptedLen];
 
-            ushort nRandomKeyPart = (ushort)cryptRandomGen_.GenerateWord32(0x0000, 0xFFFF);
+            ushort nRandomKeyPart = MpdUtilities.GetRandomUInt16();
 
             byte[] achKeyData = new byte[7];
             Array.Copy(BitConverter.GetBytes(dwBaseKey), achKeyData, 4);
@@ -406,7 +403,7 @@ namespace Mule.Network.Impl
             int i;
             for (i = 0; i < 128; i++)
             {
-                bySemiRandomNotProtocolMarker = cryptRandomGen_.GenerateByte();
+                bySemiRandomNotProtocolMarker = MpdUtilities.GetRandomUInt8();
                 if (bySemiRandomNotProtocolMarker != MuleConstants.PROTOCOL_EDONKEYPROT) // not allowed values
                     break;
             }

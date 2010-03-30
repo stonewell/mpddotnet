@@ -32,7 +32,7 @@ namespace Mpd.Generic.IO.Impl
         #region Constructors
         public SafeFileImpl(string filename, FileMode mode, FileAccess access, FileShare share)
             :
-            base(new FileStream(filename,mode,access,share))
+            base(new FileStream(filename,mode,access,share), access == FileAccess.Read)
         {
         }
         #endregion

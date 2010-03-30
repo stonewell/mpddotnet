@@ -226,9 +226,12 @@ namespace Mule.Core.Impl
 
             if (!System.IO.File.Exists(strFileName))
                 return;
+
+            SafeBufferedFile file = null;
+
             try
             {
-                SafeBufferedFile file =
+                file =
                     MpdObjectManager.CreateSafeBufferedFile(strFileName,
                         System.IO.FileMode.Open,
                         System.IO.FileAccess.Read,
@@ -253,15 +256,15 @@ namespace Mule.Core.Impl
 
                 if (System.IO.File.Exists(strBakFileName))
                 {
-                    using (FileStream fs = new FileStream(strBakFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    FileInfo fInfo = new FileInfo(strBakFileName);
+
+                    dwBakFileSize = (uint)fInfo.Length;
+                    if (dwBakFileSize > (uint)file.Length)
                     {
-                        dwBakFileSize = (uint)fs.Length;
-                        if (dwBakFileSize > (uint)file.Length)
-                        {
-                            // the size of the backup was larger then the org. file, something is wrong here, don't overwrite old backup..
-                            bCreateBackup = false;
-                        }
+                        // the size of the backup was larger then the org. file, something is wrong here, don't overwrite old backup..
+                        bCreateBackup = false;
                     }
+                    
                 }
                 //else: the backup doesn't exist, create it
 
@@ -272,9 +275,9 @@ namespace Mule.Core.Impl
                     System.IO.File.Copy(strFileName, strBakFileName, true);
 
                     file = MpdObjectManager.CreateSafeBufferedFile(strFileName,
-                    System.IO.FileMode.Open,
-                    System.IO.FileAccess.Read,
-                    System.IO.FileShare.None);
+                        System.IO.FileMode.Open,
+                        System.IO.FileAccess.Read,
+                        System.IO.FileShare.None);
 
                     file.Seek(1, SeekOrigin.Begin); //set filepointer behind file version byte
                 }
@@ -306,6 +309,7 @@ namespace Mule.Core.Impl
             catch (Exception error)
             {
                 MpdUtilities.DebugLogError(error);
+                file.Close();
             }
         }
 

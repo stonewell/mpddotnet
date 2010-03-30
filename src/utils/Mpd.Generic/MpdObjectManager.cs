@@ -51,14 +51,46 @@ namespace Mpd.Generic
         private static readonly RSACryptoServiceProvider rsa_ =
             new RSACryptoServiceProvider();
 
-        public static RSAPKCS1SignatureFormatter CreateRSAPKCS1V15SHA1Signer()
+        public static RSAPKCS1SignatureFormatter CreateRSAPKCS1V15SHA1Signer(byte[] key)
         {
+            RSACryptoServiceProvider rsa =
+                new RSACryptoServiceProvider();
+            rsa.ImportCspBlob(key);
             RSAPKCS1SignatureFormatter formater =
-                new RSAPKCS1SignatureFormatter(rsa_);
+                new RSAPKCS1SignatureFormatter(rsa);
 
             formater.SetHashAlgorithm("SHA1");
 
             return formater;
+        }
+
+        public static RSAPKCS1SignatureFormatter CreateRSAPKCS1V15SHA1Signer(byte[] buf, byte bufLen)
+        {
+            byte[] tmp = new byte[bufLen];
+            Array.Copy(buf, tmp, bufLen);
+
+            return CreateRSAPKCS1V15SHA1Signer(tmp);
+        }
+
+        public static RSAPKCS1SignatureDeformatter CreateRSAPKCS1V15SHA1Verifier(byte[] key)
+        {
+            RSACryptoServiceProvider rsa =
+                new RSACryptoServiceProvider();
+            rsa.ImportCspBlob(key);
+            RSAPKCS1SignatureDeformatter formater =
+                new RSAPKCS1SignatureDeformatter(rsa);
+
+            formater.SetHashAlgorithm("SHA1");
+
+            return formater;
+        }
+
+        public static RSAPKCS1SignatureDeformatter CreateRSAPKCS1V15SHA1Verifier(byte[] buf, byte bufLen)
+        {
+            byte[] tmp = new byte[bufLen];
+            Array.Copy(buf, tmp, bufLen);
+
+            return CreateRSAPKCS1V15SHA1Verifier(tmp);
         }
     }
 }

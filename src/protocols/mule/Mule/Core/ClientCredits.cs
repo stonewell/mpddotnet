@@ -97,5 +97,7 @@ namespace Mule.Core
 
         uint CryptRndChallengeFor { get;set;}
         uint CryptRndChallengeFrom { get; set; }
+        void Verified(uint dwForIP);
+        IdentStateEnum IdentState { get; set; }
     }
 }

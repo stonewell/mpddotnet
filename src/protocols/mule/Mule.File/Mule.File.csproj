@@ -51,6 +51,7 @@
     <Compile Include="Impl\KnownFileImpl.cs" />
     <Compile Include="Impl\PartFileImpl.cs" />
     <Compile Include="Impl\PendingBlockImpl.cs" />
+    <Compile Include="Impl\StatisticFileImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

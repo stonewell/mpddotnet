@@ -54,7 +54,7 @@ namespace Mule.ED2K.Impl
             IsStaticMember = pOld.IsStaticMember;
             FileCount = pOld.FileCount;
             UserCount = pOld.UserCount;
-            Preference = pOld.Preference;
+            Priority = pOld.Priority;
             Ping = pOld.Ping;
             FailedCount = pOld.FailedCount;
             LastPinged = pOld.LastPinged;
@@ -64,7 +64,7 @@ namespace Mule.ED2K.Impl
             HardFiles = pOld.HardFiles;
             LastDescPingedCount = pOld.LastDescPingedCount;
             Description = pOld.Description;
-            ListName = pOld.ListName;
+            ServerName = pOld.ServerName;
             DynIP = pOld.DynIP;
             Version = pOld.Version;
             TCPFlags = pOld.TCPFlags;
@@ -84,7 +84,7 @@ namespace Mule.ED2K.Impl
         {
             FileCount = 0;
             UserCount = 0;
-            Preference = 0;
+            Priority = 0;
             Ping = 0;
             FailedCount = 0;
             LastPinged = 0;
@@ -110,7 +110,7 @@ namespace Mule.ED2K.Impl
 
         #region ED2KServer Members
 
-        public string ListName
+        public string ServerName
         {
             get;
             set;
@@ -177,7 +177,7 @@ namespace Mule.ED2K.Impl
             set;
         }
 
-        public ED2KServerPreferenceEnum Preference
+        public ED2KServerPriorityEnum Priority
         {
             get;
             set;

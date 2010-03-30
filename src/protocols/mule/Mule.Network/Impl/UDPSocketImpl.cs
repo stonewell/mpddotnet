@@ -522,7 +522,7 @@ namespace Mule.Network.Impl
                                     {
                                         Tag tag = MpdObjectManager.CreateTag(srvinfo, true/*pServer.GetUnicodeSupport()*/);
                                         if (tag.NameID == MuleConstants.ST_SERVERNAME && tag.IsStr)
-                                            pServer.ListName = tag.Str;
+                                            pServer.ServerName = tag.Str;
                                         else if (tag.NameID == MuleConstants.ST_DESCRIPTION && tag.IsStr)
                                             pServer.Description = tag.Str;
                                         else if (tag.NameID == MuleConstants.ST_DYNIP && tag.IsStr)
@@ -566,7 +566,7 @@ namespace Mule.Network.Impl
                                 string strName = srvinfo.ReadString(true/*pServer.GetUnicodeSupport()*/);
                                 string strDesc = srvinfo.ReadString(true/*pServer.GetUnicodeSupport()*/);
                                 pServer.Description = strDesc;
-                                pServer.ListName = strName;
+                                pServer.ServerName = strName;
                             }
 
                             break;
@@ -593,7 +593,7 @@ namespace Mule.Network.Impl
             string strName = string.Empty;
             ED2KServer pServer = MuleApplication.Instance.ServerList.GetServerByIPUDP(nIP, nUDPPort);
             if (pServer != null)
-                strName = " (" + pServer.ListName + ")";
+                strName = " (" + pServer.ServerName + ")";
             MpdUtilities.DebugLogWarning(false,
                 string.Format("Error: Failed to process server UDP packet from {0}:{1}{2} opcode=0x{3} size={4} - {5}",
             MpdUtilities.IP2String(nIP), nUDPPort, strName, opcode, size, ex.Message), ex);

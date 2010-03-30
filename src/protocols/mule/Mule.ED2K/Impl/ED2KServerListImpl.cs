@@ -16,21 +16,21 @@ namespace Mule.ED2K.Impl
     {
         #region Fields
         private List<ED2KServer> servers_ = new List<ED2KServer>();
-        private uint serverpos;
-        private uint searchserverpos;
-        private uint statserverpos;
-        private uint delservercount;
-        private uint lastSaved;
+        private uint serverpos_;
+        private uint searchserverpos_;
+        private uint statserverpos_;
+        private uint delservercount_;
+        private uint lastSaved_;
         #endregion
 
         #region Constructors
         public ED2KServerListImpl()
         {
-            serverpos = 0;
-            searchserverpos = 0;
-            statserverpos = 0;
-            delservercount = 0;
-            lastSaved = MpdUtilities.GetTickCount();
+            serverpos_ = 0;
+            searchserverpos_ = 0;
+            statserverpos_ = 0;
+            delservercount_ = 0;
+            lastSaved_ = MpdUtilities.GetTickCount();
         }
 
         #endregion
@@ -61,7 +61,21 @@ namespace Mule.ED2K.Impl
                         ED2KServer server =
                             MuleApplication.Instance.ED2KObjectManager.CreateED2KServer((ushort)serverAddress.Port, 
                                 serverAddress.Address);
-
+                        server.ServerName = serverAddress.Name;
+                        server.IsStaticMember = serverAddress.IsStatic;
+                        switch (serverAddress.Priority)
+                        {
+                            case (uint)ED2KServerPriorityEnum.SRV_PR_HIGH:
+                                server.Priority = ED2KServerPriorityEnum.SRV_PR_HIGH;
+                                break;
+                            case (uint)ED2KServerPriorityEnum.SRV_PR_LOW:
+                                server.Priority = ED2KServerPriorityEnum.SRV_PR_LOW;
+                                break;
+                            case (uint)ED2KServerPriorityEnum.SRV_PR_NORMAL:
+                            default:
+                                server.Priority = ED2KServerPriorityEnum.SRV_PR_NORMAL;
+                                break;
+                        }
                         servers_.Add(server);
                     }
                 }
@@ -77,16 +91,16 @@ namespace Mule.ED2K.Impl
                 if (server1 == server2)
                     return 0;
 
-                if (server1.Preference == server2.Preference)
+                if (server1.Priority == server2.Priority)
                     return 0;
 
-                if (server1.Preference == ED2KServerPreferenceEnum.SRV_PR_HIGH)
+                if (server1.Priority == ED2KServerPriorityEnum.SRV_PR_HIGH)
                     return 1;
 
-                if (server1.Preference == ED2KServerPreferenceEnum.SRV_PR_LOW)
+                if (server1.Priority == ED2KServerPriorityEnum.SRV_PR_LOW)
                     return -1;
 
-                if (server2.Preference == ED2KServerPreferenceEnum.SRV_PR_LOW)
+                if (server2.Priority == ED2KServerPriorityEnum.SRV_PR_LOW)
                     return 1;
 
                 return -1;
@@ -178,14 +192,14 @@ namespace Mule.ED2K.Impl
             if (!servers_.Contains(pServer)) return;
 
             servers_.Remove(pServer);
-            delservercount++;
+            delservercount_++;
             if (MuleApplication.Instance.DownloadQueue.CurrentUDPServer == pServer)
                 MuleApplication.Instance.DownloadQueue.CurrentUDPServer = null;
         }
 
         public void RemoveAllServers()
         {
-            delservercount = (uint)servers_.Count;
+            delservercount_ = (uint)servers_.Count;
             servers_.Clear();
         }
 
@@ -247,25 +261,25 @@ namespace Mule.ED2K.Impl
 
         public ED2KServer GetNextServer(bool bOnlyObfuscated)
         {
-            if (serverpos >= (uint)servers_.Count)
+            if (serverpos_ >= (uint)servers_.Count)
                 return null;
 
             ED2KServer nextserver = null;
             int i = 0;
             while (nextserver == null && i < servers_.Count)
             {
-                uint posIndex = serverpos;
-                if (serverpos >= (uint)servers_.Count)
+                uint posIndex = serverpos_;
+                if (serverpos_ >= (uint)servers_.Count)
                 {	// check if search position is still valid (could be corrupted by server delete operation)
                     posIndex = 0;
-                    serverpos = 0;
+                    serverpos_ = 0;
                 }
 
-                serverpos++;
+                serverpos_++;
                 i++;
                 if (!bOnlyObfuscated || servers_[(int)posIndex].DoesSupportsObfuscationTCP)
                     nextserver = servers_[(int)posIndex];
-                else if (serverpos >= (uint)servers_.Count)
+                else if (serverpos_ >= (uint)servers_.Count)
                     return null;
             }
             return nextserver;
@@ -331,20 +345,20 @@ namespace Mule.ED2K.Impl
         {
             get
             {
-                return serverpos;
+                return serverpos_;
             }
             set
             {
                 if (value < servers_.Count)
-                    serverpos = value;
+                    serverpos_ = value;
                 else
-                    serverpos = 0;
+                    serverpos_ = 0;
             }
         }
 
         public void ResetSearchServerPos()
         {
-            searchserverpos = 0;
+            searchserverpos_ = 0;
         }
 
         public ED2KServer GetNextSearchServer()
@@ -353,18 +367,18 @@ namespace Mule.ED2K.Impl
             int i = 0;
             while (nextserver == null && i < servers_.Count)
             {
-                uint posIndex = searchserverpos;
-                if (searchserverpos >= (uint)servers_.Count)
+                uint posIndex = searchserverpos_;
+                if (searchserverpos_ >= (uint)servers_.Count)
                 {	// check if search position is still valid (could be corrupted by server delete operation)
                     posIndex = 0;
-                    searchserverpos = 0;
+                    searchserverpos_ = 0;
                 }
 
                 nextserver = servers_[(int)posIndex];
-                searchserverpos++;
+                searchserverpos_++;
                 i++;
-                if (searchserverpos == (uint)servers_.Count)
-                    searchserverpos = 0;
+                if (searchserverpos_ == (uint)servers_.Count)
+                    searchserverpos_ = 0;
             }
             return nextserver;
         }
@@ -455,18 +469,18 @@ namespace Mule.ED2K.Impl
             int i = 0;
             while (nextserver == null && i < servers_.Count)
             {
-                uint posIndex = statserverpos;
-                if (statserverpos >= (uint)servers_.Count)
+                uint posIndex = statserverpos_;
+                if (statserverpos_ >= (uint)servers_.Count)
                 {	// check if search position is still valid (could be corrupted by server delete operation)
                     posIndex = 0;
-                    statserverpos = 0;
+                    statserverpos_ = 0;
                 }
 
                 nextserver = servers_[(int)posIndex];
-                statserverpos++;
+                statserverpos_++;
                 i++;
-                if (statserverpos == (uint)servers_.Count)
-                    statserverpos = 0;
+                if (statserverpos_ == (uint)servers_.Count)
+                    statserverpos_ = 0;
             }
             return nextserver;
         }
@@ -561,7 +575,7 @@ namespace Mule.ED2K.Impl
 
         public uint DeletedServerCount
         {
-            get { return delservercount; }
+            get { return delservercount_; }
         }
 
         public bool GiveServersForTraceRoute()
@@ -610,7 +624,7 @@ namespace Mule.ED2K.Impl
 
         public void Process()
         {
-            if (MpdUtilities.GetTickCount() - lastSaved > MuleConstants.ONE_MIN_MS * 17)
+            if (MpdUtilities.GetTickCount() - lastSaved_ > MuleConstants.ONE_MIN_MS * 17)
                 MuleApplication.Instance.Preference.Save();
         }
 

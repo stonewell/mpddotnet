@@ -8,6 +8,7 @@ using Mule.Preference;
 using Mpd.Generic.IO;
 using System.Diagnostics;
 using Mule.Network;
+using System.Net;
 
 namespace Mule.ED2K.Impl
 {
@@ -15,11 +16,11 @@ namespace Mule.ED2K.Impl
     {
         #region Fields
         private List<ED2KServer> servers_ = new List<ED2KServer>();
-        uint serverpos;
-        uint searchserverpos;
-        uint statserverpos;
-        uint delservercount;
-        uint lastSaved;
+        private uint serverpos;
+        private uint searchserverpos;
+        private uint statserverpos;
+        private uint delservercount;
+        private uint lastSaved;
         #endregion
 
         #region Constructors
@@ -42,7 +43,29 @@ namespace Mule.ED2K.Impl
             if (MuleApplication.Instance.Preference.DoesAutoUpdateServerList)
                 AutoUpdate();
 
+            AddServerMetToList(MuleApplication.Instance.Preference.ServerAddresses);
+
             GiveServersForTraceRoute();
+
+            return true;
+        }
+
+        public bool AddServerMetToList(List<ServerAddress> list)
+        {
+            list.ForEach(serverAddress =>
+                {
+                    IPAddress ip = null;
+
+                    if (IPAddress.TryParse(serverAddress.Address, out ip))
+                    {
+                        ED2KServer server =
+                            MuleApplication.Instance.ED2KObjectManager.CreateED2KServer((ushort)serverAddress.Port, 
+                                serverAddress.Address);
+
+                        servers_.Add(server);
+                    }
+                }
+            );
 
             return true;
         }
@@ -96,6 +119,10 @@ namespace Mule.ED2K.Impl
                     new ServerListDownloader(it.Current, MuleApplication.Instance.Preference.ServerAddresses);
                 if (downloader.Download())
                     bDownloaded = true;
+            }
+
+            if (bDownloaded)
+            {
             }
         }
 
@@ -579,12 +606,12 @@ namespace Mule.ED2K.Impl
 
         public void GetUserSortedServers()
         {
-            throw new NotImplementedException();
         }
 
         public void Process()
         {
-            throw new NotImplementedException();
+            if (MpdUtilities.GetTickCount() - lastSaved > MuleConstants.ONE_MIN_MS * 17)
+                MuleApplication.Instance.Preference.Save();
         }
 
         #endregion

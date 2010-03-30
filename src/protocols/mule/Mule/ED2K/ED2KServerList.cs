@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Mule.Preference;
 
 namespace Mule.ED2K
 {
@@ -11,6 +12,7 @@ namespace Mule.ED2K
         void Sort();
         void MoveServerDown(ED2KServer pServer);
         void AutoUpdate();
+        bool AddServerMetToList(List<ServerAddress> list);
 
         bool AddServer(ED2KServer pServer);
         bool AddServer(ED2KServer pServer, bool bAddTail);

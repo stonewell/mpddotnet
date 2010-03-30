@@ -59,6 +59,8 @@ namespace Mule
             IPFilter = CoreObjectManager.CreateIPFilter();
             ClientCredits = CoreObjectManager.CreateClientCreditsList();
 
+            KnownFiles = FileObjectManager.CreateKnownFileList();
+
             ListenSocket = NetworkObjectManager.CreateListenSocket();
             ClientUDP = NetworkObjectManager.CreateClientUDPSocket();
         }

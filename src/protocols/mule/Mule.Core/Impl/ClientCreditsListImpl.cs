@@ -17,17 +17,17 @@ namespace Mule.Core.Impl
         private const byte CRYPT_CIP_LOCALCLIENT = 20;
         private const byte CRYPT_CIP_NONECLIENT = 30;
 
-        private Dictionary<MapCKey, ClientCredits> m_mapClients = new Dictionary<MapCKey, ClientCredits>();
-        private uint m_nLastSaved;
-        private RSAPKCS1SignatureFormatter m_pSignkey;
-        private byte[] m_abyMyPublicKey = new byte[80];
-        private byte m_nMyPublicKeyLen;
+        private Dictionary<MapCKey, ClientCredits> clients_ = new Dictionary<MapCKey, ClientCredits>();
+        private uint lastSaved_;
+        private RSAPKCS1SignatureFormatter signkey_;
+        private byte[] publicKey_ = new byte[80];
+        private byte publicKeyLen_;
         #endregion
 
         #region Constructors
         public ClientCreditsListImpl()
         {
-            m_nLastSaved = MpdUtilities.GetTickCount();
+            lastSaved_ = MpdUtilities.GetTickCount();
             LoadList();
 
             InitalizeCrypting();
@@ -38,7 +38,7 @@ namespace Mule.Core.Impl
 
         public void Process()
         {
-            if (MpdUtilities.GetTickCount() - m_nLastSaved > MuleConstants.ONE_MIN_MS * 13)
+            if (MpdUtilities.GetTickCount() - lastSaved_ > MuleConstants.ONE_MIN_MS * 13)
                 SaveList();
         }
 
@@ -55,7 +55,7 @@ namespace Mule.Core.Impl
         {
             // sigkey param is used for debug only
             if (sigkey == null)
-                sigkey = m_pSignkey;
+                sigkey = signkey_;
 
             // create a signature of the public key from pTarget
             byte nResult;
@@ -113,11 +113,11 @@ namespace Mule.Core.Impl
                     MpdObjectManager.CreateRSAPKCS1V15SHA1Verifier(pTarget.SecureIdent, pTarget.SecIDKeyLen);
                 // 4 additional bytes random data send from this client +5 bytes v2
                 byte[] abyBuffer = new byte[CreditStruct.MAXPUBKEYSIZE + 9];
-                Array.Copy(m_abyMyPublicKey, abyBuffer, m_nMyPublicKeyLen);
+                Array.Copy(publicKey_, abyBuffer, publicKeyLen_);
                 uint challenge = pTarget.CryptRndChallengeFor;
 
                 Array.Copy(BitConverter.GetBytes(challenge), 0,
-                    abyBuffer, m_nMyPublicKeyLen, 4);
+                    abyBuffer, publicKeyLen_, 4);
 
                 // v2 security improvments (not supported by 29b, not used as default by 29c)
                 byte nChIpSize = 0;
@@ -144,13 +144,13 @@ namespace Mule.Core.Impl
                             break;
                     }
                     Array.Copy(BitConverter.GetBytes(ChallengeIP), 0,
-                        abyBuffer, m_nMyPublicKeyLen + 4, 4);
-                    abyBuffer[m_nMyPublicKeyLen + 4 + 4] = byChaIPKind;
+                        abyBuffer, publicKeyLen_ + 4, 4);
+                    abyBuffer[publicKeyLen_ + 4 + 4] = byChaIPKind;
                 }
                 //v2 end
 
-                byte[] hash = new byte[m_nMyPublicKeyLen + 4 + nChIpSize];
-                Array.Copy(abyBuffer, hash, m_nMyPublicKeyLen + 4 + nChIpSize);
+                byte[] hash = new byte[publicKeyLen_ + 4 + nChIpSize];
+                Array.Copy(abyBuffer, hash, publicKeyLen_ + 4 + nChIpSize);
 
                 byte[] sign = new byte[nInputSize];
                 Array.Copy(pachSignature, sign, nInputSize);
@@ -178,33 +178,33 @@ namespace Mule.Core.Impl
         {
             MapCKey cKey = new MapCKey(key);
 
-            if (!m_mapClients.ContainsKey(cKey))
+            if (!clients_.ContainsKey(cKey))
             {
-                m_mapClients[cKey] =
+                clients_[cKey] =
                     MuleApplication.Instance.CoreObjectManager.CreateClientCredits(key);
             }
 
-            m_mapClients[cKey].SetLastSeen();
+            clients_[cKey].SetLastSeen();
 
-            return m_mapClients[cKey];
+            return clients_[cKey];
         }
 
         public byte PubKeyLength
         {
-            get { return m_nMyPublicKeyLen; }
+            get { return publicKeyLen_; }
         }
 
         public byte[] PublicKey
         {
-            get { return m_abyMyPublicKey; }
+            get { return publicKey_; }
         }
 
         public bool IsCryptoAvailable
         {
             get
             {
-                return (m_nMyPublicKeyLen > 0 &&
-                    m_pSignkey != null &&
+                return (publicKeyLen_ > 0 &&
+                    signkey_ != null &&
                     MuleApplication.Instance.Preference.IsSecureIdentEnabled);
             }
         }
@@ -302,7 +302,7 @@ namespace Mule.Core.Impl
 
                     ClientCredits newcredits =
                         MuleApplication.Instance.CoreObjectManager.CreateClientCredits(newcstruct);
-                    m_mapClients[new MapCKey(newcredits.Key)] = newcredits;
+                    clients_[new MapCKey(newcredits.Key)] = newcredits;
                 }
                 file.Close();
             }
@@ -333,7 +333,7 @@ namespace Mule.Core.Impl
 
         protected void SaveList()
         {
-            m_nLastSaved = MpdUtilities.GetTickCount();
+            lastSaved_ = MpdUtilities.GetTickCount();
 
             string name =
                 System.IO.Path.Combine(MuleApplication.Instance.Preference.GetMuleDirectory(Mule.Preference.DefaultDirectoryEnum.EMULE_CONFIGDIR),
@@ -342,12 +342,12 @@ namespace Mule.Core.Impl
             {
                 using (FileStream file = new FileStream(name, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
-                    int count = m_mapClients.Count;
+                    int count = clients_.Count;
                     SafeMemFile memfile =
                         MpdObjectManager.CreateSafeMemFile(count * (16 + 5 * 4 + 1 * 2 + 1 + CreditStruct.MAXPUBKEYSIZE));
 
                     memfile.WriteUInt8((byte)VersionsEnum.CREDITFILE_VERSION);
-                    Dictionary<MapCKey, ClientCredits>.Enumerator pos = m_mapClients.GetEnumerator();
+                    Dictionary<MapCKey, ClientCredits>.Enumerator pos = clients_.GetEnumerator();
                     count = 0;
                     while (pos.MoveNext())
                     {
@@ -386,9 +386,9 @@ namespace Mule.Core.Impl
 
         protected void InitalizeCrypting()
         {
-            m_nMyPublicKeyLen = 0;
-            Array.Clear(m_abyMyPublicKey, 0, 80); // not really needed; better for debugging tho
-            m_pSignkey = null;
+            publicKeyLen_ = 0;
+            Array.Clear(publicKey_, 0, 80); // not really needed; better for debugging tho
+            signkey_ = null;
             if (!MuleApplication.Instance.Preference.IsSecureIdentEnabled)
                 return;
             // check if keyfile is there
@@ -417,18 +417,18 @@ namespace Mule.Core.Impl
                 byte[] key = Convert.FromBase64String(keyText);
 
                 // load private key
-                m_pSignkey = MpdObjectManager.CreateRSAPKCS1V15SHA1Signer(key);
+                signkey_ = MpdObjectManager.CreateRSAPKCS1V15SHA1Signer(key);
 
                 RSACryptoServiceProvider rsa = new RSACryptoServiceProvider((int)MuleConstants.RSAKEYSIZE);
                 rsa.ImportCspBlob(key);
 
                 byte[] tmp = rsa.ExportCspBlob(false);
-                Array.Copy(tmp, m_abyMyPublicKey, tmp.Length);
-                m_nMyPublicKeyLen = (byte)tmp.Length;
+                Array.Copy(tmp, publicKey_, tmp.Length);
+                publicKeyLen_ = (byte)tmp.Length;
             }
             catch (Exception ex)
             {
-                m_pSignkey = null;
+                signkey_ = null;
                 MpdUtilities.DebugLogError(ex);
             }
         }

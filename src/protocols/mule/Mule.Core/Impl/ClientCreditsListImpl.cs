@@ -13,11 +13,15 @@ namespace Mule.Core.Impl
     class ClientCreditsListImpl : ClientCreditsList
     {
         #region Fields
+        private const byte CRYPT_CIP_REMOTECLIENT = 10;
+        private const byte CRYPT_CIP_LOCALCLIENT = 20;
+        private const byte CRYPT_CIP_NONECLIENT = 30;
+
         private Dictionary<MapCKey, ClientCredits> m_mapClients = new Dictionary<MapCKey, ClientCredits>();
         private uint m_nLastSaved;
         private RSAPKCS1SignatureFormatter m_pSignkey;
         private byte[] m_abyMyPublicKey = new byte[80];
-        private uint m_nMyPublicKeyLen;
+        private byte m_nMyPublicKeyLen;
         #endregion
 
         #region Constructors
@@ -43,48 +47,131 @@ namespace Mule.Core.Impl
             return CreateSignature(pTarget, pachOutput, nMaxSize, ChallengeIP, byChaIPKind, null);
         }
 
-        public byte CreateSignature(ClientCredits pTarget, byte[] pachOutput, byte nMaxSize, uint ChallengeIP, byte byChaIPKind, RSAPKCS1SignatureFormatter sigkey)
+        public byte CreateSignature(ClientCredits pTarget,
+            byte[] pachOutput,
+            byte nMaxSize,
+            uint ChallengeIP, byte byChaIPKind,
+            RSAPKCS1SignatureFormatter sigkey)
         {
-    //// sigkey param is used for debug only
-    //if (sigkey == null)
-    //    sigkey = m_pSignkey;
+            // sigkey param is used for debug only
+            if (sigkey == null)
+                sigkey = m_pSignkey;
 
-    //// create a signature of the public key from pTarget
-    //byte nResult;
-    //if ( !IsCryptoAvailable )
-    //    return 0;
-    //try{
-    //    SecByteBlock sbbSignature(sigkey.SignatureLength);
-    //    AutoSeededRandomPool rng;
-    //    byte[] abyBuffer = new byte[CreditStruct.MAXPUBKEYSIZE+9];
-    //    uint keylen = pTarget.SecIDKeyLen;
-    //    memcpy(abyBuffer,pTarget.SecureIdent,keylen);
-    //    // 4 additional bytes random data send from this client
-    //    uint challenge = pTarget.CryptRndChallengeFrom;
-    //    PokeUInt32(abyBuffer+keylen, challenge);
-    //    ushort ChIpLen = 0;
-    //    if ( byChaIPKind != 0){
-    //        ChIpLen = 5;
-    //        PokeUInt32(abyBuffer+keylen+4, ChallengeIP);
-    //        PokeUInt8(abyBuffer+keylen+4+4, byChaIPKind);
-    //    }
-    //    sigkey.SignMessage(rng, abyBuffer ,keylen+4+ChIpLen , sbbSignature.begin());
-    //    ArraySink asink(pachOutput, nMaxSize);
-    //    asink.Put(sbbSignature.begin(), sbbSignature.size());
-    //    nResult = (byte)asink.TotalPutLength();			
-    //}
-    //catch(Exception ex)
-    //{
-    //    MpdUtilities.DebugLogError(ex);
-    //    nResult = 0;
-    //}
-    //return nResult;
-            return 0;
+            // create a signature of the public key from pTarget
+            byte nResult;
+            if (!IsCryptoAvailable)
+                return 0;
+            try
+            {
+                byte[] abyBuffer = new byte[CreditStruct.MAXPUBKEYSIZE + 9];
+                uint keylen = pTarget.SecIDKeyLen;
+                Array.Copy(pTarget.SecureIdent, abyBuffer, keylen);
+                // 4 additional bytes random data send from this client
+                uint challenge = pTarget.CryptRndChallengeFrom;
+                Array.Copy(BitConverter.GetBytes(challenge), 0,
+                    abyBuffer, keylen, 4);
+                ushort ChIpLen = 0;
+                if (byChaIPKind != 0)
+                {
+                    ChIpLen = 5;
+                    Array.Copy(BitConverter.GetBytes(ChallengeIP), 0,
+                        abyBuffer, keylen + 4, 4);
+                    abyBuffer[keylen + 4 + 4] = byChaIPKind;
+                }
+
+                byte[] tmpBuf = new byte[keylen + 4 + ChIpLen];
+                Array.Copy(abyBuffer, tmpBuf, keylen + 4 + ChIpLen);
+                byte[] outBuf = sigkey.CreateSignature(tmpBuf);
+
+                nResult = (byte)outBuf.Length;
+
+                if (outBuf.Length > nMaxSize)
+                    nResult = nMaxSize;
+                Array.Copy(outBuf, pachOutput, nResult);
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError(ex);
+                nResult = 0;
+            }
+            return nResult;
         }
 
-        public bool VerifyIdent(ClientCredits pTarget, byte[] pachSignature, byte nInputSize, uint dwForIP, byte byChaIPKind)
+        public bool VerifyIdent(ClientCredits pTarget,
+            byte[] pachSignature, byte nInputSize,
+            uint dwForIP, byte byChaIPKind)
         {
-            throw new NotImplementedException();
+            if (!IsCryptoAvailable)
+            {
+                pTarget.IdentState = IdentStateEnum.IS_NOTAVAILABLE;
+                return false;
+            }
+            bool bResult;
+            try
+            {
+                RSAPKCS1SignatureDeformatter pubkey =
+                    MpdObjectManager.CreateRSAPKCS1V15SHA1Verifier(pTarget.SecureIdent, pTarget.SecIDKeyLen);
+                // 4 additional bytes random data send from this client +5 bytes v2
+                byte[] abyBuffer = new byte[CreditStruct.MAXPUBKEYSIZE + 9];
+                Array.Copy(m_abyMyPublicKey, abyBuffer, m_nMyPublicKeyLen);
+                uint challenge = pTarget.CryptRndChallengeFor;
+
+                Array.Copy(BitConverter.GetBytes(challenge), 0,
+                    abyBuffer, m_nMyPublicKeyLen, 4);
+
+                // v2 security improvments (not supported by 29b, not used as default by 29c)
+                byte nChIpSize = 0;
+                if (byChaIPKind != 0)
+                {
+                    nChIpSize = 5;
+                    uint ChallengeIP = 0;
+                    switch (byChaIPKind)
+                    {
+                        case CRYPT_CIP_LOCALCLIENT:
+                            ChallengeIP = dwForIP;
+                            break;
+                        case CRYPT_CIP_REMOTECLIENT:
+                            if (MuleApplication.Instance.ServerConnect.ClientID == 0 ||
+                                MuleApplication.Instance.ServerConnect.IsLowID)
+                            {
+                                ChallengeIP = MuleApplication.Instance.ServerConnect.LocalIP;
+                            }
+                            else
+                                ChallengeIP = MuleApplication.Instance.ServerConnect.ClientID;
+                            break;
+                        case CRYPT_CIP_NONECLIENT: // maybe not supported in future versions
+                            ChallengeIP = 0;
+                            break;
+                    }
+                    Array.Copy(BitConverter.GetBytes(ChallengeIP), 0,
+                        abyBuffer, m_nMyPublicKeyLen + 4, 4);
+                    abyBuffer[m_nMyPublicKeyLen + 4 + 4] = byChaIPKind;
+                }
+                //v2 end
+
+                byte[] hash = new byte[m_nMyPublicKeyLen + 4 + nChIpSize];
+                Array.Copy(abyBuffer, hash, m_nMyPublicKeyLen + 4 + nChIpSize);
+
+                byte[] sign = new byte[nInputSize];
+                Array.Copy(pachSignature, sign, nInputSize);
+
+                bResult = pubkey.VerifySignature(hash, sign);
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError(ex);
+                bResult = false;
+            }
+            if (!bResult)
+            {
+                if (pTarget.IdentState == IdentStateEnum.IS_IDNEEDED)
+                    pTarget.IdentState = IdentStateEnum.IS_IDFAILED;
+            }
+            else
+            {
+                pTarget.Verified(dwForIP);
+            }
+            return bResult;
         }
 
         public ClientCredits GetCredit(byte[] key)
@@ -104,17 +191,22 @@ namespace Mule.Core.Impl
 
         public byte PubKeyLength
         {
-            get { throw new NotImplementedException(); }
+            get { return m_nMyPublicKeyLen; }
         }
 
         public byte[] PublicKey
         {
-            get { throw new NotImplementedException(); }
+            get { return m_abyMyPublicKey; }
         }
 
         public bool IsCryptoAvailable
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                return (m_nMyPublicKeyLen > 0 &&
+                    m_pSignkey != null &&
+                    MuleApplication.Instance.Preference.IsSecureIdentEnabled);
+            }
         }
 
         public void CleanUp()
@@ -290,12 +382,76 @@ namespace Mule.Core.Impl
 
         protected void InitalizeCrypting()
         {
-            throw new NotImplementedException();
+            m_nMyPublicKeyLen = 0;
+            Array.Clear(m_abyMyPublicKey, 0, 80); // not really needed; better for debugging tho
+            m_pSignkey = null;
+            if (!MuleApplication.Instance.Preference.IsSecureIdentEnabled)
+                return;
+            // check if keyfile is there
+            bool bCreateNewKey = false;
+
+            string filename =
+                System.IO.Path.Combine(MuleApplication.Instance.Preference.GetMuleDirectory(Mule.Preference.DefaultDirectoryEnum.EMULE_CONFIGDIR),
+                "crytkey.dat");
+            if (System.IO.File.Exists(filename))
+            {
+                FileInfo info = new FileInfo(filename);
+
+                if (info.Length == 0)
+                    bCreateNewKey = true;
+            }
+            else
+                bCreateNewKey = true;
+
+            if (bCreateNewKey)
+                CreateKeyPair();
+
+            // load key
+            try
+            {
+                string keyText = System.IO.File.ReadAllText(filename);
+                byte[] key = Convert.FromBase64String(keyText);
+
+                // load private key
+                m_pSignkey = MpdObjectManager.CreateRSAPKCS1V15SHA1Signer(key);
+
+                RSACryptoServiceProvider rsa = new RSACryptoServiceProvider((int)MuleConstants.RSAKEYSIZE);
+                rsa.ImportCspBlob(key);
+
+                byte[] tmp = rsa.ExportCspBlob(false);
+                Array.Copy(tmp, m_abyMyPublicKey, tmp.Length);
+                m_nMyPublicKeyLen = (byte)tmp.Length;
+            }
+            catch (Exception ex)
+            {
+                m_pSignkey = null;
+                MpdUtilities.DebugLogError(ex);
+            }
         }
 
         protected bool CreateKeyPair()
         {
-            throw new NotImplementedException();
+            try
+            {
+                RSACryptoServiceProvider rsa = new RSACryptoServiceProvider((int)MuleConstants.RSAKEYSIZE);
+
+                byte[] key = rsa.ExportCspBlob(true);
+
+                string keyText = Convert.ToBase64String(key);
+
+                string filename =
+                    System.IO.Path.Combine(MuleApplication.Instance.Preference.GetMuleDirectory(Mule.Preference.DefaultDirectoryEnum.EMULE_CONFIGDIR),
+                    "crytkey.dat");
+
+                System.IO.File.WriteAllText(filename, keyText);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError(ex);
+                return false;
+            }
         }
         #endregion
     }

@@ -16,7 +16,6 @@ namespace Mule.Core.Impl
         private uint secureWaitTime_;
         private uint unSecureWaitTime_;
         private uint waitTimeIP_;
-        protected IdentStateEnum identState_;
         #endregion
 
         #region Constructors
@@ -41,6 +40,7 @@ namespace Mule.Core.Impl
         #endregion
 
         #region ClientCredits Members
+        public IdentStateEnum IdentState { get; set; }
 
         public byte[] Key
         {
@@ -64,14 +64,15 @@ namespace Mule.Core.Impl
 
         public void ClearWaitStartTime()
         {
-            throw new NotImplementedException();
+            unSecureWaitTime_ = 0;
+            secureWaitTime_ = 0;
         }
 
         public void AddDownloaded(uint bytes, uint dwForIP)
         {
             if ((GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDFAILED ||
                 GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDBADGUY ||
-                GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDNEEDED) && 
+                GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDNEEDED) &&
                 MuleApplication.Instance.ClientCredits.IsCryptoAvailable)
             {
                 return;
@@ -116,9 +117,9 @@ namespace Mule.Core.Impl
         public float GetScoreRatio(uint dwForIP)
         {
             // check the client ident status
-            if ((GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDFAILED || 
-                GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDBADGUY || 
-                GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDNEEDED) && 
+            if ((GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDFAILED ||
+                GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDBADGUY ||
+                GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDNEEDED) &&
                 MuleApplication.Instance.ClientCredits.IsCryptoAvailable)
             {
                 // bad guy - no credits for you
@@ -167,14 +168,14 @@ namespace Mule.Core.Impl
                 return false;
             Array.Copy(pachIdent, publicKey_, nIdentLen);
             publicKeyLen_ = nIdentLen;
-            identState_ = IdentStateEnum.IS_IDNEEDED;
+            IdentState = IdentStateEnum.IS_IDNEEDED;
             return true;
         }
 
         public IdentStateEnum GetCurrentIdentState(uint dwForIP)
         {
-            if (identState_ != IdentStateEnum.IS_IDENTIFIED)
-                return identState_;
+            if (IdentState != IdentStateEnum.IS_IDENTIFIED)
+                return IdentState;
             else
             {
                 if (dwForIP == identIP_)
@@ -188,28 +189,58 @@ namespace Mule.Core.Impl
 
         public uint GetSecureWaitStartTime(uint dwForIP)
         {
-            throw new NotImplementedException();
+            if (unSecureWaitTime_ == 0 || secureWaitTime_ == 0)
+                SetSecWaitStartTime(dwForIP);
+
+            if (credits_.nKeySize != 0)
+            {	// this client is a SecureHash Client
+                if (GetCurrentIdentState(dwForIP) == IdentStateEnum.IS_IDENTIFIED)
+                { // good boy
+                    return secureWaitTime_;
+                }
+                else
+                {	// not so good boy
+                    if (dwForIP == waitTimeIP_)
+                    {
+                        return unSecureWaitTime_;
+                    }
+                    else
+                    {	// bad boy
+                        unSecureWaitTime_ = MpdUtilities.GetTickCount();
+                        waitTimeIP_ = dwForIP;
+                        return unSecureWaitTime_;
+                    }
+                }
+            }
+            else
+            {	// not a SecureHash Client - handle it like before for now (no security checks)
+                return unSecureWaitTime_;
+            }
         }
 
         public void SetSecWaitStartTime(uint dwForIP)
         {
-            throw new NotImplementedException();
+            unSecureWaitTime_ = MpdUtilities.GetTickCount() - 1;
+            secureWaitTime_ = MpdUtilities.GetTickCount() - 1;
+            waitTimeIP_ = dwForIP;
         }
 
         public uint CryptRndChallengeFor
         {
-            get;set;
+            get;
+            set;
         }
 
         public uint CryptRndChallengeFrom
         {
-            get;set;
+            get;
+            set;
         }
 
         #endregion
 
         #region Protected
-        protected void Verified(uint dwForIP)
+        public void Verified(uint dwForIP)
         {
             identIP_ = dwForIP;
             // client was verified, copy the keyto store him if not done already
@@ -226,7 +257,7 @@ namespace Mule.Core.Impl
                     credits_.nUploadedLo = 1; // in order to safe this client, set 1 byte
                 }
             }
-            identState_ = IdentStateEnum.IS_IDENTIFIED;
+            IdentState = IdentStateEnum.IS_IDENTIFIED;
         }
         #endregion
 
@@ -237,13 +268,13 @@ namespace Mule.Core.Impl
             {
                 Array.Clear(publicKey_, 0, publicKey_.Length);
                 publicKeyLen_ = 0;
-                identState_ = IdentStateEnum.IS_NOTAVAILABLE;
+                IdentState = IdentStateEnum.IS_NOTAVAILABLE;
             }
             else
             {
                 publicKeyLen_ = credits_.nKeySize;
                 Array.Copy(credits_.abySecureIdent, publicKey_, publicKeyLen_);
-                identState_ = IdentStateEnum.IS_IDNEEDED;
+                IdentState = IdentStateEnum.IS_IDNEEDED;
             }
             CryptRndChallengeFor = 0;
             CryptRndChallengeFrom = 0;

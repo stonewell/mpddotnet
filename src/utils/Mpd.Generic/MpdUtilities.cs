@@ -331,7 +331,7 @@ namespace Mpd.Utilities
             {
                 Scanner scanner = new Scanner();
 
-                object[] targets = scanner.Scan(p, "{uint}");
+                object[] targets = scanner.Scan(p, "{UInt32}");
 
                 if (targets.Length > 0)
                 {
@@ -353,7 +353,7 @@ namespace Mpd.Utilities
             {
                 Scanner scanner = new Scanner();
 
-                object[] targets = scanner.Scan(p, "{uint} : {uint}");
+                object[] targets = scanner.Scan(p, "{UInt32} : {UInt32}");
 
                 if (targets.Length > 1)
                 {
@@ -377,7 +377,7 @@ namespace Mpd.Utilities
             {
                 Scanner scanner = new Scanner();
 
-                object[] targets = scanner.Scan(p, "{uint} : {uint} : {uint}");
+                object[] targets = scanner.Scan(p, "{UInt32} : {UInt32} : {UInt32}");
 
                 if (targets.Length > 2)
                 {
@@ -625,7 +625,7 @@ namespace Mpd.Utilities
             xs.Serialize(fs, val);
         }
 
-        public static void XmlDeserialize(Stream fs,  object val)
+        public static void XmlDeserialize(Stream fs, object val)
         {
             if (val == null)
                 return;
@@ -648,8 +648,8 @@ namespace Mpd.Utilities
 
                     if (gMethod != null && sMethod != null)
                     {
-                        sMethod.Invoke(val, 
-                            new object[] {gMethod.Invoke(tmp, null)});
+                        sMethod.Invoke(val,
+                            new object[] { gMethod.Invoke(tmp, null) });
                     }
                 }
             }
@@ -658,15 +658,253 @@ namespace Mpd.Utilities
         public static void QueueLogLine(bool addToStatusBar, string format, params object[] args)
         {
             if (args == null)
-                MpdLogger.Log(MpdLogLevelEnum.Info, 1, format);            
+                MpdLogger.Log(MpdLogLevelEnum.Info, 1, format);
             else
-                MpdLogger.Log(MpdLogLevelEnum.Info, 1, string.Format(format, args));            
+                MpdLogger.Log(MpdLogLevelEnum.Info, 1, string.Format(format, args));
         }
 
         public static uint TimeGetTime()
         {
             return Convert.ToUInt32(System.Environment.TickCount);
         }
+
+        public static string CastItoXBytes(ushort count)
+        {
+            return CastItoXBytes(count, false, false, 2);
+        }
+
+        public static string CastItoXBytes(ushort count, bool isK)
+        {
+            return CastItoXBytes(count, isK, false, 2);
+        }
+
+        public static string CastItoXBytes(ushort count, bool isK, bool isPerSec)
+        {
+            return CastItoXBytes(count, isK, isPerSec, 2);
+        }
+
+        public static string CastItoXBytes(ushort count, bool isK, bool isPerSec, uint decimalValue)
+        {
+            return CastItoXBytes((double)count, isK, isPerSec, decimalValue);
+        }
+
+        public static string CastItoXBytes(uint count)
+        {
+            return CastItoXBytes(count, false, false, 2);
+        }
+
+        public static string CastItoXBytes(uint count, bool isK)
+        {
+            return CastItoXBytes(count, isK, false, 2);
+        }
+
+        public static string CastItoXBytes(uint count, bool isK, bool isPerSec)
+        {
+            return CastItoXBytes(count, isK, isPerSec, 2);
+        }
+        public static string CastItoXBytes(uint count, bool isK, bool isPerSec, uint decimalValue)
+        {
+            return CastItoXBytes((double)count, isK, isPerSec, decimalValue);
+        }
+
+        public static string CastItoXBytes(ulong count)
+        {
+            return CastItoXBytes(count, false, false, 2);
+        }
+
+        public static string CastItoXBytes(ulong count, bool isK)
+        {
+            return CastItoXBytes(count, isK, false, 2);
+        }
+
+        public static string CastItoXBytes(ulong count, bool isK, bool isPerSec)
+        {
+            return CastItoXBytes(count, isK, isPerSec, 2);
+        }
+        public static string CastItoXBytes(ulong count, bool isK, bool isPerSec, uint decimalValue)
+        {
+            return CastItoXBytes((double)count, isK, isPerSec, decimalValue);
+        }
+
+        public static string CastItoXBytes(float count)
+        {
+            return CastItoXBytes(count, false, false, 2);
+        }
+
+        public static string CastItoXBytes(float count, bool isK)
+        {
+            return CastItoXBytes(count, isK, false, 2);
+        }
+
+        public static string CastItoXBytes(float count, bool isK, bool isPerSec)
+        {
+            return CastItoXBytes(count, isK, isPerSec, 2);
+        }
+        public static string CastItoXBytes(float count, bool isK, bool isPerSec, uint decimalValue)
+        {
+            return CastItoXBytes((double)count, isK, isPerSec, decimalValue);
+        }
+
+        public static string CastItoXBytes(double count)
+        {
+            return CastItoXBytes(count, false, false, 2);
+        }
+
+        public static string CastItoXBytes(double count, bool isK)
+        {
+            return CastItoXBytes(count, isK, false, 2);
+        }
+
+        public static string CastItoXBytes(double count, bool isK, bool isPerSec)
+        {
+            return CastItoXBytes(count, isK, isPerSec, 2);
+        }
+        public static string CastItoXBytes(double count, bool isK, bool isPerSec, uint decimalValue)
+        {
+            if (count <= 0.0)
+            {
+                if (isPerSec)
+                {
+                    return "0 " + "KB";
+                }
+                else
+                    return "0 " + "B";
+            }
+            else if (isK)
+            {
+                if (count > 1.7E+300)
+                    count = 1.7E+300;
+                else
+                    count *= 1024.0;
+            }
+            string buffer;
+            if (isPerSec)
+            {
+                if (count < 1024.0)
+                    buffer= string.Format("{0:f0} {1}", count, "B");
+                else if (count < 1024000.0)
+                    buffer= string.Format("{0:f" + decimalValue +"} {1}", count / 1024.0, "KB");
+                else if (count < 1048576000.0)
+                    buffer= string.Format("{0:f" + decimalValue +"} {1}", count / 1048576.0, "MB");
+                else if (count < 1073741824000.0)
+                    buffer= string.Format("{0:f" + decimalValue +"} {1}", count / 1073741824.0, "GB");
+                else
+                    buffer= string.Format("{0:f" + decimalValue +"} {1}", count / 1099511627776.0, "TB");
+            }
+            else
+            {
+                if (count < 1024.0)
+                    buffer= string.Format("{0:f0} {1}", count, "B");
+                else if (count < 1024000.0)
+                    buffer= string.Format("{0:f" + decimalValue +"} {1}", count / 1024.0, "KB");
+                else if (count < 1048576000.0)
+                    buffer= string.Format("{0:f" + decimalValue +"} {1}", count / 1048576.0, "MB");
+                else if (count < 1073741824000.0)
+                    buffer= string.Format("{0:f" + decimalValue +"} {1}", count / 1073741824.0, "GB");
+                else
+                    buffer= string.Format("{0:f" + decimalValue +"} {1}", count / 1099511627776.0, "TB");
+            }
+            return buffer;
+        }
+
+        public static string CastItoIShort(ushort count, bool isK, uint decimalValue)
+        {
+            return CastItoIShort((double)count, isK, decimalValue);
+        }
+
+        public static string CastItoIShort(uint count, bool isK, uint decimalValue)
+        {
+            return CastItoIShort((double)count, isK, decimalValue);
+        }
+
+        public static string CastItoIShort(ulong count, bool isK, uint decimalValue)
+        {
+            return CastItoIShort((double)count, isK, decimalValue);
+        }
+
+        public static string CastItoIShort(float count, bool isK, uint decimalValue)
+        {
+            return CastItoIShort((double)count, isK, decimalValue);
+        }
+
+        public static string CastItoIShort(double count, bool isK, uint decimalValue)
+        {
+            if (count <= 0.0)
+            {
+                return ("0");
+            }
+            else if (isK)
+            {
+                if (count > 1.7E+300)
+                    count = 1.7E+300;
+                else
+                    count *= 1000.0;
+            }
+            string output = string.Empty;
+            if (count < 1000.0)
+                output= string.Format(("{0:f0}"), count);
+            else if (count < 1000000.0)
+                output= string.Format("{0:f" + decimalValue +"} {1}", count / 1000.0, "K");
+            else if (count < 1000000000.0)
+                output= string.Format("{0:f" + decimalValue +"} {1}", count / 1000000.0, "M");
+            else if (count < 1000000000000.0)
+                output= string.Format("{0:f" + decimalValue +"} {1}", count / 1000000000.0, "G");
+            else if (count < 1000000000000000.0)
+                output= string.Format("{0:f" + decimalValue +"} {1}", count / 1000000000000.0, "T");
+            return output;
+        }
+
+        public static string CastSecondsToHM(uint tSeconds)
+        {
+            if (tSeconds == 0xFFFFFFFF)	// invalid or unknown time value
+                return ("?");
+
+            string buffer;
+            uint count = tSeconds;
+            if (count < 60)
+                buffer= string.Format("{0} {1}", count, "Secs");
+            else if (count < 3600)
+                buffer= string.Format("{0}:{1:d02} {2}", count / 60, count - (count / 60) * 60, "Mins");
+            else if (count < 86400)
+                buffer= string.Format("{0}:{1:d02} {2}", count / 3600, (count - (count / 3600) * 3600) / 60, "Hours");
+            else
+            {
+                uint cntDays = count / 86400;
+                uint cntHrs = (count - cntDays * 86400) / 3600;
+                buffer= string.Format("{0} {1} {2} {3}", cntDays, "Days", cntHrs, "Hours");
+            }
+            return buffer;
+        }
+
+        public static string CastSecondsToLngHM(uint tSeconds)
+        {
+            if (tSeconds == 0xFFFFFFFF) // invalid or unknown time value
+                return ("?");
+
+            string buffer;
+            uint count = tSeconds;
+            if (count < 60)
+                buffer= string.Format("{0} {1}", count, "Seconds");
+            else if (count < 3600)
+                buffer= string.Format("{0}:{1:d02} {2}", count / 60, count - (count / 60) * 60, "Minutes");
+            else if (count < 86400)
+                buffer= string.Format("{0}:{1:d02} {2}", count / 3600, (count - (count / 3600) * 3600) / 60, "Hours");
+            else
+            {
+                uint cntDays = count / 86400;
+                uint cntHrs = (count - cntDays * 86400) / 3600;
+                if (cntHrs > 0)
+                    buffer= string.Format(("{0} {1} {2}:{3:d02} {4}"), cntDays, "Days", 
+                        cntHrs, (count - (cntDays * 86400) - (cntHrs * 3600)) / 60, 
+                        "Hours");
+                else
+                    buffer= string.Format(("{0} {1} {2} {3}"), cntDays, 
+                        "Days", (count - (cntDays * 86400) - (cntHrs * 3600)) / 60, 
+                        "Mintues");
+            }
+            return buffer;
+        }
+
 
         public static void AdjustNTFSDaylightFileTime(ref uint fdate, string searchpath)
         {

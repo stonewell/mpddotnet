@@ -16,8 +16,6 @@ namespace Mule.File
         bool CompareRelaxed(FileIdentifierBase rFileIdentifier);
         bool CompareStrict(FileIdentifierBase rFileIdentifier);
 
-        string DbgInfo();
-
         byte[] MD4Hash { get; set; }
         void SetMD4Hash(FileDataIO pFile);
 

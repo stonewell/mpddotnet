@@ -153,7 +153,7 @@ namespace Mule.File.Impl
             sizetag.WriteTagToFile(file);
             uTagCount++;
 
-            // statistic
+            // Statistic
             if (statistic_.AllTimeTransferred > 0)
             {
                 Tag attag1 = MpdObjectManager.CreateTag(MuleConstants.FT_ATTRANSFERRED,
@@ -619,7 +619,7 @@ namespace Mule.File.Impl
                 return false;
 
             //TODO: Grab Image
-            throw new Exception("The method or operation is not implemented.");
+            return false;
         }
 
         public Mule.AICH.AICHHashSet AICHHashSet
@@ -636,12 +636,77 @@ namespace Mule.File.Impl
 
         public string InfoSummary
         {
-            get { throw new Exception("The method or operation is not implemented."); }
+            get
+            {
+                string strFolder = FilePath;
+
+                string strAccepts, strRequests, strTransferred;
+                strRequests = string.Format("{0} ({1})", Statistic.Requests, Statistic.AllTimeRequests);
+                strAccepts = string.Format("{0} ({1})", Statistic.Accepts, Statistic.AllTimeAccepts);
+                strTransferred =
+                    string.Format("{0} ({1})",
+                    MpdUtilities.CastItoXBytes(Statistic.Transferred, false, false),
+                    MpdUtilities.CastItoXBytes(Statistic.AllTimeTransferred, false, false));
+                string strType = FileTypeDisplayStr;
+                if (string.IsNullOrEmpty(strType))
+                    strType = "-";
+                string dbgInfo = string.Empty;
+
+                string info =
+                string.Format("{0}\n"
+                    + "eD2K FileHash {1}\n"
+                    + "AICH Hash: {2}\n"
+                    + "File Size {3}\n<br_head>\n"
+                    + "Type: {4}\n"
+                    + "Folder: {5}\n\n"
+                    + "Priority: {6}\n"
+                    + "Requests: {7}\n"
+                    + "Accepts: {8}\n"
+                    + "Transfered: {9}{10}",
+                    FileName,
+                    MpdUtilities.EncodeHexString(FileHash),
+                    FileIdentifier.AICHHash.HashString,
+                    MpdUtilities.CastItoXBytes(FileSize, false, false),
+                    strType,
+                    strFolder,
+                    UpPriorityDisplayString,
+                    strRequests,
+                    strAccepts,
+                    strTransferred,
+                    dbgInfo);
+                return info; ;
+            }
         }
 
         public string UpPriorityDisplayString
         {
-            get { throw new Exception("The method or operation is not implemented."); }
+            get
+            {
+                switch (UpPriority)
+                {
+                    case PriorityEnum.PR_VERYLOW:
+                        return "Very Low";
+                    case PriorityEnum.PR_LOW:
+                        if (IsAutoUpPriority)
+                            return "Auto Low";
+                        else
+                            return "Low";
+                    case PriorityEnum.PR_NORMAL:
+                        if (IsAutoUpPriority)
+                            return "Auto Normal";
+                        else
+                            return "Normal";
+                    case PriorityEnum.PR_HIGH:
+                        if (IsAutoUpPriority)
+                            return "Auto High";
+                        else
+                            return "High";
+                    case PriorityEnum.PR_VERYHIGH:
+                        return "Very High";
+                    default:
+                        return "";
+                }
+            }
         }
 
         public bool LoadTagsFromFile(FileDataIO file)
@@ -1685,7 +1750,8 @@ namespace Mule.File.Impl
 
         public uint KadFileSearchID
         {
-            get;set;
+            get;
+            set;
         }
 
         #endregion

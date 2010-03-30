@@ -7,6 +7,7 @@ namespace Mule.AICH.Impl
 {
     class AICHObjectManagerImpl : AICHObjectManager
     {
+        #region AICHObjectManager Members
         public AICHHashAlgorithm CreateAICHHashAlgorithm()
         {
             return new SHA.Impl.SHAImpl();
@@ -36,5 +37,12 @@ namespace Mule.AICH.Impl
 
             return hash;
         }
+
+        public AICHRecoveryHashSet CreateAICHRecoveryHashSet(params object[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

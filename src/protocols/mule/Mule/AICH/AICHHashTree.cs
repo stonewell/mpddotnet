@@ -32,6 +32,7 @@ namespace Mule.AICH
         AICHHash Hash
         {
             get;
+            set;
         }
 
         bool HashValid

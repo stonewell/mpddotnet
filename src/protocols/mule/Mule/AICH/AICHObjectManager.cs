@@ -11,6 +11,7 @@ namespace Mule.AICH
 
          AICHHashTree CreateAICHHashTree(ulong nLeft, bool bLeftBranch, ulong nBaseSize);
          AICHHashSet CreateAICHHashSet();
+         AICHRecoveryHashSet CreateAICHRecoveryHashSet(params object[] args);
 
          AICHHash CreateAICHHash(Mpd.Generic.IO.FileDataIO fileInput);
 

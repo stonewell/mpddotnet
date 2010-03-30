@@ -39,11 +39,11 @@ namespace Mpd.Utilities
 
             typePatterns.Add("String", @"[\w\d\S]+");
             typePatterns.Add("Int16", @"-[0-9]+|[0-9]+");
-            typePatterns.Add("ushort", @"[0-9]+");
+            typePatterns.Add("UInt16", @"[0-9]+");
             typePatterns.Add("Int32", @"-[0-9]+|[0-9]+");
-            typePatterns.Add("uint", @"[0-9]+");
+            typePatterns.Add("UInt32", @"[0-9]+");
             typePatterns.Add("Int64", @"-[0-9]+|[0-9]+");
-            typePatterns.Add("ulong", @"[0-9]+");
+            typePatterns.Add("UInt64", @"[0-9]+");
             typePatterns.Add("Single", @"[-]|[.]|[-.]|[0-9][0-9]*[.]*[0-9]+");
             typePatterns.Add("Double", @"[-]|[.]|[-.]|[0-9][0-9]*[.]*[0-9]+");
             typePatterns.Add("Boolean", @"true|false");
@@ -104,11 +104,11 @@ namespace Mpd.Utilities
                 //Replace all of the types with the pattern that matches that type
                 masterPattern = Regex.Replace(masterPattern, @"\{String\}", (String)typePatterns["String"]);
                 masterPattern = Regex.Replace(masterPattern, @"\{Int16\}", (String)typePatterns["Int16"]);
-                masterPattern = Regex.Replace(masterPattern, @"\{ushort\}", (String)typePatterns["ushort"]);
+                masterPattern = Regex.Replace(masterPattern, @"\{UInt16\}", (String)typePatterns["UInt16"]);
                 masterPattern = Regex.Replace(masterPattern, @"\{Int32\}", (String)typePatterns["Int32"]);
-                masterPattern = Regex.Replace(masterPattern, @"\{uint\}", (String)typePatterns["uint"]);
+                masterPattern = Regex.Replace(masterPattern, @"\{UInt32\}", (String)typePatterns["UInt32"]);
                 masterPattern = Regex.Replace(masterPattern, @"\{Int64\}", (String)typePatterns["Int64"]);
-                masterPattern = Regex.Replace(masterPattern, @"\{ulong\}", (String)typePatterns["ulong"]);
+                masterPattern = Regex.Replace(masterPattern, @"\{UInt64\}", (String)typePatterns["UInt64"]);
                 masterPattern = Regex.Replace(masterPattern, @"\{Single\}", (String)typePatterns["Single"]);
                 masterPattern = Regex.Replace(masterPattern, @"\{Double\}", (String)typePatterns["Double"]);
                 masterPattern = Regex.Replace(masterPattern, @"\{Boolean\}", (String)typePatterns["Boolean"]);
@@ -249,24 +249,24 @@ namespace Mpd.Utilities
                     o = Int16.Parse(sValue);
                     break;
 
-                case "ushort":
-                    o = ushort.Parse(sValue);
+                case "UInt16":
+                    o = UInt16.Parse(sValue);
                     break;
 
                 case "Int32":
                     o = Int32.Parse(sValue);
                     break;
 
-                case "uint":
-                    o = uint.Parse(sValue);
+                case "UInt32":
+                    o = UInt32.Parse(sValue);
                     break;
 
                 case "Int64":
                     o = Int64.Parse(sValue);
                     break;
 
-                case "ulong":
-                    o = ulong.Parse(sValue);
+                case "UInt64":
+                    o = UInt64.Parse(sValue);
                     break;
 
                 case "Single":
@@ -314,24 +314,24 @@ namespace Mpd.Utilities
                     innerPattern = (String)typePatterns["Int16"];
                     break;
 
-                case "ushort":
-                    innerPattern = (String)typePatterns["ushort"];
+                case "UInt16":
+                    innerPattern = (String)typePatterns["UInt16"];
                     break;
 
                 case "Int32":
                     innerPattern = (String)typePatterns["Int32"];
                     break;
 
-                case "uint":
-                    innerPattern = (String)typePatterns["uint"];
+                case "UInt32":
+                    innerPattern = (String)typePatterns["UInt32"];
                     break;
 
                 case "Int64":
                     innerPattern = (String)typePatterns["Int64"];
                     break;
 
-                case "ulong":
-                    innerPattern = (String)typePatterns["ulong"];
+                case "UInt64":
+                    innerPattern = (String)typePatterns["UInt64"];
                     break;
 
                 case "Single":

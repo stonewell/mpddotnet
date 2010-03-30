@@ -283,6 +283,7 @@ namespace Mule.AICH.Impl
         public AICHHash Hash
         {
             get { return hash_; }
+            set { hash_ = value; }
         }
 
         public bool HashValid

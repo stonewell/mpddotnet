@@ -707,5 +707,10 @@ namespace Mpd.Utilities
         {
             return Convert.ToUInt32(System.Environment.TickCount);
         }
+
+        public static uint GetRandomUInt32()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

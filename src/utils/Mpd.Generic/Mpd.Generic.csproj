@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BigInteger.cs" />
     <Compile Include="MpdEnums.cs" />
     <Compile Include="Impl\TagImpl.cs" />
     <Compile Include="IO\DataIO.cs" />
@@ -61,10 +62,22 @@
     <Compile Include="MpdConstants.cs" />
     <Compile Include="MpdObjectManager.cs" />
     <Compile Include="MD4.cs" />
+    <Compile Include="MpdUtilities.cs" />
+    <Compile Include="Scanner.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="UInt128.cs" />
     <Compile Include="MapKey.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Mpd.Logging\Mpd.Logging.csproj">
+      <Project>{CEE37A48-C4B7-4BA9-A53C-3B5012137D46}</Project>
+      <Name>Mpd.Logging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mpd.Xml\Mpd.Xml.csproj">
+      <Project>{367A4CB0-2255-4C2B-9CCF-E1A51A405EED}</Project>
+      <Name>Mpd.Xml</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

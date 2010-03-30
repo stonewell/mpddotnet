@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace Mule.Core.Impl
 {
@@ -29,7 +30,7 @@ namespace Mule.Core.Impl
             throw new NotImplementedException();
         }
 
-        public void WriteToFileAddShared(CryptoPP.RSASSA_PKCS1v15_SHA_Signer pSignkey)
+        public void WriteToFileAddShared(RSAPKCS1SignatureFormatter pSignkey)
         {
             throw new NotImplementedException();
         }

@@ -30,6 +30,9 @@ namespace Mule.Core
 
         DeadSourceList CreateDeadSourceList();
 
-        ClientCreditList CreateClientCredits();
+        ClientCreditsList CreateClientCreditsList();
+        
+        ClientCredits CreateClientCredits(CreditStruct credits);
+        ClientCredits CreateClientCredits(byte[] key);
     }
 }

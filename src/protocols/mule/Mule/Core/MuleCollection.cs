@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Mule.File;
+using System.Security.Cryptography;
 
 namespace Mule.Core
 {
@@ -32,8 +33,8 @@ namespace Mule.Core
         bool InitCollectionFromFile(string sFilePath, string sFileName);
         CollectionFile AddFileToCollection(AbstractFile pAbstractFile, bool bCreateClone);
         void RemoveFileFromCollection(AbstractFile pAbstractFile);
-        void WriteToFileAddShared(/*CryptoPP::RSASSA_PKCS1v15_SHA_Signer* pSignkey = NULL*/);
-        void WriteToFileAddShared(CryptoPP.RSASSA_PKCS1v15_SHA_Signer pSignkey);
+        void WriteToFileAddShared();
+        void WriteToFileAddShared(RSAPKCS1SignatureFormatter pSignkey);
         void SetCollectionAuthorKey(byte[] abyCollectionAuthorKey, uint nSize);
         string GetCollectionAuthorKeyString();
         string GetAuthorKeyHashString();

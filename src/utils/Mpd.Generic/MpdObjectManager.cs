@@ -5,6 +5,7 @@ using System.Text;
 using Mpd.Generic.IO;
 using System.Reflection;
 using Mpd.Generic.IO.Impl;
+using System.Security.Cryptography;
 
 namespace Mpd.Generic
 {
@@ -45,6 +46,19 @@ namespace Mpd.Generic
                 null);
 
             return obj;
+        }
+
+        private static readonly RSACryptoServiceProvider rsa_ =
+            new RSACryptoServiceProvider();
+
+        public static RSAPKCS1SignatureFormatter CreateRSAPKCS1V15SHA1Signer()
+        {
+            RSAPKCS1SignatureFormatter formater =
+                new RSAPKCS1SignatureFormatter(rsa_);
+
+            formater.SetHashAlgorithm("SHA1");
+
+            return formater;
         }
     }
 }

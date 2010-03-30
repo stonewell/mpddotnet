@@ -57,7 +57,7 @@ namespace Mule
             ServerList = ED2KObjectManager.CreateED2KServerList();
             DownloadQueue = CoreObjectManager.CreateDownloadQueue();
             IPFilter = CoreObjectManager.CreateIPFilter();
-            ClientCredits = CoreObjectManager.CreateClientCredits();
+            ClientCredits = CoreObjectManager.CreateClientCreditsList();
 
             ListenSocket = NetworkObjectManager.CreateListenSocket();
             ClientUDP = NetworkObjectManager.CreateClientUDPSocket();
@@ -386,6 +386,16 @@ namespace Mule
                     ex);
             }
 
+            try
+            {
+                ClientCredits.CleanUp();
+            }
+            catch (Exception ex)
+            {
+                MpdUtilities.DebugLogError("MuleApplication Stop Fail",
+                    ex);
+            }
+
             if (ShutDownMuleApplication != null)
             {
                 ShutDownMuleApplication(this, new EventArgs());
@@ -412,7 +422,7 @@ namespace Mule
             //TODO:Save Online Sig
         }
 
-        public ClientCreditList ClientCredits { get; private set; }
+        public ClientCreditsList ClientCredits { get; private set; }
         public KnownFileList KnownFiles { get; private set; }
         public FriendList FriendList { get; private set; }
     }

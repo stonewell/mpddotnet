@@ -26,7 +26,6 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
-using CryptoPP;
 using Mpd.Generic;
 using Mpd.Generic.IO;
 using Mpd.Utilities;
@@ -40,9 +39,6 @@ namespace Mule.Network.Impl
     abstract class EncryptedStreamSocketImpl : AsyncSocketImpl, EncryptedStreamSocket
     {
         #region Static Fields
-        private static readonly AutoSeededRandomPool cryptRandomGen_ =
-            new AutoSeededRandomPool();
-
         private static readonly byte[] dh768_p_ =
         {
             0xF2,0xBF,0x52,0xC5,0x5F,0x58,0x7A,0xDD,0x53,0x71,0xA9,0x36,
@@ -76,7 +72,7 @@ namespace Mule.Network.Impl
             encryptionMethod_ = EncryptionMethodsEnum.ENM_OBFUSCATION;
             randomKeyPart_ = 0;
             serverCrypt_ = false;
-            cryptDHA_ = CryptoPPObjectManager.CreateInteger();
+            cryptDHA_ = new BigInteger(0);
         }
 
         #endregion
@@ -103,7 +99,7 @@ namespace Mule.Network.Impl
                 // create obfuscation keys, see on top for key format
 
                 // use the crypt random generator
-                randomKeyPart_ = cryptRandomGen_.GenerateWord32();
+                randomKeyPart_ = MpdUtilities.GetRandomUInt32();
 
                 byte[] achKeyData = new byte[21];
                 MpdUtilities.Md4Cpy(achKeyData, pTargetClientHash);
@@ -370,7 +366,7 @@ namespace Mule.Network.Impl
             int i;
             for (i = 0; i < 128; i++)
             {
-                bySemiRandomNotProtocolMarker = cryptRandomGen_.GenerateByte();
+                bySemiRandomNotProtocolMarker = MpdUtilities.GetRandomUInt8();
                 bool bOk = false;
                 switch (bySemiRandomNotProtocolMarker)
                 { // not allowed values
@@ -511,7 +507,7 @@ namespace Mule.Network.Impl
                                     MuleApplication.Instance.ServerConnect.AwaitingTestFromIP(BitConverter.ToUInt32(remoteEp.Address.GetAddressBytes(), 0)) 
                                         ? Convert.ToByte(16) : 
                                         Convert.ToByte(MuleApplication.Instance.Preference.CryptTCPPaddingLength + 1);
-                                byte byPadding = Convert.ToByte(cryptRandomGen_.GenerateByte() % byPaddingLen);
+                                byte byPadding = Convert.ToByte(MpdUtilities.GetRandomUInt8() % byPaddingLen);
 
                                 fileResponse.WriteUInt8(byPadding);
                                 for (int i = 0; i < byPadding; i++)
@@ -559,22 +555,21 @@ namespace Mule.Network.Impl
                             break;
                         case NegotiatingStateEnum.ONS_BASIC_SERVER_DHANSWER:
                             {
-                                Debug.Assert(!cryptDHA_.IsZero);
+                                Debug.Assert(cryptDHA_ != new BigInteger(0));
                                 byte[] aBuffer = new byte[MuleConstants.PRIMESIZE_BYTES + 1];
                                 fiReceiveBuffer_.Read(aBuffer, 0, Convert.ToInt32(MuleConstants.PRIMESIZE_BYTES));
-                                CryptoPP.Integer cryptDHAnswer =
-                                    CryptoPPObjectManager.CreateInteger(aBuffer, MuleConstants.PRIMESIZE_BYTES);
-                                CryptoPP.Integer cryptDHPrime =
-                                    CryptoPPObjectManager.CreateInteger(dh768_p_, MuleConstants.PRIMESIZE_BYTES);  // our fixed prime
-                                CryptoPP.Integer cryptResult =
-                                    CryptoPPUtilities.AExpBModC(cryptDHAnswer, cryptDHA_, cryptDHPrime);
+                                BigInteger cryptDHAnswer =
+                                    new BigInteger(aBuffer, (int)MuleConstants.PRIMESIZE_BYTES);
+                                BigInteger cryptDHPrime =
+                                    new BigInteger(dh768_p_, (int)MuleConstants.PRIMESIZE_BYTES);  // our fixed prime
+                                BigInteger cryptResult =
+                                    cryptDHAnswer.modPow(cryptDHA_, cryptDHPrime);
 
-                                cryptDHA_.Int32Value = 0;
+                                cryptDHA_ = 0;
                                 Array.Clear(aBuffer, 0, aBuffer.Length);
-                                Debug.Assert(cryptResult.MinEncodedSize() <= MuleConstants.PRIMESIZE_BYTES);
 
                                 // create the keys
-                                cryptResult.Encode(aBuffer, MuleConstants.PRIMESIZE_BYTES);
+                                Array.Copy(cryptResult.getBytes(), aBuffer, MuleConstants.PRIMESIZE_BYTES);
                                 aBuffer[MuleConstants.PRIMESIZE_BYTES] = Convert.ToByte(MuleConstants.MAGICVALUE_REQUESTER);
                                 MD5 md5 = MD5.Create();
 
@@ -628,7 +623,7 @@ namespace Mule.Network.Impl
                                 byte bySelectedEncryptionMethod =
                                     Convert.ToByte(EncryptionMethodsEnum.ENM_OBFUSCATION); // we do not support any further encryption in this version, so no need to look which the other client preferred
                                 fileResponse.WriteUInt8(bySelectedEncryptionMethod);
-                                byte byPadding = (byte)(cryptRandomGen_.GenerateByte() % 16);
+                                byte byPadding = (byte)(MpdUtilities.GetRandomUInt8() % 16);
                                 fileResponse.WriteUInt8(byPadding);
                                 for (int i = 0; i < byPadding; i++)
                                     fileResponse.WriteUInt8(MpdUtilities.GetRandomUInt8());
@@ -676,11 +671,11 @@ namespace Mule.Network.Impl
                 byte bySupportedEncryptionMethod = Convert.ToByte(EncryptionMethodsEnum.ENM_OBFUSCATION); // we do not support any further encryption in this version
                 fileRequest.WriteUInt8(bySupportedEncryptionMethod);
                 fileRequest.WriteUInt8(bySupportedEncryptionMethod); // so we also prefer this one
-                byte byPadding = Convert.ToByte(cryptRandomGen_.GenerateByte() %
+                byte byPadding = Convert.ToByte(MpdUtilities.GetRandomUInt8() %
                     (MuleApplication.Instance.Preference.CryptTCPPaddingLength + 1));
                 fileRequest.WriteUInt8(byPadding);
                 for (int i = 0; i < byPadding; i++)
-                    fileRequest.WriteUInt8(cryptRandomGen_.GenerateByte());
+                    fileRequest.WriteUInt8(MpdUtilities.GetRandomUInt8());
 
                 negotiatingState_ = NegotiatingStateEnum.ONS_BASIC_CLIENTB_MAGICVALUE;
                 streamCryptState_ = StreamCryptStateEnum.ECS_NEGOTIATING;
@@ -694,23 +689,22 @@ namespace Mule.Network.Impl
                 byte bySemiRandomNotProtocolMarker = GetSemiRandomNotProtocolMarker();
                 fileRequest.WriteUInt8(bySemiRandomNotProtocolMarker);
 
-                cryptDHA_.Randomize(cryptRandomGen_, MuleConstants.DHAGREEMENT_A_BITS); // our random a
-                Debug.Assert(cryptDHA_.MinEncodedSize() <= MuleConstants.DHAGREEMENT_A_BITS / 8);
-                CryptoPP.Integer cryptDHPrime = CryptoPPObjectManager.CreateInteger(dh768_p_, MuleConstants.PRIMESIZE_BYTES);  // our fixed prime
+                cryptDHA_.genRandomBits((int)MuleConstants.DHAGREEMENT_A_BITS, new Random()); // our random a
+                BigInteger cryptDHPrime = 
+                    new BigInteger(dh768_p_, (int)MuleConstants.PRIMESIZE_BYTES);  // our fixed prime
                 // calculate g^a % p
-                CryptoPP.Integer cryptDHGexpAmodP =
-                    CryptoPPUtilities.AExpBModC(CryptoPPObjectManager.CreateInteger(2), cryptDHA_, cryptDHPrime);
+                BigInteger cryptDHGexpAmodP =
+                    new BigInteger(2).modPow(cryptDHA_, cryptDHPrime);
 
-                Debug.Assert(cryptDHA_.MinEncodedSize() <= MuleConstants.PRIMESIZE_BYTES);
                 // put the result into a buffer
                 byte[] aBuffer = new byte[MuleConstants.PRIMESIZE_BYTES];
-                cryptDHGexpAmodP.Encode(aBuffer, MuleConstants.PRIMESIZE_BYTES);
+                Array.Copy(cryptDHGexpAmodP.getBytes(), aBuffer, MuleConstants.PRIMESIZE_BYTES);
 
                 fileRequest.Write(aBuffer);
-                byte byPadding = (byte)(cryptRandomGen_.GenerateByte() % 16); // add random padding
+                byte byPadding = (byte)(MpdUtilities.GetRandomUInt8() % 16); // add random padding
                 fileRequest.WriteUInt8(byPadding);
                 for (int i = 0; i < byPadding; i++)
-                    fileRequest.WriteUInt8(cryptRandomGen_.GenerateByte());
+                    fileRequest.WriteUInt8(MpdUtilities.GetRandomUInt8());
 
                 negotiatingState_ = NegotiatingStateEnum.ONS_BASIC_SERVER_DHANSWER;
                 streamCryptState_ = StreamCryptStateEnum.ECS_NEGOTIATING;
@@ -810,7 +804,7 @@ namespace Mule.Network.Impl
         private uint receiveBytesWanted_;
         private SafeMemFile fiSendBuffer_;
         private uint randomKeyPart_;
-        private CryptoPP.Integer cryptDHA_;
+        private BigInteger cryptDHA_;
         #endregion
 
     }

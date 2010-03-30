@@ -23,16 +23,100 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Mpd.Utilities;
 
 namespace Mpd.Generic
 {
-    public interface MapCKey
+    public class MapCKey
     {
-        byte[] Key { get; set;}
+        public MapCKey()
+            : this((byte[])null)
+        {
+        }
+
+        public MapCKey(byte[] key)
+        {
+            Key = key;
+        }
+
+        public MapCKey(MapCKey cKey)
+        {
+            Key = cKey.Key;
+        }
+
+        public byte[] Key { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is MapCKey)
+            {
+                return MpdUtilities.EncodeHexString(Key).Equals(MpdUtilities.EncodeHexString((obj as MapCKey).Key));
+            }
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 1;
+            
+            if (Key != null)
+            {
+                for (int i = 0; i != 16; i++)
+                {
+                    if (i >= Key.Length)
+                        break;
+                    hash += (Key[i] + 1) * ((i * i) + 1);
+                }
+            }
+
+            return hash;
+        }
     }
 
-    public interface MapSKey
+    public class MapSKey
     {
-        byte[] Key { get; set; }
+        private byte[] key_ = new byte[16];
+
+        public MapSKey()
+            : this((byte[])null)
+        {
+        }
+
+        public MapSKey(byte[] key)
+        {
+            if (key != null)
+                MpdUtilities.Md4Cpy(key_, key);
+            else
+                MpdUtilities.Md4Clr(key_);
+        }
+
+        public MapSKey(MapSKey key)
+        {
+            MpdUtilities.Md4Cpy(key_, key.key_);
+        }
+
+        public byte[] Key { get { return key_; } }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is MapCKey)
+            {
+                return MpdUtilities.Md4Cmp(key_, (obj as MapCKey).Key) == 0;
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 1;
+
+            for (int i = 0; i != 16; i++)
+            {
+                hash += (key_[i] + 1) * ((i * i) + 1);
+            }
+
+            return hash;
+        }
     }
 }

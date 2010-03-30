@@ -61,17 +61,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\utils\CryptoPP\CryptoPP.csproj">
-      <Project>{7D22200A-DE72-47FB-873D-289F067664EB}</Project>
-      <Name>CryptoPP</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\utils\Mpd.Generic\Mpd.Generic.csproj">
       <Project>{E3CBC258-D859-48C8-8796-C2B6D69ECC45}</Project>
       <Name>Mpd.Generic</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\utils\Mpd.Utilities\Mpd.Utilities.csproj">
-      <Project>{83F23617-D814-4C73-ABEA-CDC36AC6390C}</Project>
-      <Name>Mpd.Utilities</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\kad\Kademlia\Kademlia.csproj">
       <Project>{8B4779AF-0803-4F5A-85FD-4D3CD32E6B91}</Project>
